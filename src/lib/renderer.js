@@ -1,33 +1,124 @@
-export function renderCharacter(canvas, psdData, character) {
-  if (!psdData || !character) {
-    console.log('Missing psdData or character');
-    return;
+// Функция для поиска слоев по пути
+function findLayer(group, path) {
+  let current = group;
+  for (const name of path) {
+    if (!current.children) return null;
+    current = current.children.find(child => child.name === name);
+    if (!current) return null;
   }
+  return current;
+}
+
+// Основная функция рендеринга
+export function renderCharacter(canvas, psdData, character) {
+  if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Для отладки - рисуем красный квадрат, чтобы убедиться что canvas работает
-  ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-  ctx.fillRect(0, 0, 100, 100);
-
-  // Если нет данных слоев, прекращаем выполнение
-  if (!psdData.children || psdData.children.length === 0) {
-    console.log('No layers found in psdData');
-    return;
-  }
-
+  
   // Центрируем персонажа
   ctx.save();
   ctx.translate(canvas.width/2 - 400, canvas.height/2 - 400);
 
-  // Рисуем все слои для отладки
-  psdData.children.forEach(layer => {
-    if (layer.canvas) {
-      console.log(`Drawing layer: ${layer.name}`);
-      ctx.drawImage(layer.canvas, 0, 0);
-    }
+  // Порядок отрисовки частей (задние -> передние)
+  const renderOrder = [
+    'body',
+    'tail',
+    'mane',
+    'head',
+    'ears',
+    'cheeks',
+    'eyes'
+  ];
+
+  renderOrder.forEach(part => {
+    renderPart(part, ctx, psdData, character);
   });
 
   ctx.restore();
+}
+
+function renderPart(part, ctx, psdData, character) {
+  const partMap = {
+    ears: {
+      group: 'Уши',
+      variant: character.ears,
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    eyes: {
+      group: 'Глаза',
+      variant: character.eyes.type === 'обычные' ? 
+        `обычные/${character.eyes.subtype}` : 
+        character.eyes.type,
+      layers: ['блики', 'лайн', 'свет', 'тень', '[красить]', '[белок красить]']
+    },
+    cheeks: {
+      group: 'Щёки',
+      variant: 'пушистые',
+      layers: ['лайн', 'тень', 'свет', '[красить]']
+    },
+    head: {
+      group: 'Голова',
+      variant: '',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    mane: {
+      group: 'Грудь/шея/грива',
+      variant: character.mane,
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    body: {
+      group: 'Тело',
+      variant: character.body,
+      layers: ['лайн', 'тень', 'свет', 'свет2', '[красить]']
+    },
+    tail: {
+      group: 'Хвосты',
+      variant: character.tail,
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    }
+  };
+
+  const config = partMap[part];
+  if (!config) return;
+
+  // Находим группу для части тела
+  const group = findLayer(psdData, [config.group]);
+  if (!group) {
+    console.warn(`Group not found: ${config.group}`);
+    return;
+  }
+
+  // Находим вариант (подгруппу)
+  const variantPath = config.variant.split('/');
+  let variantGroup = group;
+  for (const sub of variantPath) {
+    if (!variantGroup.children) break;
+    variantGroup = variantGroup.children.find(c => c.name === sub) || variantGroup;
+  }
+
+  // Рисуем все слои варианта
+  config.layers.forEach(layerName => {
+    const layer = findLayer(variantGroup, [layerName]);
+    if (layer?.canvas) {
+      ctx.save();
+      applyColorFilter(ctx, layer, character);
+      ctx.drawImage(layer.canvas, 0, 0);
+      ctx.restore();
+    }
+  });
+}
+
+function applyColorFilter(ctx, layer, character) {
+  if (layer.name.includes('[красить]')) {
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = character.colors.main;
+    ctx.fillRect(0, 0, 800, 800);
+  } 
+  else if (layer.name.includes('[белок красить]')) {
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = character.colors.eyesWhite;
+    ctx.fillRect(0, 0, 800, 800);
+  }
+  ctx.globalCompositeOperation = 'source-over';
 }
