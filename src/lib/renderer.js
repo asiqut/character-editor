@@ -60,3 +60,18 @@ function shouldRenderLayer(layer, character) {
   // Аналогично для других частей тела
   return true;
 }
+
+function applyColorFilter(ctx, layer, character) {
+  if (layer.name.includes('[красить]')) {
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = character.colors.main;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  else if (layer.name.includes('[белок красить]')) {
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = character.colors.eyesWhite;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+}
