@@ -9,18 +9,22 @@ function findLayer(group, path) {
   return current;
 }
 
-// Основная функция рендеринга
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Центрируем персонажа
-  ctx.save();
-  ctx.translate(canvas.width/2 - 400, canvas.height/2 - 400);
+  // Для отладки - рисуем фон
+  ctx.fillStyle = '#f0f0f0';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Порядок отрисовки частей (задние -> передние)
+  // Масштабируем PSD (315px) под размер canvas (800px)
+  const scale = 800 / 315;
+  ctx.save();
+  ctx.scale(scale, scale);
+  
+  // Порядок отрисовки частей
   const renderOrder = [
     'body',
     'tail',
@@ -42,14 +46,14 @@ function renderPart(part, ctx, psdData, character) {
   const partMap = {
     ears: {
       group: 'Уши',
-      variant: character.ears,
+      variant: character.ears || 'торчком обычные',
       layers: ['лайн', 'свет', 'тень', '[красить]']
     },
     eyes: {
       group: 'Глаза',
-      variant: character.eyes.type === 'обычные' ? 
-        `обычные/${character.eyes.subtype}` : 
-        character.eyes.type,
+      variant: character.eyes?.type === 'обычные' ? 
+        `обычные/${character.eyes?.subtype || 'с ресницами'}` : 
+        (character.eyes?.type || 'лисьи'),
       layers: ['блики', 'лайн', 'свет', 'тень', '[красить]', '[белок красить]']
     },
     cheeks: {
@@ -64,17 +68,17 @@ function renderPart(part, ctx, psdData, character) {
     },
     mane: {
       group: 'Грудь/шея/грива',
-      variant: character.mane,
+      variant: character.mane || 'обычная',
       layers: ['лайн', 'свет', 'тень', '[красить]']
     },
     body: {
       group: 'Тело',
-      variant: character.body,
+      variant: character.body || 'v1',
       layers: ['лайн', 'тень', 'свет', 'свет2', '[красить]']
     },
     tail: {
       group: 'Хвосты',
-      variant: character.tail,
+      variant: character.tail || 'обычный',
       layers: ['лайн', 'свет', 'тень', '[красить]']
     }
   };
@@ -105,20 +109,24 @@ function renderPart(part, ctx, psdData, character) {
       applyColorFilter(ctx, layer, character);
       ctx.drawImage(layer.canvas, 0, 0);
       ctx.restore();
+    } else {
+      console.warn(`Layer not found: ${config.group}/${config.variant}/${layerName}`);
     }
   });
 }
 
 function applyColorFilter(ctx, layer, character) {
+  if (!character.colors) return;
+  
   if (layer.name.includes('[красить]')) {
     ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = character.colors.main;
-    ctx.fillRect(0, 0, 800, 800);
+    ctx.fillStyle = character.colors.main || '#f1ece4';
+    ctx.fillRect(0, 0, 315, 315);
   } 
   else if (layer.name.includes('[белок красить]')) {
     ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = character.colors.eyesWhite;
-    ctx.fillRect(0, 0, 800, 800);
+    ctx.fillStyle = character.colors.eyesWhite || '#ffffff';
+    ctx.fillRect(0, 0, 315, 315);
   }
   ctx.globalCompositeOperation = 'source-over';
 }
