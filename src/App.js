@@ -32,22 +32,19 @@ function App() {
   if (!psdData) return <div>Данные не загружены</div>;
 
   const handlePartChange = (part, value, subpart = null) => {
-    setCharacter(prev => {
-      if (subpart) {
-        return {
-          ...prev,
-          [part]: {
-            ...prev[part],
-            [subpart]: value
-          }
-        };
-      }
-      return {
-        ...prev,
-        [part]: value
-      };
-    });
-  };
+  setCharacter(prev => {
+    const newCharacter = {...prev};
+    
+    if (subpart) {
+      if (!newCharacter[part]) newCharacter[part] = {};
+      newCharacter[part][subpart] = value;
+    } else {
+      newCharacter[part] = value;
+    }
+    
+    return newCharacter;
+  });
+};
 
   const handleColorChange = (colorType, color) => {
     setCharacter(prev => ({
