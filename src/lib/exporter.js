@@ -1,6 +1,6 @@
 import * as PSD from 'ag-psd'; // Используем только ag-psd
 
-export const exportPNG = (canvas, character) => {
+export const exportPNG = (canvas) => {
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
   link.href = canvas.toDataURL('image/png');
