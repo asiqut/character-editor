@@ -10,7 +10,7 @@
     "psd.js": "^3.4.0",
     "react-color": "^2.19.3",
     "html-to-image": "^1.11.11",
-    "psd-write": "^0.1.2"
+    "ag-psd": "^14.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
