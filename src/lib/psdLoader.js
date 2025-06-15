@@ -2,7 +2,7 @@ import * as PSD from 'ag-psd';
 
 export async function loadPSD() {
   try {
-    const response = await fetch(`${process.env.PUBLIC_URL}/assets/model_kinwoods.psd`);
+    const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
     if (!response.ok) {
       throw new Error(`Failed to fetch PSD: ${response.status}`);
     }
@@ -18,9 +18,5 @@ export async function loadPSD() {
   } catch (error) {
     console.error('Error loading PSD:', error);
     throw error;
-  }
-
-  if (!psd || !psd.children) {
-  throw new Error('Invalid PSD structure');
   }
 }
