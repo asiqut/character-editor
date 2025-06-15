@@ -1,4 +1,4 @@
-"homepage": "https://ваш-username.github.io/character-editor",
+"homepage": "https://char_creator_kinwoods_editor.github.io/character-editor",
 "scripts": {
   "predeploy": "npm run build",
   "deploy": "gh-pages -d build"
