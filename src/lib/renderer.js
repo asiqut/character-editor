@@ -1,54 +1,33 @@
 export function renderCharacter(canvas, psdData, character) {
-  if (!psdData || !character) return;
-  
+  if (!psdData || !character) {
+    console.log('Missing psdData or character');
+    return;
+  }
+
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
+  // Для отладки - рисуем красный квадрат, чтобы убедиться что canvas работает
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+  ctx.fillRect(0, 0, 100, 100);
+
+  // Если нет данных слоев, прекращаем выполнение
+  if (!psdData.children || psdData.children.length === 0) {
+    console.log('No layers found in psdData');
+    return;
+  }
+
   // Центрируем персонажа
   ctx.save();
   ctx.translate(canvas.width/2 - 400, canvas.height/2 - 400);
-  
-  // Порядок отрисовки частей тела
-  const renderOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
-  
-  renderOrder.forEach(part => {
-    const partVariant = character[part];
-    if (!partVariant) return;
-    
-    // Для глаз учитываем подтип
-    const variant = part === 'eyes' 
-      ? `${character.eyes.type}/${character.eyes.subtype}`
-      : partVariant;
-    
-    const layers = psdData[part]?.[variant] || [];
-    
-    layers.forEach(layer => {
-      if (layer.canvas) {
-        ctx.save();
-        // Применяем цветовые фильтры
-        applyColorFilter(ctx, layer, character);
-        // Рисуем слой
-        ctx.drawImage(layer.canvas, 0, 0);
-        ctx.restore();
-      }
-    });
-  });
-  
-  ctx.restore();
-}
 
-function applyColorFilter(ctx, layer, character) {
-  if (!layer.name) return;
-  
-  if (layer.name.includes('[красить]')) {
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = character.colors.main;
-    ctx.fillRect(0, 0, 800, 800);
-  } 
-  else if (layer.name.includes('[белок красить]')) {
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = character.colors.eyesWhite;
-    ctx.fillRect(0, 0, 800, 800);
-  }
-  ctx.globalCompositeOperation = 'source-over';
+  // Рисуем все слои для отладки
+  psdData.children.forEach(layer => {
+    if (layer.canvas) {
+      console.log(`Drawing layer: ${layer.name}`);
+      ctx.drawImage(layer.canvas, 0, 0);
+    }
+  });
+
+  ctx.restore();
 }
