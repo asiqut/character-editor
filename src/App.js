@@ -9,22 +9,7 @@ import './styles/main.css';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
-  const [character, setCharacter] = useState({
-    ears: 'торчком обычные',
-    eyes: {
-      type: 'обычные',
-      subtype: 'с ресницами'
-    },
-    cheeks: 'пушистые',
-    head: 'default',
-    mane: 'обычная',
-    body: 'v1',
-    tail: 'обычный',
-    colors: {
-      main: '#f1ece4',
-      eyesWhite: '#ffffff'
-    }
-      });
+  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
