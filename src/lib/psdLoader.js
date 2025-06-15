@@ -10,6 +10,20 @@ export async function loadPSD() {
     
     if (!psd || !psd.children) throw new Error('Invalid PSD structure');
     
+    // Нормализуем имена групп (заменяем обратные слеши)
+    psd.children.forEach(group => {
+      if (group.name) {
+        group.name = group.name.replace(/\\/g, '/');
+      }
+      if (group.children) {
+        group.children.forEach(subGroup => {
+          if (subGroup.name) {
+            subGroup.name = subGroup.name.replace(/\\/g, '/');
+          }
+        });
+      }
+    });
+    
     console.log('PSD loaded successfully. Structure:', psd.children.map(c => c.name));
     return psd;
   } catch (error) {
