@@ -7,6 +7,13 @@ export function renderCharacter(canvas, psdData, character) {
   renderLayers(ctx, psdData.children, character);
 }
 
+function shouldRenderLayer(layer, character) {
+  // Здесь должна быть логика определения, нужно ли рендерить слой
+  // на основе выбранных параметров персонажа
+  // Пока просто возвращаем true для всех слоев
+  return true;
+}
+
 function renderLayers(ctx, layers, character) {
   layers.forEach(layer => {
     // Пропускаем невидимые слои
