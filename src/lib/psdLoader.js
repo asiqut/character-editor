@@ -1,4 +1,4 @@
-import PSD from 'psd';
+import PSD from 'psd.js';
 
 export async function loadPSD() {
   try {
