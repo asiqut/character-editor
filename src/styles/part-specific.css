@@ -1,0 +1,39 @@
+/* Специфические стили для разных частей персонажа */
+
+/* Уши */
+.part-selector.ears .options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Глаза */
+.part-selector.eyes .options {
+  display: flex;
+  flex-direction: column;
+}
+
+.part-selector.eyes .subtypes {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #ccc;
+}
+
+/* Хвост */
+.part-selector.tail button {
+  min-width: 100px;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+  .editor-container {
+    flex-direction: column;
+  }
+  
+  .controls {
+    width: 100%;
+  }
+  
+  .preview-area {
+    min-height: 400px;
+  }
+}
