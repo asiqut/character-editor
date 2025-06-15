@@ -1,4 +1,3 @@
-// src/components/CharacterPreview.js
 import React, { useEffect, useRef } from 'react';
 import { renderCharacter } from '../lib/renderer';
 
