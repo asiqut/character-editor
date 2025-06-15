@@ -2,97 +2,26 @@ import * as PSD from 'ag-psd';
 
 export async function loadPSD() {
   try {
+    console.log('Loading PSD file...');
     const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
-    if (!response.ok) throw new Error(`Failed to fetch PSD: ${response.status}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PSD: ${response.status}`);
+    }
     
     const arrayBuffer = await response.arrayBuffer();
+    console.log('PSD file loaded, parsing...');
+    
     const psd = PSD.readPsd(arrayBuffer);
+    console.log('PSD parsed successfully', psd);
     
-    if (!psd || !psd.children) throw new Error('Invalid PSD structure');
+    if (!psd) {
+      throw new Error('Failed to parse PSD file');
+    }
     
-    return organizePSDLayers(psd);
+    return psd;
   } catch (error) {
     console.error('Error loading PSD:', error);
     throw error;
   }
-}
-
-function organizePSDLayers(psd) {
-  const parts = {
-    ears: {},
-    eyes: {},
-    cheeks: {},
-    head: {},
-    mane: {},
-    body: {},
-    tail: {}
-  };
-
-  function processLayers(layers, path = []) {
-    layers.forEach(layer => {
-      const currentPath = [...path, layer.name];
-      
-      if (layer.children) {
-        processLayers(layer.children, currentPath);
-      } else if (layer.canvas) {
-        const part = determinePart(layer.name);
-        if (part) {
-          const partName = extractPartName(layer.name, part);
-          if (!parts[part][partName]) {
-            parts[part][partName] = [];
-          }
-          parts[part][partName].push(layer);
-        }
-      }
-    });
-  }
-
-  processLayers(psd.children);
-  return parts;
-}
-
-function determinePart(layerName) {
-  if (!layerName) return null;
-  
-  if (/(^|\/|\\)уши($|\/|\\)/i.test(layerName)) return 'ears';
-  if (/(^|\/|\\)глаза($|\/|\\)/i.test(layerName)) return 'eyes';
-  if (/(^|\/|\\)щёки($|\/|\\)/i.test(layerName)) return 'cheeks';
-  if (/(^|\/|\\)голова($|\/|\\)/i.test(layerName)) return 'head';
-  if (/(^|\/|\\)(грива|шея|грудь)($|\/|\\)/i.test(layerName)) return 'mane';
-  if (/(^|\/|\\)тело($|\/|\\)/i.test(layerName)) return 'body';
-  if (/(^|\/|\\)хвост($|\/|\\)/i.test(layerName)) return 'tail';
-  
-  if (/\[красить\]/i.test(layerName)) {
-    if (/уши/i.test(layerName)) return 'ears';
-    if (/(грива|шея|грудь)/i.test(layerName)) return 'mane';
-    if (/глаза/i.test(layerName)) return 'eyes';
-    if (/щёки/i.test(layerName)) return 'cheeks';
-    if (/голова/i.test(layerName)) return 'head';
-    if (/тело/i.test(layerName)) return 'body';
-    if (/хвост/i.test(layerName)) return 'tail';
-  }
-  
-  return null;
-}
-
-function extractPartName(layerName, part) {
-  const regexMap = {
-    ears: /уши[\/\\]?(длинные|торчком пушистые|торчком обычные|повисшие)(\/|\\|$)/i,
-    eyes: /глаза[\/\\]?(лисьи|обычные)(?:\/(с ресницами|без ресниц))?(\/|\\|$)/i,
-    cheeks: /щёки[\/\\]?(пушистые)(\/|\\|$)/i,
-    head: /голова[\/\\]?(default)(\/|\\|$)/i,
-    mane: /(?:грудь|шея|грива)[\/\\]?(пышная|обычная|короткошерстная)(\/|\\|$)/i,
-    body: /тело[\/\\]?(v3|v2|v1)(\/|\\|$)/i,
-    tail: /хвост[\/\\]?(длинный тонкий|куцый|пышный|обычный)(\/|\\|$)/i
-  };
-  
-  const match = layerName.match(regexMap[part]);
-  
-  if (part === 'eyes' && match) {
-    const type = match[1];
-    const subtype = match[2] || (type === 'обычные' ? 'с ресницами' : '');
-    return subtype ? `${type}/${subtype}` : type;
-  }
-  
-  return match ? match[1].trim() : 'default';
 }
