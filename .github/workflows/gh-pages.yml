@@ -27,5 +27,5 @@ jobs:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: ./build
           user_name: 'asiqut'
-          user_email: 'asiqut@users.noreply.github.com'
+          user_email: 'sofyazemlanaya@gmail.com'
           commit_message: 'Deploy: ${{ github.sha }}'
