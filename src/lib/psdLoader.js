@@ -1,7 +1,7 @@
 import PSD from 'psd.js';
 
 export async function loadPSD(url) {
-  const response = await fetch(url);
+  const response = await fetch(process.env.PUBLIC_URL + '/assets/model_kinwoods.psd');
   const arrayBuffer = await response.arrayBuffer();
   return await PSD.fromArrayBuffer(arrayBuffer);
 }
