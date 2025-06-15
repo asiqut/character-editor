@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { exportPNG, exportPSD } from '../lib/exporter';
+import { exportPNG, exportPSD } from '../lib/exporter.js';
 
 function ExportButtons({ character, psdData }) {
   const canvasRef = useRef(null);
