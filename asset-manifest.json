@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Character-Editor/static/css/main.1adc35ae.css",
+    "main.js": "/Character-Editor/static/js/main.8dea8eee.js",
+    "index.html": "/Character-Editor/index.html",
+    "main.1adc35ae.css.map": "/Character-Editor/static/css/main.1adc35ae.css.map",
+    "main.8dea8eee.js.map": "/Character-Editor/static/js/main.8dea8eee.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1adc35ae.css",
+    "static/js/main.8dea8eee.js"
+  ]
+}
