@@ -10,7 +10,6 @@ export async function loadPSD() {
     
     if (!psd || !psd.children) throw new Error('Invalid PSD structure');
     
-    // Преобразуем слои PSD в удобную структуру
     return organizePSDLayers(psd);
   } catch (error) {
     console.error('Error loading PSD:', error);
@@ -29,7 +28,6 @@ function organizePSDLayers(psd) {
     tail: {}
   };
 
-  // Рекурсивно обрабатываем слои PSD
   function processLayers(layers, path = []) {
     layers.forEach(layer => {
       const currentPath = [...path, layer.name];
@@ -37,7 +35,6 @@ function organizePSDLayers(psd) {
       if (layer.children) {
         processLayers(layer.children, currentPath);
       } else if (layer.canvas) {
-        // Определяем к какой части относится слой
         const part = determinePart(layer.name);
         if (part) {
           const partName = extractPartName(layer.name, part);
@@ -57,7 +54,6 @@ function organizePSDLayers(psd) {
 function determinePart(layerName) {
   if (!layerName) return null;
   
-  // Проверяем сначала более специфичные случаи
   if (/(^|\/|\\)уши($|\/|\\)/i.test(layerName)) return 'ears';
   if (/(^|\/|\\)глаза($|\/|\\)/i.test(layerName)) return 'eyes';
   if (/(^|\/|\\)щёки($|\/|\\)/i.test(layerName)) return 'cheeks';
@@ -66,18 +62,20 @@ function determinePart(layerName) {
   if (/(^|\/|\\)тело($|\/|\\)/i.test(layerName)) return 'body';
   if (/(^|\/|\\)хвост($|\/|\\)/i.test(layerName)) return 'tail';
   
-  // Дополнительные проверки для слоев с маркерами покраски
   if (/\[красить\]/i.test(layerName)) {
     if (/уши/i.test(layerName)) return 'ears';
-    if /(грива|шея|грудь)/i.test(layerName)) return 'mane';
-    // ... аналогично для других частей
+    if (/(грива|шея|грудь)/i.test(layerName)) return 'mane';
+    if (/глаза/i.test(layerName)) return 'eyes';
+    if (/щёки/i.test(layerName)) return 'cheeks';
+    if (/голова/i.test(layerName)) return 'head';
+    if (/тело/i.test(layerName)) return 'body';
+    if (/хвост/i.test(layerName)) return 'tail';
   }
   
   return null;
 }
 
 function extractPartName(layerName, part) {
-  // Регулярные выражения для извлечения названий вариантов каждой части
   const regexMap = {
     ears: /уши[\/\\]?(длинные|торчком пушистые|торчком обычные|повисшие)(\/|\\|$)/i,
     eyes: /глаза[\/\\]?(лисьи|обычные)(?:\/(с ресницами|без ресниц))?(\/|\\|$)/i,
@@ -90,7 +88,6 @@ function extractPartName(layerName, part) {
   
   const match = layerName.match(regexMap[part]);
   
-  // Для глаз особый случай - объединяем тип и подтип
   if (part === 'eyes' && match) {
     const type = match[1];
     const subtype = match[2] || (type === 'обычные' ? 'с ресницами' : '');
