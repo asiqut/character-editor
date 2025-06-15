@@ -23,8 +23,8 @@ function App() {
     colors: {
       main: '#f1ece4',
       eyesWhite: '#ffffff'
-    },
-  });
+    }
+      });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
