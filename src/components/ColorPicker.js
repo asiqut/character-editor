@@ -1,5 +1,5 @@
 // src/components/ColorPicker.js
-import React from 'react';
+import React, { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 
 function ColorPicker({ title, color, onChange }) {
