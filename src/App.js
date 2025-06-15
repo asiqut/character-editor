@@ -1,23 +1,17 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import { loadPSD, extractLayers } from './lib/psdLoader';
+import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
+import CharacterPreview from './components/CharacterPreview';
+import PartSelector from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
-import PresetSelector from './components/PresetSelector';
 import ExportButtons from './components/ExportButtons';
+import './styles/main.css';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
-  const [character, setCharacter] = useState({
-    ears: 'длинные',
-    tail: 'длинный',
-    colors: {
-      ears: '#ff9999',
-      tail: '#cc6666'
-    }
-  });
+  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
 
-  // Загрузка PSD файла при монтировании
   useEffect(() => {
     async function loadCharacterPSD() {
       try {
@@ -32,61 +26,99 @@ function App() {
     loadCharacterPSD();
   }, []);
 
-  const handlePresetChange = (part, preset) => {
-    setCharacter(prev => ({
-      ...prev,
-      [part]: preset
-    }));
+  const handlePartChange = (part, value, subpart = null) => {
+    setCharacter(prev => {
+      if (subpart) {
+        return {
+          ...prev,
+          [part]: {
+            ...prev[part],
+            [subpart]: value
+          }
+        };
+      }
+      return {
+        ...prev,
+        [part]: value
+      };
+    });
   };
 
-  const handleColorChange = (part, color) => {
+  const handleColorChange = (colorType, color) => {
     setCharacter(prev => ({
       ...prev,
       colors: {
         ...prev.colors,
-        [part]: color
+        [colorType]: color
       }
     }));
   };
 
-  if (loading) return <div>Loading character data...</div>;
-  if (!psdData) return <div>Failed to load character data</div>;
+  if (loading) return <div>Загрузка данных персонажа...</div>;
+  if (!psdData) return <div>Ошибка загрузки PSD файла</div>;
 
   return (
     <div className="character-editor">
-      <h1>Character Editor</h1>
+      <h1>Редактор персонажа</h1>
       
       <div className="editor-container">
-        <div className="preview-area">
-          {/* Здесь будет отображаться предпросмотр персонажа */}
-          <CharacterPreview psdData={psdData} character={character} />
-        </div>
+        <CharacterPreview psdData={psdData} character={character} />
         
         <div className="controls">
-          <PresetSelector 
+          <PartSelector
+            title="Уши"
             part="ears"
-            presets={['длинные', 'торчком пушистые']}
+            options={PARTS_STRUCTURE.ears}
             current={character.ears}
-            onChange={handlePresetChange}
+            onChange={handlePartChange}
           />
           
-          <ColorPicker 
-            part="ears"
-            color={character.colors.ears}
-            onChange={handleColorChange}
+          <PartSelector
+            title="Глаза"
+            part="eyes"
+            options={PARTS_STRUCTURE.eyes.types}
+            current={character.eyes.type}
+            onChange={(value) => handlePartChange('eyes', value, 'type')}
+            showSubtypes={character.eyes.type === 'обычные'}
+            subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+            currentSubtype={character.eyes.subtype}
+            onSubtypeChange={(value) => handlePartChange('eyes', value, 'subtype')}
           />
           
-          <PresetSelector 
+          <PartSelector
+            title="Грива"
+            part="mane"
+            options={PARTS_STRUCTURE.mane}
+            current={character.mane}
+            onChange={handlePartChange}
+          />
+          
+          <PartSelector
+            title="Тело"
+            part="body"
+            options={PARTS_STRUCTURE.body}
+            current={character.body}
+            onChange={handlePartChange}
+          />
+          
+          <PartSelector
+            title="Хвост"
             part="tail"
-            presets={['длинный', 'короткий']}
+            options={PARTS_STRUCTURE.tail}
             current={character.tail}
-            onChange={handlePresetChange}
+            onChange={handlePartChange}
           />
           
-          <ColorPicker 
-            part="tail"
-            color={character.colors.tail}
-            onChange={handleColorChange}
+          <ColorPicker
+            title="Основной цвет"
+            color={character.colors.main}
+            onChange={(color) => handleColorChange('main', color)}
+          />
+          
+          <ColorPicker
+            title="Цвет белков глаз"
+            color={character.colors.eyesWhite}
+            onChange={(color) => handleColorChange('eyesWhite', color)}
           />
           
           <ExportButtons character={character} psdData={psdData} />
