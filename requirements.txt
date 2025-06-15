@@ -1,3 +1,4 @@
-pillow
 psd-tools
-pyqt5
+Pillow
+pygame
+numpy
