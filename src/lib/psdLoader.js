@@ -1,17 +1,22 @@
-import * as PSD from 'ag-psd';
+import * as PSD from 'ag-psd'; // Используем только ag-psd
 
 export async function loadPSD() {
   try {
     const response = await fetch(`${process.env.PUBLIC_URL}/assets/model_kinwoods.psd`);
-    if (!response.ok) throw new Error('PSD file not found (HTTP '+response.status+')');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PSD: ${response.status}`);
+    }
     
     const arrayBuffer = await response.arrayBuffer();
-    const psd = PSD.readPsd(arrayBuffer);
+    const psd = PSD.readPsd(arrayBuffer); // Используем метод из ag-psd
     
-    if (!psd) throw new Error('Failed to parse PSD file');
+    if (!psd) {
+      throw new Error('Failed to parse PSD file');
+    }
+    
     return psd;
   } catch (error) {
-    console.error('PSD loading failed:', error);
+    console.error('Error loading PSD:', error);
     throw error;
   }
 }
