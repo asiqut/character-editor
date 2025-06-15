@@ -9,22 +9,28 @@ import './styles/main.css';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
-  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function loadCharacterPSD() {
       try {
-        const psd = await loadPSD('/assets/character.psd');
+        const psd = await loadPSD();
         setPsdData(psd);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error loading PSD:', error);
+        setError(null);
+      } catch (err) {
+        console.error('PSD load error:', err);
+        setError(`Ошибка загрузки: ${err.message}`);
+      } finally {
         setLoading(false);
       }
     }
     loadCharacterPSD();
   }, []);
+
+  if (loading) return <div>Загрузка персонажа...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!psdData) return <div>Не удалось загрузить данные</div>;
 
   const handlePartChange = (part, value, subpart = null) => {
     setCharacter(prev => {
