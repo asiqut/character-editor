@@ -1,1 +1,0 @@
-npm install psd.js react-color html-to-image psd-write
