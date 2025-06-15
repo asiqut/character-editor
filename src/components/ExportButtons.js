@@ -1,17 +1,19 @@
 import React, { useRef } from 'react';
-import { exportPNG, exportPSD } from '../lib/exporter.js';
+import { exportPNG, exportPSD } from '../lib/exporter';
 
 function ExportButtons({ character, psdData }) {
   const canvasRef = useRef(null);
 
   const handleExportPNG = () => {
-    if (canvasRef.current) {
-      exportPNG(canvasRef.current, character);
+    if (canvasRef.current && psdData) {
+      exportPNG(canvasRef.current, character, psdData);
     }
   };
   
   const handleExportPSD = () => {
-    exportPSD(psdData, character);
+    if (psdData) {
+      exportPSD(psdData, character);
+    }
   };
   
   return (
@@ -19,7 +21,6 @@ function ExportButtons({ character, psdData }) {
       <button onClick={handleExportPNG}>Export PNG</button>
       <button onClick={handleExportPSD}>Export PSD</button>
       
-      {/* Скрытый canvas для экспорта PNG */}
       <canvas 
         ref={canvasRef} 
         width={800} 
