@@ -2,7 +2,7 @@
   "name": "character-editor",
   "version": "1.0.0",
   "private": true,
-  "homepage": "/character-editor",
+  "homepage": "https://asiqut.github.io/character-editor",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
