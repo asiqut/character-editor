@@ -8,22 +8,26 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        console.log('Starting PSD load...');
-        const data = await loadPSD();
-        console.log('PSD loaded successfully', data);
-        setPsdData(data);
-      } catch (err) {
-        console.error('Error loading PSD:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  async function load() {
+    try {
+      const data = await loadPSD();
+      
+      // Проверка структуры
+      if (!data.children.some(c => c.name === 'Уши')) {
+        console.error('Invalid PSD structure: Уши not found');
       }
+      // Добавьте проверки для других обязательных групп
+      
+      setPsdData(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }
+  load();
+}, []);
 
   if (loading) return <div>Загрузка PSD файла...</div>;
   if (error) return <div>Ошибка: {error}</div>;
