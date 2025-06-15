@@ -1,6 +1,5 @@
-const [initialized, setInitialized] = useState(false);
 import React, { useState, useEffect } from 'react';
-import { loadPSD } from './lib/psdLoader'; // Убрали extractLayers
+import { loadPSD } from './lib/psdLoader';
 import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
@@ -13,7 +12,8 @@ function App() {
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const [initialized, setInitialized] = useState(false);
+
   useEffect(() => {
     async function load() {
       try {
@@ -29,25 +29,20 @@ function App() {
     load();
   }, []);
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
-  if (!psdData) return <div>Данные не загружены</div>;
-  if (!initialized) return <div>Инициализация...</div>;
-
   const handlePartChange = (part, value, subpart = null) => {
-  setCharacter(prev => {
-    const newCharacter = {...prev};
-    
-    if (subpart) {
-      if (!newCharacter[part]) newCharacter[part] = {};
-      newCharacter[part][subpart] = value;
-    } else {
-      newCharacter[part] = value;
-    }
-    
-    return newCharacter;
-  });
-};
+    setCharacter(prev => {
+      const newCharacter = {...prev};
+      
+      if (subpart) {
+        if (!newCharacter[part]) newCharacter[part] = {};
+        newCharacter[part][subpart] = value;
+      } else {
+        newCharacter[part] = value;
+      }
+      
+      return newCharacter;
+    });
+  };
 
   const handleColorChange = (colorType, color) => {
     setCharacter(prev => ({
@@ -59,8 +54,9 @@ function App() {
     }));
   };
 
-  if (loading) return <div>Загрузка данных персонажа...</div>;
-  if (!psdData) return <div>Ошибка загрузки PSD файла</div>;
+  if (loading) return <div>Загрузка...</div>;
+  if (error) return <div>Ошибка: {error}</div>;
+  if (!initialized) return <div>Инициализация...</div>;
 
   return (
     <div className="character-editor">
