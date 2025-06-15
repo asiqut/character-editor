@@ -1,4 +1,1 @@
-psd-tools
-Pillow
-pygame
-numpy
+npm install psd.js react-color html-to-image psd-write
