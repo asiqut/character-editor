@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
       - name: Install dependencies
         run: npm install
@@ -26,10 +26,11 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          deploy_key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
           publish_dir: ./build
           user_name: 'asiqut'
           user_email: 'sofyazemlanaya@gmail.com'
-          commit_message: 'Deploy: ${{ github.sha }}'
-          full_commit_message: 'Deploy: ${{ github.sha }}'
+          commit_message: 'Deploy ${{ github.sha }}'
+          full_commit_message: 'Deploy ${{ github.sha }}'
           enable_jekyll: false
+          keep_files: false
