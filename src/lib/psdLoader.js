@@ -1,4 +1,4 @@
-import * as PSD from 'ag-psd'; // Используем только ag-psd
+import * as PSD from 'ag-psd';
 
 export async function loadPSD() {
   try {
@@ -8,7 +8,7 @@ export async function loadPSD() {
     }
     
     const arrayBuffer = await response.arrayBuffer();
-    const psd = PSD.readPsd(arrayBuffer); // Используем метод из ag-psd
+    const psd = PSD.readPsd(arrayBuffer);
     
     if (!psd) {
       throw new Error('Failed to parse PSD file');
