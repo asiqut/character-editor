@@ -1,23 +1,41 @@
+import * as htmlToImage from 'html-to-image';
 import * as PSD from 'ag-psd';
 
-export function exportPSD(psdData, character) {
+// Функция экспорта в PNG
+export const exportPNG = async (canvas, character) => {
   try {
-    // Создаем новый PSD документ
+    // Конвертируем canvas в PNG
+    const dataUrl = await htmlToImage.toPng(canvas);
+    
+    // Создаем ссылку для скачивания
+    const link = document.createElement('a');
+    link.download = `character_${Date.now()}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (error) {
+    console.error('PNG export error:', error);
+    alert('Ошибка при экспорте PNG: ' + error.message);
+  }
+};
+
+// Функция экспорта в PSD
+export const exportPSD = (psdData, character) => {
+  try {
+    // Создаем базовую структуру PSD
     const newPsd = {
       width: 800,
       height: 800,
       children: []
     };
 
-    // Здесь должна быть логика добавления слоев
+    // Здесь должна быть ваша логика добавления слоев
     // на основе character и psdData
     
-    // Генерируем PSD файл
+    // Генерируем и скачиваем PSD
     const psdBytes = PSD.writePsd(newPsd);
     const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     
-    // Создаем ссылку для скачивания
     const a = document.createElement('a');
     a.href = url;
     a.download = `character_${Date.now()}.psd`;
@@ -28,4 +46,4 @@ export function exportPSD(psdData, character) {
     console.error('PSD export error:', error);
     alert('Ошибка при экспорте PSD: ' + error.message);
   }
-}
+};
