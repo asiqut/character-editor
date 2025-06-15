@@ -22,5 +22,5 @@ export async function loadPSD() {
 
   if (!psd || !psd.children) {
   throw new Error('Invalid PSD structure');
-}
+  }
 }
