@@ -1,6 +1,6 @@
 // src/components/ColorPicker.js
 import React from 'react';
-import { ChromePicker } from 'react-color';
+import { HexColorPicker } from 'react-colorful';
 
 function ColorPicker({ part, color, onChange }) {
   const [showPicker, setShowPicker] = React.useState(false);
