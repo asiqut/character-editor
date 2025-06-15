@@ -11,7 +11,7 @@
     "html-to-image": "^1.11.11",
     "ag-psd": "^14.0.0",
     "gh-pages": "^4.0.0"
-  }
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
