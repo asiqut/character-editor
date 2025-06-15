@@ -1,33 +1,38 @@
-// src/lib/psdLoader.js
 import PSD from 'psd.js';
 
 export async function loadPSD(url) {
   const response = await fetch(url);
   const arrayBuffer = await response.arrayBuffer();
-  const psd = await PSD.fromArrayBuffer(arrayBuffer);
-  return psd;
+  return await PSD.fromArrayBuffer(arrayBuffer);
 }
 
-export function extractLayers(psd, structure) {
-  // Функция для извлечения слоев по структуре
-  const result = {};
+export function extractLayers(psd) {
+  const layersMap = {};
+  const root = psd.tree();
   
-  function traverse(node, path) {
-    if (node.children) {
-      node.children.forEach(child => {
-        const newPath = path ? `${path}/${child.name}` : child.name;
-        traverse(child, newPath);
-      });
+  function processNode(node, path = []) {
+    if (node.isGroup()) {
+      node.children.forEach(child => processNode(child, [...path, node.name]));
     } else {
-      // Обработка слоев для окрашивания
+      const part = path[0]; // 'Уши', 'Глаза' и т.д.
+      const preset = path[1]; // 'длинные', 'лисьи' и т.д.
+      
+      if (!part || !preset) return;
+      
+      if (!layersMap[part]) layersMap[part] = {};
+      if (!layersMap[part][preset]) layersMap[part][preset] = {};
+      
+      // Обработка слоёв для покраски
       if (node.name.includes('[красить]')) {
-        const part = path.split('/')[0];
-        result[part] = result[part] || {};
-        result[part][path] = node;
+        layersMap[part][preset].colorLayer = node;
+      } else if (node.name.includes('[белок красить]')) {
+        layersMap[part][preset].eyesWhiteLayer = node;
+      } else {
+        layersMap[part][preset][node.name] = node;
       }
     }
   }
   
-  traverse(psd.tree());
-  return result;
+  processNode(root);
+  return layersMap;
 }
