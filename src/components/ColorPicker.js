@@ -2,12 +2,12 @@
 import React from 'react';
 import { HexColorPicker } from 'react-colorful';
 
-function ColorPicker({ part, color, onChange }) {
-  const [showPicker, setShowPicker] = React.useState(false);
+function ColorPicker({ title, color, onChange }) {
+  const [showPicker, setShowPicker] = useState(false);
   
   return (
     <div className="color-picker">
-      <h3>Color for {part}</h3>
+      <h3>{title}</h3>
       <div 
         className="color-swatch" 
         style={{ backgroundColor: color }}
@@ -15,12 +15,9 @@ function ColorPicker({ part, color, onChange }) {
       />
       
       {showPicker && (
-        <ChromePicker
+        <HexColorPicker
           color={color}
-          onChangeComplete={(color) => {
-            onChange(part, color.hex);
-            setShowPicker(false);
-          }}
+          onChange={onChange}
         />
       )}
     </div>
