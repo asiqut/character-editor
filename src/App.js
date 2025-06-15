@@ -9,28 +9,41 @@ import './styles/main.css';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
+  const [character, setCharacter] = useState({
+    ears: 'торчком обычные',
+    eyes: {
+      type: 'обычные',
+      subtype: 'с ресницами'
+    },
+    cheeks: 'пушистые',
+    head: 'default',
+    mane: 'обычная',
+    body: 'v1',
+    tail: 'обычный',
+    colors: {
+      main: '#f1ece4',
+      eyesWhite: '#ffffff' 
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function loadCharacterPSD() {
+    async function load() {
       try {
-        const psd = await loadPSD();
-        setPsdData(psd);
-        setError(null);
+        const data = await loadPSD();
+        setPsdData(data);
       } catch (err) {
-        console.error('PSD load error:', err);
-        setError(`Ошибка загрузки: ${err.message}`);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-    loadCharacterPSD();
+    load();
   }, []);
 
-  if (loading) return <div>Загрузка персонажа...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!psdData) return <div>Не удалось загрузить данные</div>;
+  if (loading) return <div>Загрузка...</div>;
+  if (error) return <div>Ошибка: {error}</div>;
+  if (!psdData) return <div>Данные не загружены</div>;
 
   const handlePartChange = (part, value, subpart = null) => {
     setCharacter(prev => {
