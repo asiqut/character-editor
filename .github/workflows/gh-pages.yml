@@ -9,18 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+        with:
+          fetch-depth: 0
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-          
+          node-version: '18'
+
       - name: Install dependencies
         run: npm install
-      
+
       - name: Build
         run: npm run build
-      
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -29,3 +31,5 @@ jobs:
           user_name: 'asiqut'
           user_email: 'sofyazemlanaya@gmail.com'
           commit_message: 'Deploy: ${{ github.sha }}'
+          full_commit_message: 'Deploy: ${{ github.sha }}'
+          enable_jekyll: false
