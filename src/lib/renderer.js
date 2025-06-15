@@ -39,3 +39,24 @@ function findLayersForPart(psdData, part, character) {
   // Пока возвращаем пустой массив
   return [];
 }
+
+function shouldRenderLayer(layer, character) {
+  // Пример для ушей
+  if (layer.name.includes('Уши')) {
+    return layer.name.includes(character.ears);
+  }
+  
+  // Пример для глаз
+  if (layer.name.includes('Глаза')) {
+    const eyeType = character.eyes.type;
+    if (!layer.name.includes(eyeType)) return false;
+    
+    if (eyeType === 'обычные') {
+      return layer.name.includes(character.eyes.subtype);
+    }
+    return true;
+  }
+  
+  // Аналогично для других частей тела
+  return true;
+}
