@@ -55,13 +55,24 @@ function organizePSDLayers(psd) {
 }
 
 function determinePart(layerName) {
-  if (/уши/i.test(layerName)) return 'ears';
-  if (/глаза/i.test(layerName)) return 'eyes';
-  if (/щёки/i.test(layerName)) return 'cheeks';
-  if (/голова/i.test(layerName)) return 'head';
-  if /(грива|шея|грудь)/i.test(layerName)) return 'mane';
-  if (/тело/i.test(layerName)) return 'body';
-  if (/хвост/i.test(layerName)) return 'tail';
+  if (!layerName) return null;
+  
+  // Проверяем сначала более специфичные случаи
+  if (/(^|\/|\\)уши($|\/|\\)/i.test(layerName)) return 'ears';
+  if (/(^|\/|\\)глаза($|\/|\\)/i.test(layerName)) return 'eyes';
+  if (/(^|\/|\\)щёки($|\/|\\)/i.test(layerName)) return 'cheeks';
+  if (/(^|\/|\\)голова($|\/|\\)/i.test(layerName)) return 'head';
+  if (/(^|\/|\\)(грива|шея|грудь)($|\/|\\)/i.test(layerName)) return 'mane';
+  if (/(^|\/|\\)тело($|\/|\\)/i.test(layerName)) return 'body';
+  if (/(^|\/|\\)хвост($|\/|\\)/i.test(layerName)) return 'tail';
+  
+  // Дополнительные проверки для слоев с маркерами покраски
+  if (/\[красить\]/i.test(layerName)) {
+    if (/уши/i.test(layerName)) return 'ears';
+    if /(грива|шея|грудь)/i.test(layerName)) return 'mane';
+    // ... аналогично для других частей
+  }
+  
   return null;
 }
 
