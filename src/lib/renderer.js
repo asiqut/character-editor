@@ -2,31 +2,40 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Здесь должна быть логика отрисовки слоев PSD
-  // на основе выбранных параметров character
-  renderLayers(ctx, psdData.children, character);
+  // Центрируем персонажа
+  ctx.save();
+  ctx.translate(canvas.width/2 - 400, canvas.height/2 - 400);
+  
+  // Отрисовываем слои в правильном порядке
+  renderBodyParts(ctx, psdData, character);
+  
+  ctx.restore();
 }
 
-function shouldRenderLayer(layer, character) {
-  // Здесь должна быть логика определения, нужно ли рендерить слой
-  // на основе выбранных параметров персонажа
-  // Пока просто возвращаем true для всех слоев
-  return true;
-}
+function renderBodyParts(ctx, psdData, character) {
+  // Порядок отрисовки частей тела
+  const renderOrder = [
+    'body',
+    'tail',
+    'mane',
+    'head',
+    'ears',
+    'cheeks',
+    'eyes'
+  ];
 
-function renderLayers(ctx, layers, character) {
-  layers.forEach(layer => {
-    // Пропускаем невидимые слои
-    if (!shouldRenderLayer(layer, character)) return;
-    
-    // Отрисовка слоя
-    if (layer.canvas) {
-      ctx.drawImage(layer.canvas, 0, 0);
-    }
-    
-    // Рекурсивная отрисовка дочерних слоев
-    if (layer.children) {
-      renderLayers(ctx, layer.children, character);
-    }
+  renderOrder.forEach(part => {
+    const layers = findLayersForPart(psdData, part, character);
+    layers.forEach(layer => {
+      if (layer.canvas) {
+        ctx.drawImage(layer.canvas, 0, 0);
+      }
+    });
   });
+}
+
+function findLayersForPart(psdData, part, character) {
+  // Здесь должна быть логика поиска нужных слоев в PSD
+  // Пока возвращаем пустой массив
+  return [];
 }
