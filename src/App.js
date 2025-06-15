@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { loadPSD, extractLayers } from './lib/psdLoader';
+import { loadPSD } from './lib/psdLoader'; // Убрали extractLayers
 import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
