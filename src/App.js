@@ -22,7 +22,8 @@ function App() {
     tail: 'обычный',
     colors: {
       main: '#f1ece4',
-      eyesWhite: '#ffffff' 
+      eyesWhite: '#ffffff'
+    }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
