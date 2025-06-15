@@ -1,3 +1,4 @@
+const [initialized, setInitialized] = useState(false);
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader'; // Убрали extractLayers
 import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
@@ -12,12 +13,13 @@ function App() {
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   useEffect(() => {
     async function load() {
       try {
         const data = await loadPSD();
         setPsdData(data);
+        setInitialized(true);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -30,6 +32,7 @@ function App() {
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
+  if (!initialized) return <div>Инициализация...</div>;
 
   const handlePartChange = (part, value, subpart = null) => {
   setCharacter(prev => {
