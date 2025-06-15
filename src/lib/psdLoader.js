@@ -1,16 +1,10 @@
-import PSD from 'psd.js';
+import * as PSD from 'ag-psd';
 
 export async function loadPSD() {
   try {
-    // Для GitHub Pages используем правильный путь
     const response = await fetch(`${process.env.PUBLIC_URL}/assets/model_kinwoods.psd`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch PSD: ${response.status}`);
-    }
-    
     const arrayBuffer = await response.arrayBuffer();
-    return await PSD.fromArrayBuffer(arrayBuffer);
+    return PSD.readPsd(arrayBuffer);
   } catch (error) {
     console.error('Error loading PSD:', error);
     throw error;
