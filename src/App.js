@@ -27,31 +27,32 @@ function App() {
     load();
   }, []);
 
-const handlePartChange = (part, value, subpart = null) => {
+const handlePartChange = (part, value) => {
   setCharacter(prev => {
-    const newChar = {...prev};
-    
     if (part === 'eyes') {
-      if (subpart === 'subtype') {
-        // Обновляем только подтип глаз
-        newChar.eyes = {
-          ...newChar.eyes,
-          subtype: value
-        };
-      } else {
-        // Обновляем основной тип глаз
-        newChar.eyes = {
+      return {
+        ...prev,
+        eyes: {
           type: value,
           subtype: value === 'обычные' ? 'с ресницами' : null
-        };
-      }
-    } else {
-      // Для остальных частей
-      newChar[part] = value;
+        }
+      };
     }
-    
-    return newChar;
+    return {
+      ...prev,
+      [part]: value
+    };
   });
+};
+
+  const handleSubtypeChange = (subtype) => {
+  setCharacter(prev => ({
+    ...prev,
+    eyes: {
+      ...prev.eyes,
+      subtype: subtype
+    }
+  }));
 };
 
   const handleColorChange = (colorType, color) => {
@@ -93,7 +94,7 @@ const handlePartChange = (part, value, subpart = null) => {
   showSubtypes={character.eyes.type === 'обычные'}
   subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
   currentSubtype={character.eyes.subtype}
-  onSubtypeChange={(value) => handlePartChange('eyes', value, 'subtype')}
+  onSubtypeChange={(value) => handleSubtypeChange(value)}
 />
           
           <PartSelector
