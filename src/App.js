@@ -27,16 +27,26 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value) => {
+  const handlePartChange = (part, value, isSubtype = false) => {
     setCharacter(prev => {
       const newChar = {...prev};
       
       if (part === 'eyes') {
-        newChar.eyes = {
-          type: value,
-          subtype: value === 'обычные' ? 'с ресницами' : null
-        };
+        if (isSubtype) {
+          // Обновляем только подтип глаз
+          newChar.eyes = {
+            ...prev.eyes,
+            subtype: value
+          };
+        } else {
+          // Обновляем основной тип глаз
+          newChar.eyes = {
+            type: value,
+            subtype: value === 'обычные' ? 'с ресницами' : null
+          };
+        }
       } else {
+        // Для всех остальных частей
         newChar[part] = value;
       }
       
@@ -103,7 +113,7 @@ function App() {
             part="mane"
             options={PARTS_STRUCTURE.mane}
             current={character.mane}
-            onChange={(value) => handlePartChange('mane', value)}
+            onChange={(part, value) => handlePartChange(part, value)}
           />
           
           <PartSelector
@@ -111,7 +121,7 @@ function App() {
             part="body"
             options={PARTS_STRUCTURE.body}
             current={character.body}
-            onChange={(value) => handlePartChange('body', value)}
+            onChange={(part, value) => handlePartChange(part, value)}
           />
           
           <PartSelector
@@ -119,19 +129,19 @@ function App() {
             part="tail"
             options={PARTS_STRUCTURE.tail}
             current={character.tail}
-            onChange={(value) => handlePartChange('tail', value)}
+            onChange={(part, value) => handlePartChange(part, value)}
           />
           
           <ColorPicker
             title="Основной цвет"
             color={character.colors.main}
-            onChange={(color) => handleColorChange('main', color)}
+            onChange={(part, value) => handlePartChange(part, value)}
           />
           
           <ColorPicker
             title="Цвет белков глаз"
             color={character.colors.eyesWhite}
-            onChange={(color) => handleColorChange('eyesWhite', color)}
+            onChange={(part, value) => handlePartChange(part, value)}
           />
           
           <ExportButtons character={character} psdData={psdData} />
