@@ -4,8 +4,6 @@ export const DEFAULT_CHARACTER = {
     type: 'обычные',
     subtype: 'с ресницами'
   },
-  cheeks: 'пушистые',
-  head: 'default',
   mane: 'обычная',
   body: 'v1',
   tail: 'обычный',
