@@ -37,7 +37,8 @@ export const exportPSD = (psdData, character) => {
       if (layer.canvas) {
         newPsd.children.push({
           name: `${part}/${variant}/${layer.name}`,
-          canvas: layer.canvas
+          canvas: layer.canvas,
+          opacity: layer.opacity
         });
       }
     });
