@@ -53,7 +53,7 @@ export async function loadPSD() {
     });
     
     // Сохраняем порядок групп для правильного рендеринга
-    processedData._order = groupOrder(); 
+    processedData._order = groupOrder; 
     
     return processedData;
   } catch (error) {
