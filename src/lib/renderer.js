@@ -34,7 +34,10 @@ function renderPart(currentPartName, ctx, psdData, character) {
     case 'body': variantName = character.body || 'v1'; break;
     case 'tail': variantName = character.tail || 'обычный'; break;
     case 'cheeks': variantName = 'пушистые'; break;
-    case 'head': variantName = 'default'; break;
+    case 'head':
+  variantName = 'default'; // Используем 'default' для головы
+  console.log('Head layers:', partGroup[variantName]); // Отладка
+  break;
     default: variantName = 'default';
   }
 
