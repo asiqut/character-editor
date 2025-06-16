@@ -1,10 +1,8 @@
 export const DEFAULT_CHARACTER = {
   ears: 'торчком обычные',
   eyes: {
-    types: ['лисьи', 'обычные'],
-    subtypes: {
-      'обычные': ['с ресницами', 'без ресниц']
-    }
+    type: 'обычные',
+    subtype: 'с ресницами'
   },
   cheeks: 'пушистые',
   head: 'default',
