@@ -62,7 +62,8 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.translate(layer.left, layer.top);
 
     if (layer.opacity !== undefined && layer.opacity < 1) {
-    ctx.globalAlpha = layer.opacity;
+      ctx.globalAlpha = layer.opacity;
+    }
     
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
@@ -71,12 +72,12 @@ function renderPart(currentPartName, ctx, psdData, character) {
     // Если это слой покраски
     if (layer.name.includes('[красить]')) {
       let colorToUse;
-    if (layer.name.includes('[белок красить]')) {
-      colorToUse = character.colors?.eyesWhite || '#ffffff';
+      if (layer.name.includes('[белок красить]')) {
+        colorToUse = character.colors?.eyesWhite || '#ffffff';
       } else if (character.partColors?.[currentPartName]) {
-      colorToUse = character.partColors[currentPartName];
+        colorToUse = character.partColors[currentPartName];
       } else {
-      colorToUse = character.colors?.main || '#f1ece4';
+        colorToUse = character.colors?.main || '#f1ece4';
       }
       renderColorLayer(ctx, layer, colorToUse);
     }
@@ -90,7 +91,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
     }
     
     ctx.restore();
-  }),
+  });
 
   // Особый случай для глаз (подтипы)
   if (currentPartName === 'eyes' && variantName === 'обычные') {
