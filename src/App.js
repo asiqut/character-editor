@@ -139,6 +139,21 @@ function App() {
             color={character.partColors.ears}
             onChange={(color) => handlePartColorChange('ears', color)}
           />
+      <div className="opacity-controls">
+          <h4>Прозрачность слоёв ушей:</h4>
+              <OpacityControl
+            part="ears"
+            layerName="свет"
+            opacity={character.layerOpacities?.ears?.["свет"]}
+            onChange={handleOpacityChange}
+            />
+          <OpacityControl
+            part="ears"
+            layerName="тень"
+            opacity={character.layerOpacities?.ears?.["тень"]}
+            onChange={handleOpacityChange}
+            />
+      </div>
 
           <PartSelector
             title="Щёки"
