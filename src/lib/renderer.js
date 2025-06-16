@@ -4,10 +4,6 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Если есть данные о смещении, используем их
-  const offsetX = psdData.offsetX || 0;
-  const offsetY = psdData.offsetY || 0;
-
   // Правильный порядок рендеринга (снизу вверх)
   const partsOrder = [
     'tail',    // Хвост (самый нижний)
@@ -54,20 +50,19 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
+  console.log(`${currentPartName} layers:`, variantLayers);
+
+  // Остальной код обработки слоёв остаётся без изменений
+  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+  
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
     ctx.save();
-    // Применяем смещение для центрирования
-    ctx.translate(layer.left + offsetX, layer.top + offsetY);
-    
-    // Остальной код рендеринга остается без изменений
-    if (layer.opacity !== undefined && layer.opacity < 1) {
-      ctx.globalAlpha = layer.opacity;
-    }
-    
+    ctx.translate(layer.left, layer.top);
+
     if (layer.blendMode) {
-      ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
+    ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
     if (layer.opacity !== undefined && layer.opacity < 1) {
@@ -110,10 +105,15 @@ function renderPart(currentPartName, ctx, psdData, character) {
   
     if (subtypeLayer?.canvas) {
       ctx.save();
-      // Применяем смещение для центрирования
-      ctx.translate(subtypeLayer.left + offsetX, subtypeLayer.top + offsetY);
+      ctx.translate(subtypeLayer.left, subtypeLayer.top);
       
-      // Остальной код рендеринга подтипа
+      // Для подтипов глаз также применяем клиппинг если нужно
+      if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
+        renderClippedLayer(ctx, subtypeLayer, colorLayer);
+      } else {
+        ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      }
+      
       ctx.restore();
     }
   }
