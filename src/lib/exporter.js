@@ -35,78 +35,103 @@ export const exportPNG = (canvas, character, psdData) => {
 };
 
 export const exportPSD = (originalPsd, character) => {
+  // Правильный порядок групп (сверху вниз)
+  const groupOrder = [
+    'Уши',
+    'Глаза',
+    'Щёки', 
+    'Голова',
+    'Грудь/шея/грива',
+    'Тело',
+    'Хвосты'
+  ];
+
+  // Создаем новый PSD
   const newPsd = {
     width: 315,
     height: 315,
     children: []
   };
 
-  // Правильный порядок слоёв (сверху вниз)
-  const partsOrder = [
-    'ears',    // Уши (верхний слой)
-    'eyes',    // Глаза
-    'cheeks',  // Щёки
-    'head',    // Голова
-    'mane',    // Грудь/шея/грива
-    'body',    // Тело
-    'tail'     // Хвосты (нижний слой)
-  ];
+  // Соответствие между английскими и русскими названиями
+  const partToGroupName = {
+    'ears': 'Уши',
+    'eyes': 'Глаза',
+    'cheeks': 'Щёки',
+    'head': 'Голова',
+    'mane': 'Грудь/шея/грива',
+    'body': 'Тело',
+    'tail': 'Хвосты'
+  };
 
-  // Функция для копирования слоя
-  const copyLayer = (layer) => ({
-    ...layer,
-    canvas: layer.canvas,
-    left: layer.left,
-    top: layer.top,
-    opacity: layer.opacity,
-    blendMode: layer.blendMode,
-    clipping: layer.clipping,
-    hidden: false
-  });
+  // Создаем группы в правильном порядке
+  groupOrder.forEach(groupName => {
+    const partName = Object.keys(partToGroupName).find(
+      key => partToGroupName[key] === groupName
+    );
+    
+    if (!partName) return;
 
-  // Обрабатываем части в правильном порядке
-  partsOrder.forEach(partName => {
     // Пропускаем щёки если они отключены
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
 
-    const variantName = partName === 'head' 
-      ? 'default' 
-      : character[partName] || 
-        (partName === 'eyes' ? character.eyes.type : 'default');
+    // Получаем вариант для текущей части
+    let variantName;
+    if (partName === 'head') {
+      variantName = 'default';
+    } else if (partName === 'eyes') {
+      variantName = character.eyes.type;
+    } else {
+      variantName = character[partName];
+    }
 
-    const partGroup = originalPsd[partName];
-    if (!partGroup) return;
+    // Получаем слои для этой части
+    let layers = [];
+    if (partName === 'head') {
+      layers = originalPsd[partName] || [];
+    } else {
+      layers = originalPsd[partName]?.[variantName] || [];
+    }
 
-    const variantLayers = partName === 'head' 
-      ? partGroup 
-      : partGroup[variantName];
-    if (!variantLayers) return;
+    // Копируем слои с сохранением всех свойств
+    const groupLayers = layers.map(layer => ({
+      name: layer.name,
+      canvas: layer.canvas,
+      left: layer.left,
+      top: layer.top,
+      opacity: layer.opacity,
+      blendMode: layer.blendMode,
+      clipping: layer.clipping,
+      hidden: false
+    }));
 
-    // Создаем группу с оригинальным названием
-    const group = {
-      name: getOriginalGroupName(partName),
-      children: []
-    };
-
-    // Копируем слои
-    variantLayers.forEach(layer => {
-      if (layer.canvas) {
-        group.children.push(copyLayer(layer));
-      }
-    });
-
-    // Добавляем подтипы глаз
+    // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
-      const subtypeLayer = variantLayers.find(l => l.name === character.eyes.subtype);
+      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
       if (subtypeLayer) {
-        group.children.push(copyLayer(subtypeLayer));
+        groupLayers.push({
+          name: subtypeLayer.name,
+          canvas: subtypeLayer.canvas,
+          left: subtypeLayer.left,
+          top: subtypeLayer.top,
+          opacity: subtypeLayer.opacity,
+          blendMode: subtypeLayer.blendMode,
+          clipping: subtypeLayer.clipping,
+          hidden: false
+        });
       }
     }
 
-    newPsd.children.push(group);
+    // Добавляем группу в PSD
+    if (groupLayers.length > 0) {
+      newPsd.children.unshift({ // Используем unshift для правильного порядка
+        name: groupName,
+        children: groupLayers
+      });
+    }
   });
 
-  // Экспорт PSD
+  // Экспортируем PSD
   const psdBytes = PSD.writePsd(newPsd);
   const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
@@ -118,17 +143,3 @@ export const exportPSD = (originalPsd, character) => {
   
   URL.revokeObjectURL(url);
 };
-
-// Функция для получения оригинальных названий групп
-function getOriginalGroupName(part) {
-  const names = {
-    'ears': 'Уши',
-    'eyes': 'Глаза',
-    'cheeks': 'Щёки',
-    'head': 'Голова',
-    'mane': 'Грудь/шея/грива',
-    'body': 'Тело',
-    'tail': 'Хвосты'
-  };
-  return names[part] || part;
-}
