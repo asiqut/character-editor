@@ -27,30 +27,29 @@ function App() {
     load();
   }, []);
 
-const handlePartChange = (part, value, isSubtype = false) => {
-  setCharacter(prev => {
-    const newChar = {...prev};
-    
-    if (part === 'eyes') {
-      if (isSubtype) {
-        newChar.eyes = {
-          ...prev.eyes,
-          subtype: value
-        };
+  const handlePartChange = (part, value, isSubtype = false) => {
+    setCharacter(prev => {
+      const newChar = {...prev};
+      
+      if (part === 'eyes') {
+        if (isSubtype) {
+          newChar.eyes = {
+            ...prev.eyes,
+            subtype: value
+          };
+        } else {
+          newChar.eyes = {
+            type: value,
+            subtype: value === 'обычные' ? 'с ресницами' : null
+          };
+        }
       } else {
-        newChar.eyes = {
-          type: value,
-          subtype: value === 'обычные' ? 'с ресницами' : null
-        };
+        newChar[part] = value;
       }
-    } else {
-      // Для гривы и других частей
-      newChar[part] = value;
-    }
-    
-    return newChar;
-  });
-};
+      
+      return newChar;
+    });
+  };
 
   const handleSubtypeChange = (part, subtype) => {
     if (part !== 'eyes') return;
@@ -64,27 +63,15 @@ const handlePartChange = (part, value, isSubtype = false) => {
     }));
   };
 
-const handleColorChange = (colorType, color) => {
-  setCharacter(prev => ({
-    ...prev,
-    colors: {
-      ...prev.colors,
-      [colorType]: color
-    }
-  }));
-};
-
-// В рендере компонента:
-<ColorPicker
-  title="Основной цвет"
-  color={character.colors.main}
-  onChange={(color) => handleColorChange('main', color)}
-/>
-<ColorPicker
-  title="Цвет белков глаз"
-  color={character.colors.eyesWhite}
-  onChange={(color) => handleColorChange('eyesWhite', color)}
-/>
+  const handleColorChange = (colorType, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      colors: {
+        ...prev.colors,
+        [colorType]: color
+      }
+    }));
+  };
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -145,13 +132,13 @@ const handleColorChange = (colorType, color) => {
           <ColorPicker
             title="Основной цвет"
             color={character.colors.main}
-            onChange={(part, value) => handlePartChange(part, value)}
+            onChange={(color) => handleColorChange('main', color)}
           />
           
           <ColorPicker
             title="Цвет белков глаз"
             color={character.colors.eyesWhite}
-            onChange={(part, value) => handlePartChange(part, value)}
+            onChange={(color) => handleColorChange('eyesWhite', color)}
           />
           
           <ExportButtons character={character} psdData={psdData} />
