@@ -1,4 +1,3 @@
-// Исправленный renderer.js
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
@@ -17,18 +16,18 @@ export function renderCharacter(canvas, psdData, character) {
   ];
 
   // Рендерим каждый слой в правильном порядке
-  partsOrder.forEach(partName => {
-    if (partName === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(partName, ctx, psdData, character);
+  partsOrder.forEach(currentPartName => {
+    if (currentPartName === 'cheeks' && character.cheeks === 'нет') return;
+    renderPart(currentPartName, ctx, psdData, character);
   });
 }
 
-function renderPart(partName, ctx, psdData, character) {
-  const partGroup = psdData[partName];
+function renderPart(currentPartName, ctx, psdData, character) {
+  const partGroup = psdData[currentPartName];
   if (!partGroup) return;
 
   let variantName;
-  switch (partName) {
+  switch (currentPartName) {
     case 'ears': variantName = character.ears || 'торчком обычные'; break;
     case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
     case 'mane': variantName = character.mane || 'обычная'; break;
@@ -59,7 +58,7 @@ function renderPart(partName, ctx, psdData, character) {
       renderColorLayer(
         ctx, 
         layer,
-        partName === 'eyes' && layer.name.includes('[белок красить]') 
+        currentPartName === 'eyes' && layer.name.includes('[белок красить]') 
           ? character.colors?.eyesWhite || '#ffffff'
           : character.colors?.main || '#f1ece4'
       );
@@ -77,7 +76,7 @@ function renderPart(partName, ctx, psdData, character) {
   });
 
   // Особый случай для глаз (подтипы)
-  if (partName === 'eyes' && variantName === 'обычные') {
+  if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
     
@@ -97,21 +96,7 @@ function renderPart(partName, ctx, psdData, character) {
   }
 }
 
-  // Особый случай для глаз (подтипы)
-  if (partName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      ctx.restore();
-    }
-  }
-
 function shouldClipLayer(layerName) {
-  // Слои, которые должны обрезаться по слою покраски
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
 }
 
@@ -121,19 +106,13 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
   const tempCtx = tempCanvas.getContext('2d');
   
-  // 1. Рисуем слой покраски как маску
   tempCtx.drawImage(clipLayer.canvas, 
     clipLayer.left - layer.left, 
     clipLayer.top - layer.top
   );
   
-  // 2. Применяем композицию для обрезки
   tempCtx.globalCompositeOperation = 'source-in';
-  
-  // 3. Рисуем сам слой
   tempCtx.drawImage(layer.canvas, 0, 0);
-  
-  // 4. Рисуем результат на основном canvas
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
@@ -147,7 +126,6 @@ function renderColorLayer(ctx, layer, color) {
   tempCtx.globalCompositeOperation = 'source-atop';
   tempCtx.fillStyle = color;
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
