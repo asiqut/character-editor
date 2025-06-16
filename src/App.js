@@ -64,15 +64,27 @@ const handlePartChange = (part, value, isSubtype = false) => {
     }));
   };
 
-  const handleColorChange = (colorType, color) => {
-    setCharacter(prev => ({
-      ...prev,
-      colors: {
-        ...prev.colors,
-        [colorType]: color
-      }
-    }));
-  };
+const handleColorChange = (colorType, color) => {
+  setCharacter(prev => ({
+    ...prev,
+    colors: {
+      ...prev.colors,
+      [colorType]: color
+    }
+  }));
+};
+
+// В рендере компонента:
+<ColorPicker
+  title="Основной цвет"
+  color={character.colors.main}
+  onChange={(color) => handleColorChange('main', color)}
+/>
+<ColorPicker
+  title="Цвет белков глаз"
+  color={character.colors.eyesWhite}
+  onChange={(color) => handleColorChange('eyesWhite', color)}
+/>
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
