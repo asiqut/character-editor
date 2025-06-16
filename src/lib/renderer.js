@@ -90,7 +90,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
     }
     
     ctx.restore();
-  });
+  })
 
   // Особый случай для глаз (подтипы)
   if (currentPartName === 'eyes' && variantName === 'обычные') {
