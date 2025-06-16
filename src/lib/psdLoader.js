@@ -16,21 +16,20 @@ export async function loadPSD() {
     // Преобразуем структуру PSD в удобный формат
     const processedData = {};
     
-    psd.children.forEach(group => {
-      if (!group.name || !group.children) return;
-      
-      // Исправляем названия групп согласно структуре PSD
-      let groupName;
-      switch(group.name) {
-        case 'Грудь/шея/грива': groupName = 'mane'; break;
-        case 'Уши': groupName = 'ears'; break;
-        case 'Глаза': groupName = 'eyes'; break;
-        case 'Щёки': groupName = 'cheeks'; break;
-        case 'Голова': groupName = 'head'; break;
-        case 'Тело': groupName = 'body'; break;
-        case 'Хвосты': groupName = 'tail'; break;
-        default: return;
-      }
+psd.children.forEach(group => {
+  if (!group.name || !group.children) return;
+  
+  let groupName;
+  switch(group.name) {
+    case 'Грудь/шея/грива': groupName = 'mane'; break;
+    case 'Уши': groupName = 'ears'; break;
+    case 'Глаза': groupName = 'eyes'; break;
+    case 'Щёки': groupName = 'cheeks'; break; // Добавлено
+    case 'Голова': groupName = 'head'; break; // Добавлено
+    case 'Тело': groupName = 'body'; break;
+    case 'Хвосты': groupName = 'tail'; break;
+    default: return;
+  }
       
       processedData[groupName] = {};
       
