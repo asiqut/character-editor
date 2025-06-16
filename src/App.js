@@ -12,7 +12,21 @@ function App() {
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [layerOpacities, setLayerOpacities] = useState({});
+  const handleOpacityChange = (part, layerName, value) => {
+    setCharacter(prev => ({
+      ...prev,
+      layerOpacities: {
+        ...prev.layerOpacities,
+        [part]: {
+          ...prev.layerOpacities?.[part],
+          [layerName]: value
+        }
+      }
+    }));
+  };
 
+  
   useEffect(() => {
     async function load() {
       try {
@@ -82,6 +96,24 @@ function App() {
       }
     }));
   };
+
+    function OpacityControl({ part, layerName, opacity, onChange }) {
+    return (
+      <div className="opacity-control">
+        <label>{layerName}</label>
+        <input 
+          type="range" 
+          min="0" 
+          max="100" 
+          value={(opacity * 100) || 100}
+          onChange={(e) => onChange(part, layerName, e.target.value / 100)}
+        />
+        <span>{Math.round((opacity || 1) * 100)}%</span>
+      </div>
+    );
+  }
+
+  if (loading) return <div>Загрузка...</div>;
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
