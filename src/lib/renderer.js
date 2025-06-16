@@ -1,165 +1,99 @@
-import { useEffect } from 'react';
-
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  const psdWidth = psdData.width;
-  const psdHeight = psdData.height;
-  const scale = Math.min(canvas.width / psdWidth, canvas.height / psdHeight);
+  // Порядок отрисовки частей
+  const partsOrder = [
+    'Тело', 'Хвосты', 'Грудь/шея/грива', 
+    'Голова', 'Уши', 'Щёки', 'Глаза'
+  ];
+
+  partsOrder.forEach(partName => {
+    renderPart(partName, ctx, psdData, character);
+  });
+}
+
+function renderPart(partName, ctx, psdData, character) {
+  const partGroup = psdData[partName];
+  if (!partGroup) {
+    console.warn(`Part group not found: ${partName}`);
+    return;
+  }
+
+  // Определяем вариант для каждой части
+  let variantName;
+  switch (partName) {
+    case 'Уши':
+      variantName = character.ears || 'торчком обычные';
+      break;
+    case 'Глаза':
+      variantName = character.eyes?.type || 'обычные';
+      break;
+    case 'Грудь/шея/грива':
+      variantName = character.mane || 'обычная';
+      break;
+    case 'Тело':
+      variantName = character.body || 'v1';
+      break;
+    case 'Хвосты':
+      variantName = character.tail || 'обычный';
+      break;
+    default:
+      variantName = 'default';
+  }
+
+  const variantLayers = partGroup[variantName] || [];
   
-  ctx.save();
-  const offsetX = (canvas.width - psdWidth * scale) / 2;
-  const offsetY = (canvas.height - psdHeight * scale) / 2;
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-
-  const partsOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
-
-  partsOrder.forEach(part => {
-    renderPart(part, ctx, psdData, character);
-  });
-
-  ctx.restore();
-}
-
-function renderPart(part, ctx, psdData, character) {
-  const config = {
-    ears: {
-      group: 'Уши',
-      variant: character.ears || 'торчком обычные',
-      layers: ['лайн', 'свет', 'тень', '[красить]']
-    },
-    eyes: {
-      group: 'Глаза',
-      variant: character.eyes?.type || 'обычные',
-      layers: ['блики', 'лайн', 'свет', 'тень', '[красить]', '[белок красить]'],
-      subtype: character.eyes?.subtype || 'с ресницами'
-    },
-    cheeks: {
-      group: 'Щёки',
-      variant: 'пушистые',
-      layers: ['лайн', 'тень', 'свет', '[красить]']
-    },
-    head: {
-      group: 'Голова',
-      layers: ['лайн', 'свет', 'тень', '[красить]']
-    },
-    mane: {
-      group: 'Грудь/шея/грива',
-      variant: character.mane || 'обычная',
-      layers: ['лайн', 'свет', 'тень', '[красить]']
-    },
-    body: {
-      group: 'Тело',
-      variant: character.body || 'v1',
-      layers: ['лайн', 'тень', 'свет', 'свет2', '[красить]']
-    },
-    tail: {
-      group: 'Хвосты',
-      variant: character.tail || 'обычный',
-      layers: ['лайн', 'свет', 'тень', '[красить]']
-    }
-  };
-
-  const partConfig = config[part];
-  if (!partConfig) return;
-
-  const group = psdData.children?.find(g => g.name === partConfig.group);
-  if (!group) {
-    console.warn(`Group not found: ${partConfig.group}`);
-    return;
-  }
-
-  if (part === 'eyes') {
-    renderEyes(ctx, group, partConfig, character);
-    return;
-  }
-
-  let variantGroup;
-  if (partConfig.variant) {
-    variantGroup = group.children?.find(g => g.name === partConfig.variant);
-    if (!variantGroup) {
-      console.warn(`Variant group not found: ${partConfig.group}/${partConfig.variant}`);
-      return;
-    }
-  } else {
-    variantGroup = group;
-  }
-
-  partConfig.layers.forEach(layerName => {
-    const layer = variantGroup.children?.find(l => l.name === layerName);
-    if (layer?.canvas) {
-      ctx.save();
-      ctx.translate(layer.left || 0, layer.top || 0);
-      
-      if (layer.blendMode) {
-        ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-      }
-
-      ctx.drawImage(layer.canvas, 0, 0);
-      
-      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
-        applyColorFilter(ctx, layer, character, layerName);
-      }
-      
-      ctx.restore();
-    }
-  });
-}
-
-function renderEyes(ctx, eyesGroup, config, character) {
-  const variantGroup = eyesGroup.children?.find(g => g.name === config.variant);
-  if (!variantGroup) return;
-
-  config.layers.forEach(layerName => {
-    if (layerName === 'с ресницами' || layerName === 'без ресниц') return;
+  variantLayers.forEach(layer => {
+    if (!layer.canvas) return;
     
-    const layer = variantGroup.children?.find(l => l.name === layerName);
-    if (layer?.canvas) {
-      ctx.save();
-      ctx.translate(layer.left || 0, layer.top || 0);
-      
-      if (layer.blendMode) {
-        ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-      }
-
-      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
-        applyColorFilter(ctx, layer, character, layerName);
-      } else {
-        ctx.drawImage(layer.canvas, 0, 0);
-      }
-      
-      ctx.restore();
+    ctx.save();
+    ctx.translate(layer.left, layer.top);
+    
+    if (layer.blendMode) {
+      ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
+    
+    // Особые случаи для слоев покраски
+    if (layer.name.includes('[красить]')) {
+      renderColorLayer(ctx, layer, character.colors?.main || '#f1ece4');
+    } else if (layer.name.includes('[белок красить]')) {
+      renderColorLayer(ctx, layer, character.colors?.eyesWhite || '#ffffff');
+    } else {
+      ctx.drawImage(layer.canvas, 0, 0);
+    }
+    
+    ctx.restore();
   });
 
-  if (config.variant === 'обычные' && config.subtype) {
-    const subtypeLayer = variantGroup.children?.find(l => l.name === config.subtype);
+  // Особый случай для глаз (подтипы)
+  if (partName === 'Глаза' && variantName === 'обычные') {
+    const subtype = character.eyes?.subtype || 'с ресницами';
+    const subtypeLayer = variantLayers.find(l => l.name === subtype);
+    
     if (subtypeLayer?.canvas) {
       ctx.save();
-      ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
-      if (subtypeLayer.blendMode) {
-        ctx.globalCompositeOperation = convertBlendMode(subtypeLayer.blendMode);
-      }
+      ctx.translate(subtypeLayer.left, subtypeLayer.top);
       ctx.drawImage(subtypeLayer.canvas, 0, 0);
       ctx.restore();
     }
   }
 }
 
-function applyColorFilter(ctx, layer, character, layerName) {
-  if (!character.colors) return;
+function renderColorLayer(ctx, layer, color) {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
   
-  ctx.save();
-  ctx.globalCompositeOperation = 'source-atop';
-  ctx.fillStyle = layerName.includes('[белок красить]') 
-    ? character.colors.eyesWhite 
-    : character.colors.main;
-  ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
-  ctx.restore();
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  tempCtx.globalCompositeOperation = 'source-atop';
+  tempCtx.fillStyle = color;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+  ctx.drawImage(tempCanvas, 0, 0);
 }
 
 function convertBlendMode(psdBlendMode) {
@@ -169,17 +103,7 @@ function convertBlendMode(psdBlendMode) {
     'screen': 'screen',
     'overlay': 'overlay',
     'darken': 'darken',
-    'lighten': 'lighten',
-    'colorDodge': 'color-dodge',
-    'colorBurn': 'color-burn',
-    'hardLight': 'hard-light',
-    'softLight': 'soft-light',
-    'difference': 'difference',
-    'exclusion': 'exclusion',
-    'hue': 'hue',
-    'saturation': 'saturation',
-    'color': 'color',
-    'luminosity': 'luminosity'
+    'lighten': 'lighten'
   };
   return modes[psdBlendMode.toLowerCase()] || 'source-over';
 }
