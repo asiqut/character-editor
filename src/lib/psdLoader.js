@@ -26,7 +26,17 @@ export async function loadPSD() {
         case 'Уши': groupName = 'ears'; break;
         case 'Глаза': groupName = 'eyes'; break;
         case 'Щёки': groupName = 'cheeks'; break;
-        case 'Голова': groupName = 'head'; break;
+        case 'Голова': 
+      groupName = 'head';
+      processedData[groupName] = group.children.map(layer => ({
+        name: layer.name,
+        canvas: layer.canvas,
+        left: layer.left || 0,
+        top: layer.top || 0,
+        blendMode: layer.blendMode,
+        clipping: layer.clipping
+      }));
+      return;
         case 'Тело': groupName = 'body'; break;
         case 'Хвосты': groupName = 'tail'; break;
         default: return;
