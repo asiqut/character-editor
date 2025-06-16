@@ -167,6 +167,21 @@ function App() {
             color={character.partColors.cheeks}
             onChange={(color) => handlePartColorChange('cheeks', color)}
           />
+      <div className="opacity-controls">
+          <h4>Прозрачность слоёв щёк:</h4>
+              <OpacityControl
+            part="cheeks"
+            layerName="свет"
+            opacity={character.layerOpacities?.cheeks?.["свет"]}
+            onChange={handleOpacityChange}
+            />
+          <OpacityControl
+            part="cheeks"
+            layerName="тень"
+            opacity={character.layerOpacities?.cheeks?.["тень"]}
+            onChange={handleOpacityChange}
+            />
+      </div>
           
           <PartSelector
             title="Глаза"
@@ -184,6 +199,21 @@ function App() {
             color={character.partColors.eyes}
             onChange={(color) => handlePartColorChange('eyes', color)}
           />
+      <div className="opacity-controls">
+          <h4>Прозрачность слоёв глаз:</h4>
+              <OpacityControl
+            part="eyes"
+            layerName="свет"
+            opacity={character.layerOpacities?.eyes?.["свет"]}
+            onChange={handleOpacityChange}
+            />
+          <OpacityControl
+            part="eyes"
+            layerName="тень"
+            opacity={character.layerOpacities?.eyes?.["тень"]}
+            onChange={handleOpacityChange}
+            />
+      </div>
           
           <PartSelector
             title="Грива"
@@ -197,7 +227,22 @@ function App() {
             color={character.partColors.mane}
             onChange={(color) => handlePartColorChange('mane', color)}
           />
-          
+      <div className="opacity-controls">
+          <h4>Прозрачность слоёв гривы:</h4>
+              <OpacityControl
+            part="mane"
+            layerName="свет"
+            opacity={character.layerOpacities?.mane?.["свет"]}
+            onChange={handleOpacityChange}
+            />
+          <OpacityControl
+            part="mane"
+            layerName="тень"
+            opacity={character.layerOpacities?.mane?.["тень"]}
+            onChange={handleOpacityChange}
+            />
+      </div>
+              
           <PartSelector
             title="Тело"
             part="body"
@@ -210,6 +255,21 @@ function App() {
             color={character.partColors.body}
             onChange={(color) => handlePartColorChange('body', color)}
           />
+      <div className="opacity-controls">
+          <h4>Прозрачность слоёв тела:</h4>
+              <OpacityControl
+            part="body"
+            layerName="свет"
+            opacity={character.layerOpacities?.body?.["свет"]}
+            onChange={handleOpacityChange}
+            />
+          <OpacityControl
+            part="body"
+            layerName="тень"
+            opacity={character.layerOpacities?.body?.["тень"]}
+            onChange={handleOpacityChange}
+            />
+      </div>
           
           <PartSelector
             title="Хвост"
@@ -223,6 +283,21 @@ function App() {
             color={character.partColors.tail}
             onChange={(color) => handlePartColorChange('tail', color)}
           />
+      <div className="opacity-controls">
+          <h4>Прозрачность слоёв хвоста:</h4>
+              <OpacityControl
+            part="tail"
+            layerName="свет"
+            opacity={character.layerOpacities?.tail?.["свет"]}
+            onChange={handleOpacityChange}
+            />
+          <OpacityControl
+            part="tail"
+            layerName="тень"
+            opacity={character.layerOpacities?.tail?.["тень"]}
+            onChange={handleOpacityChange}
+            />
+      </div>
           
           <ColorPicker
             title="Основной цвет (все части)"
