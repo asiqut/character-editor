@@ -4,7 +4,7 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Порядок отрисовки частей
+  // Порядок отрисовки частей (снизу вверх)
   const partsOrder = [
     'Тело', 'Хвосты', 'Грудь/шея/грива', 
     'Голова', 'Уши', 'Щёки', 'Глаза'
@@ -40,11 +40,20 @@ function renderPart(partName, ctx, psdData, character) {
     case 'Хвосты':
       variantName = character.tail || 'обычный';
       break;
+    case 'Щёки':
+      variantName = 'пушистые'; // Единственный вариант
+      break;
+    case 'Голова':
+      variantName = 'default'; // Нет вариантов
+      break;
     default:
       variantName = 'default';
   }
 
   const variantLayers = partGroup[variantName] || [];
+  
+  // Сначала находим слой для покраски (он будет маской)
+  const paintLayer = variantLayers.find(l => l.name.includes('[красить]') || l.name.includes('[белок красить]'));
   
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
@@ -56,8 +65,12 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
+    // Если слой требует клиппинга и есть слой для покраски
+    if (layer.clipping && paintLayer) {
+      renderClippedLayer(ctx, layer, paintLayer, character);
+    } 
     // Особые случаи для слоев покраски
-    if (layer.name.includes('[красить]')) {
+    else if (layer.name.includes('[красить]')) {
       renderColorLayer(ctx, layer, character.colors?.main || '#f1ece4');
     } else if (layer.name.includes('[белок красить]')) {
       renderColorLayer(ctx, layer, character.colors?.eyesWhite || '#ffffff');
@@ -82,6 +95,35 @@ function renderPart(partName, ctx, psdData, character) {
   }
 }
 
+function renderClippedLayer(ctx, layer, maskLayer, character) {
+  // Создаем временный canvas для клиппинга
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = maskLayer.canvas.width;
+  tempCanvas.height = maskLayer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // 1. Рисуем маску (слой покраски)
+  if (maskLayer.name.includes('[красить]')) {
+    tempCtx.fillStyle = character.colors?.main || '#f1ece4';
+  } else if (maskLayer.name.includes('[белок красить]')) {
+    tempCtx.fillStyle = character.colors?.eyesWhite || '#ffffff';
+  }
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+  // 2. Применяем compositing для обрезки
+  tempCtx.globalCompositeOperation = 'source-in';
+  
+  // 3. Рисуем слой, который нужно обрезать
+  tempCtx.drawImage(
+    layer.canvas, 
+    layer.left - maskLayer.left, 
+    layer.top - maskLayer.top
+  );
+  
+  // 4. Рисуем результат на основном canvas
+  ctx.drawImage(tempCanvas, 0, 0);
+}
+
 function renderColorLayer(ctx, layer, color) {
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = layer.canvas.width;
@@ -103,7 +145,13 @@ function convertBlendMode(psdBlendMode) {
     'screen': 'screen',
     'overlay': 'overlay',
     'darken': 'darken',
-    'lighten': 'lighten'
+    'lighten': 'lighten',
+    'colorDodge': 'color-dodge',
+    'colorBurn': 'color-burn',
+    'hardLight': 'hard-light',
+    'softLight': 'soft-light',
+    'difference': 'difference',
+    'exclusion': 'exclusion'
   };
   return modes[psdBlendMode.toLowerCase()] || 'source-over';
 }
