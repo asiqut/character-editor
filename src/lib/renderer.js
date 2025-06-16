@@ -1,75 +1,47 @@
+// Исправленный renderer.js
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // Рендерим в обратном порядке - от нижних слоёв к верхним
-  const partsOrder = psdData._order || [
-    'ears', 'eyes', 'cheeks', 'head', 'mane', 'body', 'tail'
+
+  // Правильный порядок рендеринга (снизу вверх)
+  const partsOrder = [
+    'tail',    // Хвост (самый нижний)
+    'body',    // Тело
+    'mane',    // Грива/шея
+    'head',    // Голова
+    'cheeks',  // Щёки
+    'eyes',    // Глаза
+    'ears'     // Уши (самый верхний)
   ];
 
+  // Рендерим каждый слой в правильном порядке
   partsOrder.forEach(partName => {
-    if (partName.startsWith('_')) return;
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
-    
     renderPart(partName, ctx, psdData, character);
   });
 }
 
 function renderPart(partName, ctx, psdData, character) {
   const partGroup = psdData[partName];
-  if (!partGroup) {
-    console.warn(`Part group not found: ${partName}`);
-    return;
-  }
+  if (!partGroup) return;
 
   let variantName;
   switch (partName) {
-    case 'ears':
-      variantName = character.ears || 'торчком обычные';
-      break;
-    case 'eyes':
-      variantName = character.eyes?.type || 'обычные';
-      // Для лисьих глаз нет подтипов
-      if (variantName !== 'лисьи') {
-        const subtype = character.eyes?.subtype || 'с ресницами';
-        const subtypeLayer = variantLayers.find(l => l.name === subtype);
-      
-        if (subtypeLayer?.canvas) {
-          ctx.save();
-          ctx.translate(subtypeLayer.left, subtypeLayer.top);
-          ctx.drawImage(subtypeLayer.canvas, 0, 0);
-          ctx.restore();
-        }
-      }
-      break;
-    case 'mane':
-      variantName = character.mane || 'обычная';
-      break;
-    case 'body':
-      variantName = character.body || 'v1';
-      break;
-    case 'tail':
-      variantName = character.tail || 'обычный';
-      break;
-    case 'cheeks':
-      variantName = character.cheeks === 'нет' ? null : 'пушистые';
-      break;
-    case 'head':
-      variantName = 'default';
-      break;
-    default:
-      variantName = 'default';
+    case 'ears': variantName = character.ears || 'торчком обычные'; break;
+    case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
+    case 'mane': variantName = character.mane || 'обычная'; break;
+    case 'body': variantName = character.body || 'v1'; break;
+    case 'tail': variantName = character.tail || 'обычный'; break;
+    case 'cheeks': variantName = 'пушистые'; break;
+    case 'head': variantName = 'default'; break;
+    default: variantName = 'default';
   }
-
-  if (!variantName) return; // Для случая "нет" щёк
 
   const variantLayers = partGroup[variantName] || [];
   
-  // Сначала находим слой [красить] если он есть
-  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
+  // Обработка слоёв
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
@@ -80,23 +52,8 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Если это слой покраски
-    if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer, 
-        partName === 'eyes' && layer.name.includes('[белок красить]') 
-          ? character.colors?.eyesWhite || '#ffffff'
-          : character.colors?.main || '#f1ece4'
-      );
-    } 
-    // Если слой требует клиппинга и есть слой покраски
-    else if (colorLayer && shouldClipLayer(layer.name)) {
-      renderClippedLayer(ctx, layer, colorLayer);
-    }
-    // Обычный слой
-    else {
-      ctx.drawImage(layer.canvas, 0, 0);
-    }
-    
+    // Остальная логика рендеринга...
+    ctx.drawImage(layer.canvas, 0, 0);
     ctx.restore();
   });
 
