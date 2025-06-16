@@ -31,27 +31,29 @@ const handlePartChange = (part, value, subpart = null) => {
   setCharacter(prev => {
     const newChar = {...prev};
     
-    // Для глаз особый случай
     if (part === 'eyes') {
       if (subpart === 'subtype') {
-        // Изменение подтипа глаз
-        newChar.eyes.subtype = value;
+        // Обновляем только подтип, сохраняя текущий тип глаз
+        newChar.eyes = {
+          ...newChar.eyes,
+          subtype: value
+        };
       } else {
-        // Изменение типа глаз
-        newChar.eyes.type = value;
-        // Сбрасываем подтип при смене типа
-        newChar.eyes.subtype = value === 'обычные' ? 'с ресницами' : '';
+        // Обновляем тип глаз
+        newChar.eyes = {
+          type: value,
+          // Для обычных глаз устанавливаем подтип по умолчанию
+          subtype: value === 'обычные' ? 'с ресницами' : null
+        };
       }
-    } 
-    // Для всех остальных частей
-    else {
+    } else {
+      // Для всех других частей
       newChar[part] = value;
     }
     
     return newChar;
   });
 };
-
   const handleColorChange = (colorType, color) => {
   setCharacter(prev => {
     const newColors = {
