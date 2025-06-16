@@ -4,18 +4,16 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Правильный порядок рендеринга (снизу вверх)
   const partsOrder = [
-    'tail',    // Хвост (самый нижний)
-    'body',    // Тело
-    'mane',    // Грива/шея
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (самый верхний)
+    'tail',
+    'body',
+    'mane',
+    'head',
+    'cheeks',
+    'eyes',
+    'ears'
   ];
 
-  // Рендерим каждый слой в правильном порядке
   partsOrder.forEach(currentPartName => {
     if (currentPartName === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(currentPartName, ctx, psdData, character);
@@ -47,6 +45,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
+  // Находим слой для клиппинга ([красить])
+  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
@@ -57,7 +58,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Вот сюда вставляем ваш код для обработки слоев покраски
+    // Обработка слоя покраски
     if (layer.name.includes('[красить]')) {
       let colorToUse;
       if (layer.name.includes('[белок красить]')) {
@@ -69,10 +70,12 @@ function renderPart(currentPartName, ctx, psdData, character) {
       }
       renderColorLayer(ctx, layer, colorToUse);
     }
-    // Остальная логика рендеринга...
-    else if (shouldClipLayer(layer.name)) {
-      // Логика для клиппинга слоев
-    } else {
+    // Обработка слоёв, требующих клиппинга (тень, свет и т.д.)
+    else if (shouldClipLayer(layer.name) && colorLayer) {
+      renderClippedLayer(ctx, layer, colorLayer);
+    }
+    // Обычные слои (лайн и другие)
+    else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
     
@@ -80,29 +83,28 @@ function renderPart(currentPartName, ctx, psdData, character) {
   });
 
   // Особый случай для глаз (подтипы)
-if (currentPartName === 'eyes' && variantName === 'обычные') {
-  const subtype = character.eyes?.subtype || 'с ресницами';
-  const subtypeLayer = variantLayers.find(l => l.name === subtype);
-  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
-  if (subtypeLayer?.canvas) {
-    ctx.save();
-    ctx.translate(subtypeLayer.left, subtypeLayer.top);
+  if (currentPartName === 'eyes' && variantName === 'обычные') {
+    const subtype = character.eyes?.subtype || 'с ресницами';
+    const subtypeLayer = variantLayers.find(l => l.name === subtype);
     
-    // Для подтипов глаз также применяем клиппинг если нужно
-    if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
-      renderClippedLayer(ctx, subtypeLayer, colorLayer);
-    } else {
-      ctx.drawImage(subtypeLayer.canvas, 0, 0);
+    if (subtypeLayer?.canvas) {
+      ctx.save();
+      ctx.translate(subtypeLayer.left, subtypeLayer.top);
+      
+      // Для подтипов глаз также применяем клиппинг если нужно
+      if (shouldClipLayer(subtypeLayer.name) && colorLayer) {
+        renderClippedLayer(ctx, subtypeLayer, colorLayer);
+      } else {
+        ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      }
+      
+      ctx.restore();
     }
-    
-    ctx.restore();
   }
-}
 }
 
 function shouldClipLayer(layerName) {
-  return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
+  return ['свет', 'тень', 'свет2', 'блики', 'с ресницами', 'без ресниц'].includes(layerName);
 }
 
 function renderClippedLayer(ctx, layer, clipLayer) {
@@ -111,13 +113,17 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
   const tempCtx = tempCanvas.getContext('2d');
   
+  // Рендерим слой клиппинга
   tempCtx.drawImage(clipLayer.canvas, 
     clipLayer.left - layer.left, 
     clipLayer.top - layer.top
   );
   
+  // Применяем клиппинг
   tempCtx.globalCompositeOperation = 'source-in';
   tempCtx.drawImage(layer.canvas, 0, 0);
+  
+  // Рендерим результат
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
