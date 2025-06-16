@@ -4,10 +4,18 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Порядок отрисовки согласно вашему требованию
-  const partsOrder = ['ears', 'eyes', 'cheeks', 'head', 'mane', 'body', 'tail'];
+  // Используем сохраненный порядок из PSD или стандартный, если его нет
+  const partsOrder = psdData._order || [
+    'body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'
+  ];
 
   partsOrder.forEach(partName => {
+    // Пропускаем служебные свойства
+    if (partName.startsWith('_')) return;
+    
+    // Особый случай для щёк - если выбрано "нет", пропускаем
+    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+    
     renderPart(partName, ctx, psdData, character);
   });
 }
@@ -37,14 +45,16 @@ function renderPart(partName, ctx, psdData, character) {
       variantName = character.tail || 'обычный';
       break;
     case 'cheeks':
-      variantName = character.cheeks || 'пушистые'; // Исправлено
+      variantName = character.cheeks === 'нет' ? null : 'пушистые';
       break;
     case 'head':
-      variantName = 'default'; // Исправлено
+      variantName = 'default';
       break;
     default:
       variantName = 'default';
   }
+
+  if (!variantName) return; // Для случая "нет" щёк
 
   const variantLayers = partGroup[variantName] || [];
   
