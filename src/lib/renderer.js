@@ -58,7 +58,7 @@ function renderPart(partName, ctx, psdData, character) {
 
   const variantLayers = partGroup[variantName] || [];
   
-  // Сначала находим слой [красить] если он есть
+  // Обработка слоя покраски
   const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
   
   variantLayers.forEach(layer => {
@@ -73,16 +73,8 @@ function renderPart(partName, ctx, psdData, character) {
     
     // Если это слой покраски
     if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer, 
-        partName === 'eyes' && layer.name.includes('[белок красить]') 
-          ? character.colors?.eyesWhite || '#ffffff'
-          : character.colors?.main || '#f1ece4'
-      );
+      renderColorLayer(ctx, layer, character.colors?.main || '#f1ece4');
     } 
-    // Если слой требует клиппинга и есть слой покраски
-    else if (colorLayer && shouldClipLayer(layer.name)) {
-      renderClippedLayer(ctx, layer, colorLayer);
-    }
     // Обычный слой
     else {
       ctx.drawImage(layer.canvas, 0, 0);
@@ -90,6 +82,7 @@ function renderPart(partName, ctx, psdData, character) {
     
     ctx.restore();
   });
+}
 
   // Особый случай для глаз (подтипы)
   if (partName === 'eyes' && variantName === 'обычные') {
