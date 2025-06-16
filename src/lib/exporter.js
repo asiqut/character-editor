@@ -3,8 +3,9 @@ import { renderCharacter } from './renderer';
 
 export const exportPNG = (canvas, character, psdData) => {
   const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = 800;
-  exportCanvas.height = 800;
+  // Используем увеличенный размер для экспорта
+  exportCanvas.width = 630;
+  exportCanvas.height = 630;
   
   renderCharacter(exportCanvas, psdData, character);
   
@@ -16,8 +17,8 @@ export const exportPNG = (canvas, character, psdData) => {
 
 export const exportPSD = (psdData, character) => {
   const newPsd = {
-    width: 800,
-    height: 800,
+    width: 315, // Оригинальный размер PSD
+    height: 315,
     children: []
   };
 
