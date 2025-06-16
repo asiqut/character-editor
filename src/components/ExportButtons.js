@@ -5,26 +5,26 @@ function ExportButtons({ character, psdData }) {
   const canvasRef = useRef(null);
 
   const handleExportPNG = () => {
-    if (canvasRef.current && psdData) {
+    if (psdData) {
       exportPNG(canvasRef.current, character, psdData);
     }
   };
   
-const handleExportPNG = () => {
-  if (canvasRef.current && psdData) {
-    exportPNG(canvasRef.current, character, psdData);
-  }
-};
+  const handleExportPSD = () => {
+    if (psdData) {
+      exportPSD(psdData, character);
+    }
+  };
   
   return (
     <div className="export-buttons">
-      <button onClick={handleExportPNG}>Export PNG</button>
-      <button onClick={handleExportPSD}>Export PSD</button>
+      <button onClick={handleExportPNG}>Export PNG (315x315)</button>
+      <button onClick={handleExportPSD}>Export PSD (315x315)</button>
       
       <canvas 
         ref={canvasRef} 
-        width={800} 
-        height={800}
+        width={315} 
+        height={315}
         style={{ display: 'none' }}
       />
     </div>
