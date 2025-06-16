@@ -5,19 +5,16 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Получаем размеры PSD и рассчитываем масштаб
   const psdWidth = psdData.width;
   const psdHeight = psdData.height;
   const scale = Math.min(canvas.width / psdWidth, canvas.height / psdHeight);
   
-  // Центрируем изображение
   ctx.save();
   const offsetX = (canvas.width - psdWidth * scale) / 2;
   const offsetY = (canvas.height - psdHeight * scale) / 2;
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  // Порядок отрисовки (важен для правильного наложения слоев)
   const partsOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
 
   partsOrder.forEach(part => {
@@ -69,20 +66,17 @@ function renderPart(part, ctx, psdData, character) {
   const partConfig = config[part];
   if (!partConfig) return;
 
-  // Находим основную группу
   const group = psdData.children?.find(g => g.name === partConfig.group);
   if (!group) {
     console.warn(`Group not found: ${partConfig.group}`);
     return;
   }
 
-  // Для глаз особая обработка
   if (part === 'eyes') {
     renderEyes(ctx, group, partConfig, character);
     return;
   }
 
-  // Определяем группу варианта
   let variantGroup;
   if (partConfig.variant) {
     variantGroup = group.children?.find(g => g.name === partConfig.variant);
@@ -94,12 +88,10 @@ function renderPart(part, ctx, psdData, character) {
     variantGroup = group;
   }
 
-  // Рисуем все слои варианта
   partConfig.layers.forEach(layerName => {
     const layer = variantGroup.children?.find(l => l.name === layerName);
     if (layer?.canvas) {
       ctx.save();
-      // Учитываем позицию слоя из PSD
       ctx.translate(layer.left || 0, layer.top || 0);
       
       if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
@@ -118,7 +110,6 @@ function renderEyes(ctx, eyesGroup, config, character) {
   const variantGroup = eyesGroup.children?.find(g => g.name === config.variant);
   if (!variantGroup) return;
 
-  // Основные слои глаз
   config.layers.forEach(layerName => {
     if (layerName === 'с ресницами' || layerName === 'без ресниц') return;
     
@@ -127,7 +118,7 @@ function renderEyes(ctx, eyesGroup, config, character) {
       ctx.save();
       ctx.translate(layer.left || 0, layer.top || 0);
       
-      if (layerName.includes('[красить]') {
+      if (layerName.includes('[красить]')) {
         applyColorFilter(ctx, layer, character);
       } else if (layerName.includes('[белок красить]')) {
         applyColorFilter(ctx, layer, character);
@@ -140,7 +131,6 @@ function renderEyes(ctx, eyesGroup, config, character) {
     }
   });
 
-  // Слой с ресницами (только для обычных глаз)
   if (config.variant === 'обычные' && config.subtype) {
     const subtypeLayer = variantGroup.children?.find(l => l.name === config.subtype);
     if (subtypeLayer?.canvas) {
