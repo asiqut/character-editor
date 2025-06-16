@@ -1,36 +1,29 @@
 import * as PSD from 'ag-psd';
 
-export const exportPNG = (canvas, character, psdData) => {
-  // Создаем временный canvas для рендеринга
-  const renderCanvas = document.createElement('canvas');
-  renderCanvas.width = 630; // Рендерим в увеличенном размере
-  renderCanvas.height = 630;
-  const renderCtx = renderCanvas.getContext('2d');
-  
-  // Рендерим персонажа с масштабированием
+export const exportPNG = (character, psdData) => {
+  // Создаем canvas для рендеринга
+  const canvas = document.createElement('canvas');
+  canvas.width = 315;
+  canvas.height = 315;
+  const ctx = canvas.getContext('2d');
+
+  // Настройки масштабирования (такие же как в превью)
   const scale = 1.15;
-  const offsetX = (630 - 315 * scale) / 2;
-  const offsetY = (630 - 315 * scale) / 2;
-  
-  renderCtx.save();
-  renderCtx.translate(offsetX, offsetY);
-  renderCtx.scale(scale, scale);
-  renderCharacter(renderCanvas, psdData, character);
-  renderCtx.restore();
-  
-  // Создаем финальный canvas 315x315
-  const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = 315;
-  exportCanvas.height = 315;
-  const exportCtx = exportCanvas.getContext('2d');
-  
-  // Копируем с масштабированием обратно к оригинальному размеру
-  exportCtx.drawImage(renderCanvas, 0, 0, 315, 315);
-  
-  // Создаем ссылку для скачивания
+  const offsetX = (315 - 315 * scale) / 2;
+  const offsetY = (315 - 315 * scale) / 2;
+
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
+
+  // Рендерим персонажа
+  renderCharacter(canvas, psdData, character);
+  ctx.restore();
+
+  // Экспортируем
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
-  link.href = exportCanvas.toDataURL('image/png');
+  link.href = canvas.toDataURL('image/png');
   link.click();
 };
 
