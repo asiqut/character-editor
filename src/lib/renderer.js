@@ -69,14 +69,17 @@ function renderPart(part, ctx, psdData, character) {
   if (!partConfig) return;
 
   // Находим основную группу
-  const group = psdData.children.find(g => g.name === partConfig.group);
+  const group = psdData.children?.find(g => g.name === partConfig.group);
   if (!group) {
     console.warn(`Group not found: ${partConfig.group}`);
     return;
   }
 
   // Находим вариант (подгруппу)
-  const variantGroup = group.children?.find(g => g.name === partConfig.variant);
+  const variantGroup = partConfig.variant ? 
+    group.children?.find(g => g.name === partConfig.variant) : 
+    group;
+
   if (!variantGroup) {
     console.warn(`Variant not found: ${partConfig.group}/${partConfig.variant}`);
     return;
@@ -98,12 +101,9 @@ function renderPart(part, ctx, psdData, character) {
       
       ctx.drawImage(layer.canvas, 0, 0);
       ctx.restore();
-    } else {
-      console.warn(`Layer not found: ${partConfig.group}/${partConfig.variant}/${layerName}`);
     }
   });
 }
-
   // Для всех слоев учитываем их оригинальное положение
   if (part === 'eyes') {
     renderEyes(ctx, group, partConfig, character);
