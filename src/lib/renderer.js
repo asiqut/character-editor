@@ -1,33 +1,31 @@
-export function renderCharacter(canvas, psdData, character, options = {}) {
+export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Для превью используем увеличение, для экспорта - оригинальный размер
-  const isExport = options.isExport || false;
+  // Размеры PSD
   const psdWidth = 315;
   const psdHeight = 315;
-  const scale = isExport ? 1 : 1.5; // Только для превью увеличиваем
+  const scale = 1.15; // Небольшое увеличение
+  
+  // Центрирование
+  const offsetX = (canvas.width - psdWidth * scale) / 2;
+  const offsetY = (canvas.height - psdHeight * scale) / 2;
 
-  if (!isExport) {
-    // Центрирование только для превью
-    const offsetX = (canvas.width - psdWidth * scale) / 2;
-    const offsetY = (canvas.height - psdHeight * scale) / 2;
-    ctx.save();
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(scale, scale);
-  }
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
 
-function renderLayers(ctx, psdData, character) {
-  const partsOrder = [
-    'tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'
-  ];
+  // Порядок рендеринга
+  const partsOrder = ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'];
 
-  partsOrder.forEach(currentPartName => {
-    if (currentPartName === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(currentPartName, ctx, psdData, character);
+  partsOrder.forEach(part => {
+    if (part === 'cheeks' && character.cheeks === 'нет') return;
+    renderPart(part, ctx, psdData, character);
   });
+
+  ctx.restore();
 }
 
 function renderPart(currentPartName, ctx, psdData, character) {
