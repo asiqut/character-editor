@@ -18,8 +18,8 @@ function ExportButtons({ character, psdData }) {
   
   return (
     <div className="export-buttons">
-      <button onClick={handleExportPNG}>Export PNG (315x315)</button>
-      <button onClick={handleExportPSD}>Export PSD (315x315)</button>
+      <button onClick={handleExportPNG}>Export PNG</button>
+      <button onClick={handleExportPSD}>Export PSD</button>
       
       <canvas 
         ref={canvasRef} 
