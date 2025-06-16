@@ -175,3 +175,8 @@ function convertBlendMode(psdBlendMode) {
   };
   return modes[psdBlendMode.toLowerCase()] || 'source-over';
 }
+
+    if (!isExport) {
+    ctx.restore();
+  }
+}
