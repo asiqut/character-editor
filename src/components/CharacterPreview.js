@@ -6,23 +6,24 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      canvasRef.current.width = 800;
-      canvasRef.current.height = 800;
+      // Устанавливаем размеры канваса (можно сделать больше для лучшего качества)
+      canvasRef.current.width = 630; // 315 * 2
+      canvasRef.current.height = 630;
       renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
   
   return (
     <div style={{
-      width: '800px',
-      height: '800px',
+      width: '630px',
+      height: '630px',
       position: 'relative',
       border: '1px solid #ddd'
     }}>
       <canvas 
         ref={canvasRef} 
-        width={800}
-        height={800}
+        width={630}
+        height={630}
         style={{ display: 'block' }}
       />
     </div>
