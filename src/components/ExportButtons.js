@@ -10,11 +10,11 @@ function ExportButtons({ character, psdData }) {
     }
   };
   
-  const handleExportPSD = () => {
-    if (psdData) {
-      exportPSD(psdData, character);
-    }
-  };
+const handleExportPNG = () => {
+  if (canvasRef.current && psdData) {
+    exportPNG(canvasRef.current, character, psdData);
+  }
+};
   
   return (
     <div className="export-buttons">
