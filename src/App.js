@@ -73,6 +73,16 @@ function App() {
     }));
   };
 
+  const handlePartColorChange = (part, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      partColors: {
+        ...prev.partColors,
+        [part]: color
+      }
+    }));
+  };
+
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
@@ -83,16 +93,6 @@ function App() {
       
       <div className="editor-container">
         <CharacterPreview psdData={psdData} character={character} />
-    
-  const handlePartColorChange = (part, color) => {
-  setCharacter(prev => ({
-    ...prev,
-    partColors: {
-      ...prev.partColors,
-      [part]: color
-    }
-  }));
-};
         
         <div className="controls">
           <PartSelector
@@ -102,7 +102,12 @@ function App() {
             current={character.ears}
             onChange={(part, value) => handlePartChange(part, value)}
           />
-  
+          <ColorPicker
+            title="Цвет ушей"
+            color={character.partColors.ears}
+            onChange={(color) => handlePartColorChange('ears', color)}
+          />
+
           <PartSelector
             title="Щёки"
             part="cheeks"
@@ -110,7 +115,7 @@ function App() {
             current={character.cheeks}
             onChange={(part, value) => handlePartChange(part, value)}
           />
-            <ColorPicker
+          <ColorPicker
             title="Цвет щёк"
             color={character.partColors.cheeks}
             onChange={(color) => handlePartColorChange('cheeks', color)}
@@ -176,18 +181,19 @@ function App() {
             title="Основной цвет (все части)"
             color={character.colors.main}
             onChange={(color) => {
-            handleColorChange('main', color);
-            // Обновляем все части при изменении основного цвета
-            setCharacter(prev => ({
-            ...prev,
-            partColors: {
-              ears: color,
-              cheeks: color,
-              mane: color,
-              body: color,
-              tail: color,
-              head: color
-            }
+              handleColorChange('main', color);
+              setCharacter(prev => ({
+                ...prev,
+                partColors: {
+                  ears: color,
+                  cheeks: color,
+                  mane: color,
+                  body: color,
+                  tail: color,
+                  head: color
+                }
+              }));
+            }}
           />
           
           <ColorPicker
