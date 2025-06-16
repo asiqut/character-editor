@@ -4,11 +4,8 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Порядок отрисовки частей
-  const partsOrder = [
-    'Тело', 'Хвосты', 'Грудь/шея/грива', 
-    'Голова', 'Уши', 'Щёки', 'Глаза'
-  ];
+  // Порядок отрисовки согласно вашему требованию
+  const partsOrder = ['ears', 'eyes', 'cheeks', 'head', 'mane', 'body', 'tail'];
 
   partsOrder.forEach(partName => {
     renderPart(partName, ctx, psdData, character);
@@ -25,26 +22,35 @@ function renderPart(partName, ctx, psdData, character) {
   // Определяем вариант для каждой части
   let variantName;
   switch (partName) {
-    case 'Уши':
+    case 'ears':
       variantName = character.ears || 'торчком обычные';
       break;
-    case 'Глаза':
+    case 'eyes':
       variantName = character.eyes?.type || 'обычные';
       break;
-    case 'Грудь/шея/грива':
+    case 'mane':
       variantName = character.mane || 'обычная';
       break;
-    case 'Тело':
+    case 'body':
       variantName = character.body || 'v1';
       break;
-    case 'Хвосты':
+    case 'tail':
       variantName = character.tail || 'обычный';
+      break;
+    case 'cheeks':
+      variantName = 'пушистые'; // Единственный вариант
+      break;
+    case 'head':
+      variantName = 'default'; // Единственный вариант
       break;
     default:
       variantName = 'default';
   }
 
   const variantLayers = partGroup[variantName] || [];
+  
+  // Сначала находим слой [красить] если он есть
+  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
   
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
@@ -56,12 +62,20 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Особые случаи для слоев покраски
+    // Если это слой покраски
     if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer, character.colors?.main || '#f1ece4');
-    } else if (layer.name.includes('[белок красить]')) {
-      renderColorLayer(ctx, layer, character.colors?.eyesWhite || '#ffffff');
-    } else {
+      renderColorLayer(ctx, layer, 
+        partName === 'eyes' && layer.name.includes('[белок красить]') 
+          ? character.colors?.eyesWhite || '#ffffff'
+          : character.colors?.main || '#f1ece4'
+      );
+    } 
+    // Если слой требует клиппинга и есть слой покраски
+    else if (colorLayer && shouldClipLayer(layer.name)) {
+      renderClippedLayer(ctx, layer, colorLayer);
+    }
+    // Обычный слой
+    else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
     
@@ -69,7 +83,7 @@ function renderPart(partName, ctx, psdData, character) {
   });
 
   // Особый случай для глаз (подтипы)
-  if (partName === 'Глаза' && variantName === 'обычные') {
+  if (partName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
     
@@ -80,6 +94,33 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.restore();
     }
   }
+}
+
+function shouldClipLayer(layerName) {
+  // Слои, которые должны обрезаться по слою покраски
+  return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
+}
+
+function renderClippedLayer(ctx, layer, clipLayer) {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = Math.max(layer.canvas.width, clipLayer.canvas.width);
+  tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // 1. Рисуем слой покраски как маску
+  tempCtx.drawImage(clipLayer.canvas, 
+    clipLayer.left - layer.left, 
+    clipLayer.top - layer.top
+  );
+  
+  // 2. Применяем композицию для обрезки
+  tempCtx.globalCompositeOperation = 'source-in';
+  
+  // 3. Рисуем сам слой
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  
+  // 4. Рисуем результат на основном canvas
+  ctx.drawImage(tempCanvas, 0, 0);
 }
 
 function renderColorLayer(ctx, layer, color) {
