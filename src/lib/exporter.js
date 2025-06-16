@@ -3,12 +3,11 @@ import { renderCharacter } from './renderer';
 
 export const exportPNG = (canvas, character, psdData) => {
   const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = 315; // Оригинальный размер
+  exportCanvas.width = 315; // Фиксированный размер
   exportCanvas.height = 315;
   
-  renderCharacter(exportCanvas, psdData, character, {
-    forExport: true // Без масштабирования
-  });
+  // Рендерим с флагом isExport
+  renderCharacter(exportCanvas, psdData, character, { isExport: true });
   
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
@@ -23,12 +22,6 @@ export const exportPSD = (psdData, character) => {
     children: []
   };
 
-  // Создаем временный canvas для рендера каждого слоя
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = 315;
-  tempCanvas.height = 315;
-  const tempCtx = tempCanvas.getContext('2d');
-  
   const partsOrder = ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'];
   
   partsOrder.forEach(part => {
@@ -43,16 +36,14 @@ export const exportPSD = (psdData, character) => {
     
     layers.forEach(layer => {
       if (layer.canvas) {
-        tempCtx.clearRect(0, 0, 315, 315);
-        tempCtx.drawImage(layer.canvas, layer.left, layer.top);
-        
         newPsd.children.push({
           name: `${part}/${variant}/${layer.name}`,
-          canvas: tempCanvas,
+          canvas: layer.canvas,
           left: layer.left,
           top: layer.top,
           opacity: layer.opacity,
-          blendMode: layer.blendMode
+          blendMode: layer.blendMode,
+          clipping: layer.clipping
         });
       }
     });
