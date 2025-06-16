@@ -57,6 +57,7 @@ export async function loadPSD() {
           left: layer.left || 0,
           top: layer.top || 0,
           blendMode: layer.blendMode,
+          opacity: layer.opacity, // Сохраняем оригинальную прозрачность
           clipping: layer.clipping
         }));
       });
