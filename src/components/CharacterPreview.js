@@ -6,8 +6,13 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      canvasRef.current.width = 800;
-      canvasRef.current.height = 800;
+      // Используем размеры из PSD или дефолтные 800x800
+      const width = psdData.width || 800;
+      const height = psdData.height || 800;
+      
+      canvasRef.current.width = width;
+      canvasRef.current.height = height;
+      
       renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
@@ -17,13 +22,16 @@ function CharacterPreview({ psdData, character }) {
       width: '800px',
       height: '800px',
       position: 'relative',
-      border: '1px solid #ddd'
+      border: '1px solid #ddd',
+      overflow: 'hidden'
     }}>
       <canvas 
         ref={canvasRef} 
-        width={800}
-        height={800}
-        style={{ display: 'block' }}
+        style={{ 
+          display: 'block',
+          maxWidth: '100%',
+          maxHeight: '100%'
+        }}
       />
     </div>
   );
