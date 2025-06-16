@@ -2,29 +2,46 @@ import * as PSD from 'ag-psd';
 import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
-  // Создаем canvas для рендеринга
-  const canvas = document.createElement('canvas');
-  canvas.width = 315;
-  canvas.height = 315;
-  const ctx = canvas.getContext('2d');
+  // Создаем временный canvas большего размера для рендеринга
+  const renderCanvas = document.createElement('canvas');
+  renderCanvas.width = 630; // Рендерим в увеличенном размере
+  renderCanvas.height = 630;
+  const renderCtx = renderCanvas.getContext('2d');
 
-  // Настройки масштабирования (такие же как в превью)
+  // Рендерим персонажа с масштабированием
   const scale = 1.15;
-  const offsetX = (315 - 315 * scale) / 2;
-  const offsetY = (315 - 315 * scale) / 2;
+  const offsetX = (630 - 315 * scale) / 2;
+  const offsetY = (630 - 315 * scale) / 2;
+  
+  renderCtx.save();
+  renderCtx.translate(offsetX, offsetY);
+  renderCtx.scale(scale, scale);
+  renderCharacter(renderCanvas, psdData, character);
+  renderCtx.restore();
 
-  ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-
-  // Рендерим персонажа
-  renderCharacter(canvas, psdData, character);
-  ctx.restore();
+  // Создаем финальный canvas 315x315
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = 315;
+  exportCanvas.height = 315;
+  const exportCtx = exportCanvas.getContext('2d');
+  
+  // Копируем центральную часть (обрезаем края)
+  exportCtx.drawImage(
+    renderCanvas,
+    (630 - 315) / 2, // source x
+    (630 - 315) / 2, // source y
+    315, // source width
+    315, // source height
+    0, // destination x
+    0, // destination y
+    315, // destination width
+    315 // destination height
+  );
 
   // Экспортируем
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
+  link.href = exportCanvas.toDataURL('image/png');
   link.click();
 };
 
@@ -58,6 +75,39 @@ export const exportPSD = (originalPsd, character) => {
     'tail': 'Хвосты'
   };
 
+  // Функция для применения цвета к слою
+  const applyColorToLayer = (layer, partName, character) => {
+    if (!layer.canvas) return layer;
+    
+    // Создаем временный canvas
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = layer.canvas.width;
+    tempCanvas.height = layer.canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Определяем цвет
+    let color;
+    if (layer.name.includes('[белок красить]')) {
+      color = character.colors?.eyesWhite || '#ffffff';
+    } else if (layer.name.includes('[красить]')) {
+      color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+    } else {
+      return layer; // Не меняем слои без покраски
+    }
+    
+    // Применяем цвет
+    tempCtx.drawImage(layer.canvas, 0, 0);
+    tempCtx.globalCompositeOperation = 'source-atop';
+    tempCtx.fillStyle = color;
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+    // Возвращаем обновленный слой
+    return {
+      ...layer,
+      canvas: tempCanvas
+    };
+  };
+
   // Создаем группы в правильном порядке
   groupOrder.forEach(groupName => {
     const partName = Object.keys(partToGroupName).find(
@@ -87,17 +137,20 @@ export const exportPSD = (originalPsd, character) => {
       layers = originalPsd[partName]?.[variantName] || [];
     }
 
-    // Копируем слои с сохранением всех свойств
-    const groupLayers = layers.map(layer => ({
-      name: layer.name,
-      canvas: layer.canvas,
-      left: layer.left,
-      top: layer.top,
-      opacity: layer.opacity,
-      blendMode: layer.blendMode,
-      clipping: layer.clipping,
-      hidden: false
-    }));
+    // Копируем слои с сохранением всех свойств и применяем цвета
+    const groupLayers = layers.map(layer => {
+      const coloredLayer = applyColorToLayer(layer, partName, character);
+      return {
+        name: layer.name,
+        canvas: coloredLayer.canvas,
+        left: layer.left,
+        top: layer.top,
+        opacity: layer.opacity,
+        blendMode: layer.blendMode,
+        clipping: layer.clipping,
+        hidden: false
+      };
+    });
 
     // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
@@ -118,7 +171,7 @@ export const exportPSD = (originalPsd, character) => {
 
     // Добавляем группу в PSD
     if (groupLayers.length > 0) {
-      newPsd.children.unshift({ // Используем unshift для правильного порядка
+      newPsd.children.unshift({
         name: groupName,
         children: groupLayers
       });
