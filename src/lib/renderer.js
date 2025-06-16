@@ -116,7 +116,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
     return;
   }
 
-  // Остальной код для других частей остается без изменений
+  // Остальной код для других частей
   const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
   
   variantLayers.forEach(layer => {
@@ -155,28 +155,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
   });
 }
 
-  // Особый случай для глаз (подтипы)
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      
-      // Для подтипов глаз также применяем клиппинг если нужно
-      if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
-        renderClippedLayer(ctx, subtypeLayer, colorLayer);
-      } else {
-        ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      }
-      
-      ctx.restore();
-    }
-  }
-}
-
 function shouldClipLayer(layerName) {
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
 }
@@ -193,9 +171,9 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   );
   
   tempCtx.globalCompositeOperation = 'source-in';
-
+  
   if (layer.opacity !== undefined && layer.opacity < 1) {
-  tempCtx.globalAlpha = layer.opacity;
+    tempCtx.globalAlpha = layer.opacity;
   }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
@@ -207,9 +185,9 @@ function renderColorLayer(ctx, layer, color) {
   tempCanvas.width = layer.canvas.width;
   tempCanvas.height = layer.canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
-
+  
   if (layer.opacity !== undefined && layer.opacity < 1) {
-  tempCtx.globalAlpha = layer.opacity;
+    tempCtx.globalAlpha = layer.opacity;
   }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
