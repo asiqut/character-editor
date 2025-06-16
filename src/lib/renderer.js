@@ -10,7 +10,10 @@ export function renderCharacter(canvas, psdData, character) {
   ];
 
   partsOrder.forEach(partName => {
+    // Пропускаем служебные свойства
     if (partName.startsWith('_')) return;
+    
+    // Особый случай для щёк - если выбрано "нет", пропускаем
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
     
     renderPart(partName, ctx, psdData, character);
@@ -51,7 +54,7 @@ function renderPart(partName, ctx, psdData, character) {
       variantName = 'default';
   }
 
-  if (!variantName) return;
+  if (!variantName) return; // Для случая "нет" щёк
 
   const variantLayers = partGroup[variantName] || [];
   
@@ -79,6 +82,7 @@ function renderPart(partName, ctx, psdData, character) {
     
     ctx.restore();
   });
+}
 
   // Особый случай для глаз (подтипы)
   if (partName === 'eyes' && variantName === 'обычные') {
@@ -92,9 +96,10 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.restore();
     }
   }
-}
+};
 
 function shouldClipLayer(layerName) {
+  // Слои, которые должны обрезаться по слою покраски
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
 }
 
@@ -104,13 +109,19 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
   const tempCtx = tempCanvas.getContext('2d');
   
+  // 1. Рисуем слой покраски как маску
   tempCtx.drawImage(clipLayer.canvas, 
     clipLayer.left - layer.left, 
     clipLayer.top - layer.top
   );
   
+  // 2. Применяем композицию для обрезки
   tempCtx.globalCompositeOperation = 'source-in';
+  
+  // 3. Рисуем сам слой
   tempCtx.drawImage(layer.canvas, 0, 0);
+  
+  // 4. Рисуем результат на основном canvas
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
@@ -124,6 +135,7 @@ function renderColorLayer(ctx, layer, color) {
   tempCtx.globalCompositeOperation = 'source-atop';
   tempCtx.fillStyle = color;
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
