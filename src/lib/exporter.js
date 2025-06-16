@@ -21,7 +21,7 @@ export const exportPSD = (psdData, character) => {
     children: []
   };
 
-  const partsOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
+  const partsOrder = ['ears', 'eyes', 'cheeks', 'head', 'mane', 'body', 'tail'];
   
   partsOrder.forEach(part => {
     const partVariant = character[part];
