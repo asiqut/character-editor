@@ -24,26 +24,35 @@ export function renderCharacter(canvas, psdData, character) {
 
 function renderPart(currentPartName, ctx, psdData, character) {
   const partGroup = psdData[currentPartName];
-  if (!partGroup) return;
-
-  let variantName;
-  switch (currentPartName) {
-    case 'ears': variantName = character.ears || 'торчком обычные'; break;
-    case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
-    case 'mane': variantName = character.mane || 'обычная'; break;
-    case 'body': variantName = character.body || 'v1'; break;
-    case 'tail': variantName = character.tail || 'обычный'; break;
-    case 'cheeks': variantName = 'пушистые'; break;
-    case 'head':
-  variantName = 'default'; // Используем 'default' для головы
-  console.log('Head layers:', partGroup[variantName]); // Отладка
-  break;
-    default: variantName = 'default';
+  if (!partGroup) {
+    console.warn(`Missing part group: ${currentPartName}`);
+    return;
   }
 
-  const variantLayers = partGroup[variantName] || [];
+  let variantName;
+  let variantLayers;
   
-  // Находим слой для покраски
+  // Особый случай для головы - берём слои напрямую из partGroup
+  if (currentPartName === 'head') {
+    console.log('Head layers (direct):', partGroup);
+    variantLayers = Array.isArray(partGroup) ? partGroup : [];
+  } 
+  else {
+    switch (currentPartName) {
+      case 'ears': variantName = character.ears || 'торчком обычные'; break;
+      case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
+      case 'mane': variantName = character.mane || 'обычная'; break;
+      case 'body': variantName = character.body || 'v1'; break;
+      case 'tail': variantName = character.tail || 'обычный'; break;
+      case 'cheeks': variantName = 'пушистые'; break;
+      default: variantName = 'default';
+    }
+    variantLayers = partGroup[variantName] || [];
+  }
+
+  console.log(`${currentPartName} layers:`, variantLayers);
+
+  // Остальной код обработки слоёв остаётся без изменений
   const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
   
   variantLayers.forEach(layer => {
