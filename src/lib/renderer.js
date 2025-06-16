@@ -4,15 +4,15 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Рендерим без масштабирования и смещения
+  // Без масштабирования и смещения - точь-в-точь как в PSD
   const partsOrder = [
-    'tail',
-    'body',
-    'mane',
-    'head',
-    'cheeks',
-    'eyes',
-    'ears'
+    'tail',    // Хвост (нижний слой)
+    'body',    // Тело
+    'mane',    // Грива
+    'head',    // Голова
+    'cheeks',  // Щёки
+    'eyes',    // Глаза
+    'ears'     // Уши (верхний слой)
   ];
 
   partsOrder.forEach(part => {
