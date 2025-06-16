@@ -1,4 +1,3 @@
-// Исправленный renderer.js
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
