@@ -85,13 +85,13 @@ function App() {
         <CharacterPreview psdData={psdData} character={character} />
         
         <div className="controls">
-          <PartSelector
-            title="Щёки"
-            part="cheeks"
-            options={PARTS_STRUCTURE.cheeks}
-            current={character.cheeks}
-            onChange={(part, value) => handlePartChange(part, value)}
-          />
+<PartSelector
+  title="Щёки"
+  part="cheeks"
+  options={PARTS_STRUCTURE.cheeks}
+  current={character.cheeks}
+  onChange={(part, value) => handlePartChange(part, value)}
+/>
           
           <PartSelector
             title="Глаза"
