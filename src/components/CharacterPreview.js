@@ -9,16 +9,24 @@ function CharacterPreview({ psdData, character }) {
       // Большой канвас для превью
       canvasRef.current.width = 800;
       canvasRef.current.height = 800;
-      renderCharacter(canvasRef.current, psdData, character, {
-        forExport: false,
-        scale: 1.8 // Масштаб для превью
-      });
+      renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
   
   return (
-    <div style={{ width: '800px', height: '800px', position: 'relative' }}>
-      <canvas ref={canvasRef} width={800} height={800} />
+    <div style={{
+      width: '800px',
+      height: '800px',
+      position: 'relative',
+      border: '1px solid #ddd',
+      overflow: 'hidden'
+    }}>
+      <canvas 
+        ref={canvasRef} 
+        width={800}
+        height={800}
+        style={{ display: 'block' }}
+      />
     </div>
   );
 }
