@@ -68,8 +68,41 @@ function renderPart(part, ctx, psdData, character) {
   const partConfig = config[part];
   if (!partConfig) return;
 
+  // Находим основную группу
   const group = psdData.children.find(g => g.name === partConfig.group);
-  if (!group) return;
+  if (!group) {
+    console.warn(`Group not found: ${partConfig.group}`);
+    return;
+  }
+
+  // Находим вариант (подгруппу)
+  const variantGroup = group.children?.find(g => g.name === partConfig.variant);
+  if (!variantGroup) {
+    console.warn(`Variant not found: ${partConfig.group}/${partConfig.variant}`);
+    return;
+  }
+
+  // Рисуем все слои варианта
+  partConfig.layers.forEach(layerName => {
+    const layer = variantGroup.children?.find(l => l.name === layerName);
+    if (layer?.canvas) {
+      ctx.save();
+      // Учитываем позицию слоя из PSD
+      ctx.translate(layer.left || 0, layer.top || 0);
+      
+      if (layerName.includes('[красить]')) {
+        applyColorFilter(ctx, layer, character);
+      } else {
+        ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
+      }
+      
+      ctx.drawImage(layer.canvas, 0, 0);
+      ctx.restore();
+    } else {
+      console.warn(`Layer not found: ${partConfig.group}/${partConfig.variant}/${layerName}`);
+    }
+  });
+}
 
   // Для всех слоев учитываем их оригинальное положение
   if (part === 'eyes') {
