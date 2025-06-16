@@ -166,4 +166,6 @@ function applyColorFilter(ctx, layer, character) {
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = character.colors.eyesWhite || '#ffffff';
     ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
- 
+  }
+  ctx.restore();
+}
