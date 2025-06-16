@@ -1,24 +1,5 @@
 import * as PSD from 'ag-psd';
-
-// Общая функция для подготовки canvas
-const prepareCharacterCanvas = (character, psdData) => {
-  const canvas = document.createElement('canvas');
-  canvas.width = 315;
-  canvas.height = 315;
-  const ctx = canvas.getContext('2d');
-
-  const scale = 1.15;
-  const offsetX = (315 - 315 * scale) / 2;
-  const offsetY = (315 - 315 * scale) / 2;
-
-  ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-  renderCharacter(canvas, psdData, character);
-  ctx.restore();
-
-  return canvas;
-};
+import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
   // Создаем canvas для рендеринга
