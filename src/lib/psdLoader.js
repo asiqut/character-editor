@@ -29,8 +29,7 @@ export async function loadPSD() {
           canvas: layer.canvas,
           left: layer.left || 0,
           top: layer.top || 0,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping // Добавляем информацию о клиппинге
+          blendMode: layer.blendMode
         }));
       });
     });
