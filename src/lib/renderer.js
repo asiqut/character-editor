@@ -19,7 +19,6 @@ function renderPart(partName, ctx, psdData, character) {
     return;
   }
 
-  // Определяем вариант для каждой части
   let variantName;
   switch (partName) {
     case 'ears':
@@ -38,10 +37,10 @@ function renderPart(partName, ctx, psdData, character) {
       variantName = character.tail || 'обычный';
       break;
     case 'cheeks':
-      variantName = 'пушистые'; // Единственный вариант
+      variantName = character.cheeks || 'пушистые'; // Исправлено
       break;
     case 'head':
-      variantName = 'default'; // Единственный вариант
+      variantName = 'default'; // Исправлено
       break;
     default:
       variantName = 'default';
