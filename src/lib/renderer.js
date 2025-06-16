@@ -87,7 +87,32 @@ function renderPart(part, ctx, psdData, character) {
     variantGroup = group;
   }
 
-partConfig.layers.forEach
+  partConfig.layers.forEach(layerName => {
+    const layer = variantGroup.children?.find(l => l.name === layerName);
+    if (layer?.canvas) {
+      ctx.save();
+      ctx.translate(layer.left || 0, layer.top || 0);
+      
+      if (layer.blendMode) {
+        ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
+      }
+
+      ctx.drawImage(layer.canvas, 0, 0);
+      
+      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = layerName.includes('[белок красить]') 
+          ? character.colors.eyesWhite 
+          : character.colors.main;
+        ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
+        ctx.restore();
+      }
+      
+      ctx.restore();
+    }
+  });
+}
 
 function renderEyes(ctx, eyesGroup, config, character) {
   const variantGroup = eyesGroup.children?.find(g => g.name === config.variant);
@@ -102,11 +127,13 @@ function renderEyes(ctx, eyesGroup, config, character) {
       ctx.translate(layer.left || 0, layer.top || 0);
       
       if (layerName.includes('[красить]')) {
-        applyColorFilter(ctx, layer, character);
+        applyColorFilter(ctx, layer, character, layerName);
       } else if (layerName.includes('[белок красить]')) {
-        applyColorFilter(ctx, layer, character);
+        applyColorFilter(ctx, layer, character, layerName);
       } else {
-        ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
+        if (layer.blendMode) {
+          ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
+        }
       }
       
       ctx.drawImage(layer.canvas, 0, 0);
@@ -119,7 +146,9 @@ function renderEyes(ctx, eyesGroup, config, character) {
     if (subtypeLayer?.canvas) {
       ctx.save();
       ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
-      ctx.globalCompositeOperation = subtypeLayer.blendMode?.toLowerCase() || 'source-over';
+      if (subtypeLayer.blendMode) {
+        ctx.globalCompositeOperation = convertBlendMode(subtypeLayer.blendMode);
+      }
       ctx.drawImage(subtypeLayer.canvas, 0, 0);
       ctx.restore();
     }
@@ -129,24 +158,40 @@ function renderEyes(ctx, eyesGroup, config, character) {
 function applyColorFilter(ctx, layer, character, layerName) {
   if (!character.colors) return;
   
-  ctx.save();
-  // Создаем временный canvas для корректного наложения цвета
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = layer.canvas.width;
   tempCanvas.height = layer.canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
   
-  // Рисуем оригинальный слой
   tempCtx.drawImage(layer.canvas, 0, 0);
   
-  // Применяем цвет
   tempCtx.globalCompositeOperation = 'source-atop';
   tempCtx.fillStyle = layerName.includes('[белок красить]') 
     ? character.colors.eyesWhite 
     : character.colors.main;
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
   
-  // Рисуем результат на основном canvas
   ctx.drawImage(tempCanvas, 0, 0);
-  ctx.restore();
+}
+
+function convertBlendMode(psdBlendMode) {
+  const modes = {
+    'normal': 'source-over',
+    'multiply': 'multiply',
+    'screen': 'screen',
+    'overlay': 'overlay',
+    'darken': 'darken',
+    'lighten': 'lighten',
+    'colorDodge': 'color-dodge',
+    'colorBurn': 'color-burn',
+    'hardLight': 'hard-light',
+    'softLight': 'soft-light',
+    'difference': 'difference',
+    'exclusion': 'exclusion',
+    'hue': 'hue',
+    'saturation': 'saturation',
+    'color': 'color',
+    'luminosity': 'luminosity'
+  };
+  return modes[psdBlendMode.toLowerCase()] || 'source-over';
 }
