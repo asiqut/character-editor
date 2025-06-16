@@ -87,23 +87,7 @@ function renderPart(part, ctx, psdData, character) {
     variantGroup = group;
   }
 
-  partConfig.layers.forEach(layerName => {
-    const layer = variantGroup.children?.find(l => l.name === layerName);
-    if (layer?.canvas) {
-      ctx.save();
-      ctx.translate(layer.left || 0, layer.top || 0);
-      
-      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
-        applyColorFilter(ctx, layer, character);
-      } else {
-        ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
-      }
-      
-      ctx.drawImage(layer.canvas, 0, 0);
-      ctx.restore();
-    }
-  });
-}
+partConfig.layers.forEach
 
 function renderEyes(ctx, eyesGroup, config, character) {
   const variantGroup = eyesGroup.children?.find(g => g.name === config.variant);
@@ -142,19 +126,27 @@ function renderEyes(ctx, eyesGroup, config, character) {
   }
 }
 
-function applyColorFilter(ctx, layer, character) {
+function applyColorFilter(ctx, layer, character, layerName) {
   if (!character.colors) return;
   
   ctx.save();
-  if (layer.name.includes('[красить]')) {
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = character.colors.main || '#f1ece4';
-    ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
-  } 
-  else if (layer.name.includes('[белок красить]')) {
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = character.colors.eyesWhite || '#ffffff';
-    ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
-  }
+  // Создаем временный canvas для корректного наложения цвета
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Рисуем оригинальный слой
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  
+  // Применяем цвет
+  tempCtx.globalCompositeOperation = 'source-atop';
+  tempCtx.fillStyle = layerName.includes('[белок красить]') 
+    ? character.colors.eyesWhite 
+    : character.colors.main;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+  // Рисуем результат на основном canvas
+  ctx.drawImage(tempCanvas, 0, 0);
   ctx.restore();
 }
