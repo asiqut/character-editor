@@ -60,6 +60,10 @@ function renderPart(currentPartName, ctx, psdData, character) {
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
+
+    if (layer.opacity !== undefined && layer.opacity < 1) {
+    ctx.globalAlpha = layer.opacity;
+    }
     
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
