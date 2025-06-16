@@ -45,14 +45,27 @@ function App() {
   };
 
   const handleColorChange = (colorType, color) => {
-    setCharacter(prev => ({
+  setCharacter(prev => {
+    const newColors = {
+      ...prev.colors,
+      [colorType]: color
+    };
+    
+    // При изменении основного цвета сбрасываем все части к базовому цвету
+    if (colorType === 'main') {
+      return {
+        ...prev,
+        colors: newColors
+      };
+    }
+    
+    // При изменении цвета белков оставляем как есть
+    return {
       ...prev,
-      colors: {
-        ...prev.colors,
-        [colorType]: color
-      }
-    }));
-  };
+      colors: newColors
+    };
+  });
+};
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
