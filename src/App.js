@@ -89,11 +89,21 @@ function App() {
   part="eyes"
   options={PARTS_STRUCTURE.eyes.types}
   current={character.eyes.type}
-  onChange={(value) => handlePartChange(value, 'type')}
+  onChange={(value) => {
+    // При изменении типа глаз сбрасываем подтип, если нужно
+    const subtype = value === 'обычные' ? 'с ресницами' : undefined;
+    handlePartChange('eyes', { type: value, subtype });
+  }}
   showSubtypes={character.eyes.type === 'обычные'}
   subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
   currentSubtype={character.eyes.subtype}
-  onSubtypeChange={(value) => handlePartChange(value, 'subtype')}
+  onSubtypeChange={(value) => {
+    // При изменении подтипа сохраняем текущий тип
+    handlePartChange('eyes', { 
+      type: character.eyes.type, 
+      subtype: value 
+    });
+  }}
 />
           
           <PartSelector
