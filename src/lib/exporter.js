@@ -2,49 +2,24 @@ import * as PSD from 'ag-psd';
 import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
-  // Создаем временный canvas большего размера для рендеринга
-  const renderCanvas = document.createElement('canvas');
-  renderCanvas.width = 630; // Рендерим в увеличенном размере
-  renderCanvas.height = 630;
-  const renderCtx = renderCanvas.getContext('2d');
+  // Создаем canvas для рендеринга
+  const canvas = document.createElement('canvas');
+  canvas.width = 315;
+  canvas.height = 315;
+  const ctx = canvas.getContext('2d');
 
-  // Рендерим персонажа с масштабированием
-  const scale = 1.15;
-  const offsetX = (630 - 315 * scale) / 2;
-  const offsetY = (630 - 315 * scale) / 2;
-  
-  renderCtx.save();
-  renderCtx.translate(offsetX, offsetY);
-  renderCtx.scale(scale, scale);
-  renderCharacter(renderCanvas, psdData, character);
-  renderCtx.restore();
+  // Очищаем canvas
+  ctx.clearRect(0, 0, 315, 315);
 
-  // Создаем финальный canvas 315x315
-  const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = 315;
-  exportCanvas.height = 315;
-  const exportCtx = exportCanvas.getContext('2d');
-  
-  // Копируем центральную часть (обрезаем края)
-  exportCtx.drawImage(
-    renderCanvas,
-    (630 - 315) / 2, // source x
-    (630 - 315) / 2, // source y
-    315, // source width
-    315, // source height
-    0, // destination x
-    0, // destination y
-    315, // destination width
-    315 // destination height
-  );
+  // Рендерим персонажа без масштабирования (1:1 как в PSD)
+  renderCharacter(canvas, psdData, character);
 
   // Экспортируем
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
-  link.href = exportCanvas.toDataURL('image/png');
+  link.href = canvas.toDataURL('image/png');
   link.click();
 };
-
 export const exportPSD = (originalPsd, character) => {
   // Правильный порядок групп (сверху вниз)
   const groupOrder = [
