@@ -95,17 +95,17 @@ const handlePartChange = (part, value, subpart = null) => {
             onChange={handlePartChange}
           />
           
-<PartSelector
-  title="Глаза"
-  part="eyes"
-  options={PARTS_STRUCTURE.eyes.types}
-  current={character.eyes.type}
-  onChange={handlePartChange} // Упростили вызов
-  showSubtypes={character.eyes.type === 'обычные'}
-  subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
-  currentSubtype={character.eyes.subtype}
-  onSubtypeChange={handlePartChange} // Теперь используем тот же обработчик
-/>
+          <PartSelector
+            title="Глаза"
+            part="eyes"
+            options={PARTS_STRUCTURE.eyes.types}
+            current={character.eyes.type}
+            onChange={(value) => handlePartChange('eyes', value, 'type')}
+            showSubtypes={character.eyes.type === 'обычные'}
+            subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+            currentSubtype={character.eyes.subtype}
+            onSubtypeChange={(value) => handlePartChange('eyes', value, 'subtype')}
+          />
           
           <PartSelector
             title="Грива"
