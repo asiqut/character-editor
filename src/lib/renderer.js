@@ -1,23 +1,15 @@
 export function renderCharacter(canvas, psdData, character) {
-  if (!psdData || !character) {
-    console.error("PSD data or character not provided");
-    return;
-  }
+  if (!psdData || !character) return;
 
-  // Для отладки - выводим структуру PSD только если данные есть
+  // Для отладки - выводим структуру PSD
   console.log("PSD Structure:", psdData.children?.map(g => g.name));
 
   const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    console.error("Could not get canvas context");
-    return;
-  }
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   // Получаем размеры PSD и рассчитываем масштаб
-  const psdWidth = psdData.width || 800;
-  const psdHeight = psdData.height || 800;
+  const psdWidth = psdData.width;
+  const psdHeight = psdData.height;
   const scale = Math.min(canvas.width / psdWidth, canvas.height / psdHeight);
   
   // Центрируем изображение
@@ -31,11 +23,7 @@ export function renderCharacter(canvas, psdData, character) {
   const partsOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
 
   partsOrder.forEach(part => {
-    try {
-      renderPart(part, ctx, psdData, character);
-    } catch (error) {
-      console.error(`Error rendering ${part}:`, error);
-    }
+    renderPart(part, ctx, psdData, character);
   });
 
   ctx.restore();
@@ -81,35 +69,27 @@ function renderPart(part, ctx, psdData, character) {
   };
 
   const partConfig = config[part];
-  if (!partConfig) {
-    console.warn(`No config found for part: ${part}`);
-    return;
-  }
+  if (!partConfig) return;
 
-  // Находим основную группу
-  const group = psdData.children?.find(g => g.name === partConfig.group);
-  if (!group) {
-    console.warn(`Group not found: ${partConfig.group}`);
-    console.log("Available groups:", psdData.children?.map(g => g.name));
-    return;
-  }
-
-  // Для глаз особая обработка
-  if (part === 'eyes') {
-    renderEyes(ctx, group, partConfig, character);
-    return;
-  }
-
-  // Для гривы специальная обработка
+  // Специальная обработка для гривы
   if (part === 'mane') {
+    console.log(`Rendering mane: ${character.mane}`);
+    const group = psdData.children?.find(g => g.name === 'Грудь/шея/грива');
+    if (!group) {
+      console.error("Группа 'Грудь/шея/грива' не найдена");
+      console.log("Доступные группы:", psdData.children?.map(g => g.name));
+      return;
+    }
+
     const variant = group.children?.find(g => g.name === character.mane);
     if (!variant) {
-      console.warn(`Mane variant not found: ${character.mane}`);
-      console.log("Available mane variants:", group.children?.map(g => g.name));
+      console.error(`Вариант гривы '${character.mane}' не найден`);
+      console.log("Доступные варианты:", group.children?.map(g => g.name));
       return;
     }
 
     const layersOrder = ['лайн', 'свет', 'тень', '[красить]'];
+    
     layersOrder.forEach(layerName => {
       const layer = variant.children?.find(l => l.name === layerName);
       if (layer?.canvas) {
@@ -124,12 +104,25 @@ function renderPart(part, ctx, psdData, character) {
         
         ctx.drawImage(layer.canvas, 0, 0);
         ctx.restore();
+      } else {
+        console.warn(`Слой '${layerName}' не найден в варианте '${character.mane}'`);
       }
     });
     return;
   }
 
-  // Находим вариант (подгруппу) для остальных частей
+  // Обработка остальных частей
+  const group = psdData.children?.find(g => g.name === partConfig.group);
+  if (!group) {
+    console.warn(`Group not found: ${partConfig.group}`);
+    return;
+  }
+
+  if (part === 'eyes') {
+    renderEyes(ctx, group, partConfig, character);
+    return;
+  }
+
   const variantGroup = partConfig.variant ? 
     group.children?.find(g => g.name === partConfig.variant) : 
     group;
@@ -139,7 +132,6 @@ function renderPart(part, ctx, psdData, character) {
     return;
   }
 
-  // Рисуем все слои варианта
   partConfig.layers.forEach(layerName => {
     const layer = variantGroup.children?.find(l => l.name === layerName);
     if (layer?.canvas) {
@@ -162,7 +154,6 @@ function renderEyes(ctx, eyesGroup, config, character) {
   const variantGroup = eyesGroup.children?.find(g => g.name === config.variant);
   if (!variantGroup) return;
 
-  // Основные слои глаз
   config.layers.forEach(layerName => {
     if (layerName === 'с ресницами' || layerName === 'без ресниц') return;
     
@@ -182,7 +173,6 @@ function renderEyes(ctx, eyesGroup, config, character) {
     }
   });
 
-  // Слой с ресницами (только для обычных глаз)
   if (config.variant === 'обычные') {
     const subtypeLayer = variantGroup.children?.find(l => l.name === config.subtype);
     if (subtypeLayer?.canvas) {
