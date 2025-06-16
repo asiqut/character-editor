@@ -4,16 +4,13 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Используем сохраненный порядок из PSD или стандартный, если его нет
+  // Рендерим в обратном порядке - от нижних слоёв к верхним
   const partsOrder = psdData._order || [
     'ears', 'eyes', 'cheeks', 'head', 'mane', 'body', 'tail'
   ];
 
   partsOrder.forEach(partName => {
-    // Пропускаем служебные свойства
     if (partName.startsWith('_')) return;
-    
-    // Особый случай для щёк - если выбрано "нет", пропускаем
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
     
     renderPart(partName, ctx, psdData, character);
@@ -34,6 +31,18 @@ function renderPart(partName, ctx, psdData, character) {
       break;
     case 'eyes':
       variantName = character.eyes?.type || 'обычные';
+      // Для лисьих глаз нет подтипов
+      if (variantName !== 'лисьи') {
+        const subtype = character.eyes?.subtype || 'с ресницами';
+        const subtypeLayer = variantLayers.find(l => l.name === subtype);
+      
+        if (subtypeLayer?.canvas) {
+          ctx.save();
+          ctx.translate(subtypeLayer.left, subtypeLayer.top);
+          ctx.drawImage(subtypeLayer.canvas, 0, 0);
+          ctx.restore();
+        }
+      }
       break;
     case 'mane':
       variantName = character.mane || 'обычная';
@@ -104,33 +113,6 @@ function renderPart(partName, ctx, psdData, character) {
     }
   }
 }
-
-  // Особый случай для глаз (подтипы)
-  if (partName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      ctx.restore();
-    }
-  }
-}
-
-  // Особый случай для глаз (подтипы)
-  if (partName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      ctx.restore();
-    }
-  }
 
 function shouldClipLayer(layerName) {
   // Слои, которые должны обрезаться по слою покраски
