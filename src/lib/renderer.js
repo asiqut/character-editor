@@ -60,6 +60,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
+
+    if (layer.opacity !== undefined && layer.opacity < 1) {
+    ctx.globalAlpha = layer.opacity;
     
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
@@ -120,6 +123,10 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCanvas.width = Math.max(layer.canvas.width, clipLayer.canvas.width);
   tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
   const tempCtx = tempCanvas.getContext('2d');
+
+  if (clipLayer.opacity !== undefined && clipLayer.opacity < 1) {
+  tempCtx.globalAlpha = clipLayer.opacity;
+  }
   
   tempCtx.drawImage(clipLayer.canvas, 
     clipLayer.left - layer.left, 
@@ -127,6 +134,11 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   );
   
   tempCtx.globalCompositeOperation = 'source-in';
+
+  if (layer.opacity !== undefined && layer.opacity < 1) {
+  tempCtx.globalAlpha = layer.opacity;
+  }
+  
   tempCtx.drawImage(layer.canvas, 0, 0);
   ctx.drawImage(tempCanvas, 0, 0);
 }
@@ -136,6 +148,10 @@ function renderColorLayer(ctx, layer, color) {
   tempCanvas.width = layer.canvas.width;
   tempCanvas.height = layer.canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
+
+  if (layer.opacity !== undefined && layer.opacity < 1) {
+  tempCtx.globalAlpha = layer.opacity;
+  }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
   tempCtx.globalCompositeOperation = 'source-atop';
