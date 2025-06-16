@@ -5,10 +5,10 @@ export const DEFAULT_CHARACTER = {
     subtype: 'с ресницами'
   },
   cheeks: 'пушистые',
-  head: 'default',
   mane: 'обычная',
   body: 'v1',
   tail: 'обычный',
+  head: 'default',
   colors: {
     main: '#f1ece4',
     eyesWhite: '#ffffff'
