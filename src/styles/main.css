@@ -129,17 +129,3 @@ body {
 .character-editor {
   padding: 20px;
 }
-
-.editor-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 600px;
-  background-color: #f0f0f0;
-  border: 2px dashed #ccc;
-}
-
-canvas {
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
