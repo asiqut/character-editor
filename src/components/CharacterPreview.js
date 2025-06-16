@@ -5,23 +5,24 @@ function CharacterPreview({ psdData, character }) {
   const canvasRef = useRef(null);
   
   useEffect(() => {
-    console.log('Updating character preview', { psdData, character });
     if (psdData && canvasRef.current) {
+      // Устанавливаем размеры canvas по размерам PSD
+      canvasRef.current.width = 800;
+      canvasRef.current.height = 800;
       renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
   
   return (
     <div style={{
-      border: '2px solid #ccc',
-      borderRadius: '8px',
-      overflow: 'hidden',
       width: '800px',
-      height: '800px'
+      height: '800px',
+      position: 'relative',
+      border: '1px solid #ddd'
     }}>
       <canvas 
         ref={canvasRef} 
-        width={800} 
+        width={800}
         height={800}
         style={{ display: 'block' }}
       />
