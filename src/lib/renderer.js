@@ -1,3 +1,5 @@
+console.log("PSD Structure:", psdData.children.map(g => g.name));
+
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
@@ -48,6 +50,41 @@ function renderPart(part, ctx, psdData, character) {
       group: 'Голова',
       layers: ['лайн', 'свет', 'тень', '[красить]']
     },
+      if (part === 'mane') {
+    const group = psdData.children?.find(g => g.name === 'Грудь/шея/грива');
+    if (!group) {
+      console.error("Группа 'Грудь/шея/грива' не найдена");
+      return;
+    }
+
+    const variant = group.children?.find(g => g.name === character.mane);
+    if (!variant) {
+      console.error(`Вариант гривы '${character.mane}' не найден`);
+      return;
+    }
+
+    const layersOrder = ['лайн', 'свет', 'тень', '[красить]'];
+    
+    layersOrder.forEach(layerName => {
+      const layer = variant.children?.find(l => l.name === layerName);
+      if (layer?.canvas) {
+        ctx.save();
+        ctx.translate(layer.left || 0, layer.top || 0);
+        
+        if (layerName === '[красить]') {
+          applyColorFilter(ctx, layer, character);
+        } else {
+          ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
+        }
+        
+        ctx.drawImage(layer.canvas, 0, 0);
+        ctx.restore();
+      } else {
+        console.warn(`Слой '${layerName}' не найден в варианте '${character.mane}'`);
+      }
+    });
+    return;
+  }
     mane: {
       group: 'Грудь/шея/грива',
       variant: character.mane || 'обычная',
