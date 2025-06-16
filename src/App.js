@@ -97,21 +97,33 @@ function App() {
     }));
   };
 
-    function OpacityControl({ part, layerName, opacity, onChange }) {
-    return (
-      <div className="opacity-control">
-        <label>{layerName}</label>
-        <input 
-          type="range" 
-          min="0" 
-          max="100" 
-          value={(opacity * 100) || 100}
-          onChange={(e) => onChange(part, layerName, e.target.value / 100)}
-        />
-        <span>{Math.round((opacity || 1) * 100)}%</span>
-      </div>
-    );
-  }
+function OpacityControl({ part, layerName, opacity, onChange }) {
+  const [value, setValue] = useState(opacity !== undefined ? Math.round(opacity * 100) : 100);
+
+  useEffect(() => {
+    setValue(opacity !== undefined ? Math.round(opacity * 100) : 100);
+  }, [opacity]);
+
+  const handleChange = (e) => {
+    const newValue = parseInt(e.target.value);
+    setValue(newValue);
+    onChange(part, layerName, newValue / 100);
+  };
+
+  return (
+    <div className="opacity-control">
+      <label>{layerName}</label>
+      <input 
+        type="range" 
+        min="0" 
+        max="100" 
+        value={value}
+        onChange={handleChange}
+      />
+      <span>{value}%</span>
+    </div>
+  );
+}
 
   if (loading) return <div>Загрузка...</div>;
 
