@@ -109,7 +109,6 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.restore();
     }
   }
-}
 
 function shouldClipLayer(layerName) {
   // Слои, которые должны обрезаться по слою покраски
