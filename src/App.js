@@ -83,23 +83,38 @@ function App() {
       
       <div className="editor-container">
         <CharacterPreview psdData={psdData} character={character} />
+    
+  const handlePartColorChange = (part, color) => {
+  setCharacter(prev => ({
+    ...prev,
+    partColors: {
+      ...prev.partColors,
+      [part]: color
+    }
+  }));
+};
         
         <div className="controls">
-    <PartSelector
-  title="Уши"
-  part="ears"
-  options={PARTS_STRUCTURE.ears}
-  current={character.ears}
-  onChange={(part, value) => handlePartChange(part, value)}
-/>
+          <PartSelector
+            title="Уши"
+            part="ears"
+            options={PARTS_STRUCTURE.ears}
+            current={character.ears}
+            onChange={(part, value) => handlePartChange(part, value)}
+          />
   
-<PartSelector
-  title="Щёки"
-  part="cheeks"
-  options={PARTS_STRUCTURE.cheeks}
-  current={character.cheeks}
-  onChange={(part, value) => handlePartChange(part, value)}
-/>
+          <PartSelector
+            title="Щёки"
+            part="cheeks"
+            options={PARTS_STRUCTURE.cheeks}
+            current={character.cheeks}
+            onChange={(part, value) => handlePartChange(part, value)}
+          />
+            <ColorPicker
+            title="Цвет щёк"
+            color={character.partColors.cheeks}
+            onChange={(color) => handlePartColorChange('cheeks', color)}
+          />
           
           <PartSelector
             title="Глаза"
@@ -112,6 +127,11 @@ function App() {
             currentSubtype={character.eyes.subtype}
             onSubtypeChange={handleSubtypeChange}
           />
+          <ColorPicker
+            title="Цвет глаз"
+            color={character.partColors.eyes}
+            onChange={(color) => handlePartColorChange('eyes', color)}
+          />
           
           <PartSelector
             title="Грива"
@@ -119,6 +139,11 @@ function App() {
             options={PARTS_STRUCTURE.mane}
             current={character.mane}
             onChange={(part, value) => handlePartChange(part, value)}
+          />
+          <ColorPicker
+            title="Цвет гривы"
+            color={character.partColors.mane}
+            onChange={(color) => handlePartColorChange('mane', color)}
           />
           
           <PartSelector
@@ -128,6 +153,11 @@ function App() {
             current={character.body}
             onChange={(part, value) => handlePartChange(part, value)}
           />
+          <ColorPicker
+            title="Цвет тела"
+            color={character.partColors.body}
+            onChange={(color) => handlePartColorChange('body', color)}
+          />
           
           <PartSelector
             title="Хвост"
@@ -136,11 +166,28 @@ function App() {
             current={character.tail}
             onChange={(part, value) => handlePartChange(part, value)}
           />
+          <ColorPicker
+            title="Цвет хвоста"
+            color={character.partColors.tail}
+            onChange={(color) => handlePartColorChange('tail', color)}
+          />
           
           <ColorPicker
-            title="Основной цвет"
+            title="Основной цвет (все части)"
             color={character.colors.main}
-            onChange={(color) => handleColorChange('main', color)}
+            onChange={(color) => {
+            handleColorChange('main', color);
+            // Обновляем все части при изменении основного цвета
+            setCharacter(prev => ({
+            ...prev,
+            partColors: {
+              ears: color,
+              cheeks: color,
+              mane: color,
+              body: color,
+              tail: color,
+              head: color
+            }
           />
           
           <ColorPicker
