@@ -1,30 +1,33 @@
 import * as PSD from 'ag-psd';
 
 export const exportPNG = (canvas, character, psdData) => {
+  // Создаем временный canvas для рендеринга
+  const renderCanvas = document.createElement('canvas');
+  renderCanvas.width = 630; // Рендерим в увеличенном размере
+  renderCanvas.height = 630;
+  const renderCtx = renderCanvas.getContext('2d');
+  
+  // Рендерим персонажа с масштабированием
+  const scale = 1.15;
+  const offsetX = (630 - 315 * scale) / 2;
+  const offsetY = (630 - 315 * scale) / 2;
+  
+  renderCtx.save();
+  renderCtx.translate(offsetX, offsetY);
+  renderCtx.scale(scale, scale);
+  renderCharacter(renderCanvas, psdData, character);
+  renderCtx.restore();
+  
+  // Создаем финальный canvas 315x315
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = 315;
   exportCanvas.height = 315;
-  const ctx = exportCanvas.getContext('2d');
+  const exportCtx = exportCanvas.getContext('2d');
   
-  // Рендерим с тем же масштабом, что и в превью
-  const scale = 1.15;
-  const offsetX = (315 - 315 * scale) / 2;
-  const offsetY = (315 - 315 * scale) / 2;
+  // Копируем с масштабированием обратно к оригинальному размеру
+  exportCtx.drawImage(renderCanvas, 0, 0, 315, 315);
   
-  ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-  
-  // Порядок рендеринга
-  const partsOrder = ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'];
-  
-  partsOrder.forEach(part => {
-    if (part === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(part, ctx, psdData, character);
-  });
-  
-  ctx.restore();
-  
+  // Создаем ссылку для скачивания
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
   link.href = exportCanvas.toDataURL('image/png');
@@ -32,82 +35,78 @@ export const exportPNG = (canvas, character, psdData) => {
 };
 
 export const exportPSD = (originalPsd, character) => {
-  // Создаем новый PSD с оригинальными размерами
   const newPsd = {
     width: 315,
     height: 315,
     children: []
   };
 
-  // Функция для копирования слоя со всеми свойствами
-  const copyLayer = (layer) => {
-    return {
-      ...layer,
-      canvas: layer.canvas,
-      left: layer.left,
-      top: layer.top,
-      opacity: layer.opacity,
-      blendMode: layer.blendMode,
-      clipping: layer.clipping,
-      hidden: false
-    };
-  };
+  // Правильный порядок слоёв (сверху вниз)
+  const partsOrder = [
+    'ears',    // Уши (верхний слой)
+    'eyes',    // Глаза
+    'cheeks',  // Щёки
+    'head',    // Голова
+    'mane',    // Грудь/шея/грива
+    'body',    // Тело
+    'tail'     // Хвосты (нижний слой)
+  ];
 
-  // Обрабатываем каждую часть персонажа
-  const processPart = (partName, variantName) => {
+  // Функция для копирования слоя
+  const copyLayer = (layer) => ({
+    ...layer,
+    canvas: layer.canvas,
+    left: layer.left,
+    top: layer.top,
+    opacity: layer.opacity,
+    blendMode: layer.blendMode,
+    clipping: layer.clipping,
+    hidden: false
+  });
+
+  // Обрабатываем части в правильном порядке
+  partsOrder.forEach(partName => {
+    // Пропускаем щёки если они отключены
+    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+
+    const variantName = partName === 'head' 
+      ? 'default' 
+      : character[partName] || 
+        (partName === 'eyes' ? character.eyes.type : 'default');
+
     const partGroup = originalPsd[partName];
     if (!partGroup) return;
-    
-    const variantLayers = partGroup[variantName];
+
+    const variantLayers = partName === 'head' 
+      ? partGroup 
+      : partGroup[variantName];
     if (!variantLayers) return;
-    
-    // Создаем группу для этой части
+
+    // Создаем группу с оригинальным названием
     const group = {
       name: getOriginalGroupName(partName),
       children: []
     };
-    
-    // Копируем нужные слои
+
+    // Копируем слои
     variantLayers.forEach(layer => {
-      group.children.push(copyLayer(layer));
+      if (layer.canvas) {
+        group.children.push(copyLayer(layer));
+      }
     });
-    
-    // Особые случаи (например, подтипы глаз)
+
+    // Добавляем подтипы глаз
     if (partName === 'eyes' && variantName === 'обычные') {
-      const subtype = character.eyes.subtype;
-      const subtypeLayer = variantLayers.find(l => l.name === subtype);
+      const subtypeLayer = variantLayers.find(l => l.name === character.eyes.subtype);
       if (subtypeLayer) {
         group.children.push(copyLayer(subtypeLayer));
       }
     }
-    
+
     newPsd.children.push(group);
-  };
+  });
 
-  // Оригинальные названия групп
-  const getOriginalGroupName = (part) => {
-    switch(part) {
-      case 'ears': return 'Уши';
-      case 'eyes': return 'Глаза';
-      case 'cheeks': return 'Щёки';
-      case 'head': return 'Голова';
-      case 'mane': return 'Грудь/шея/грива';
-      case 'body': return 'Тело';
-      case 'tail': return 'Хвосты';
-      default: return part;
-    }
-  };
-
-  // Обрабатываем все выбранные части
-  processPart('ears', character.ears);
-  processPart('eyes', character.eyes.type);
-  if (character.cheeks !== 'нет') processPart('cheeks', character.cheeks);
-  processPart('head', 'default');
-  processPart('mane', character.mane);
-  processPart('body', character.body);
-  processPart('tail', character.tail);
-
-  // Экспортируем PSD
+  // Экспорт PSD
   const psdBytes = PSD.writePsd(newPsd);
   const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
@@ -119,3 +118,17 @@ export const exportPSD = (originalPsd, character) => {
   
   URL.revokeObjectURL(url);
 };
+
+// Функция для получения оригинальных названий групп
+function getOriginalGroupName(part) {
+  const names = {
+    'ears': 'Уши',
+    'eyes': 'Глаза',
+    'cheeks': 'Щёки',
+    'head': 'Голова',
+    'mane': 'Грудь/шея/грива',
+    'body': 'Тело',
+    'tail': 'Хвосты'
+  };
+  return names[part] || part;
+}
