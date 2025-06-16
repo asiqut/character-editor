@@ -1,23 +1,26 @@
-// src/components/ExportButtons.js
 import React, { useState } from 'react';
 import { exportPNG, exportPSD } from '../lib/exporter';
 
 function ExportButtons({ character, psdData }) {
   const [isExporting, setIsExporting] = useState(false);
+  const [lastError, setLastError] = useState(null);
 
   const handleExport = async (type) => {
     if (!psdData || isExporting) return;
     
     setIsExporting(true);
+    setLastError(null);
     
     try {
-      if (type === 'png') {
-        await exportPNG(character, psdData);
-      } else {
-        await exportPSD(psdData, character);
+      const success = type === 'png' 
+        ? await exportPNG(character, psdData)
+        : await exportPSD(psdData, character);
+      
+      if (!success) {
+        setLastError(`Failed to export ${type.toUpperCase()}`);
       }
     } catch (error) {
-      console.error(`Export ${type} error:`, error);
+      setLastError(error.message);
     } finally {
       setIsExporting(false);
     }
@@ -27,16 +30,23 @@ function ExportButtons({ character, psdData }) {
     <div className="export-buttons">
       <button 
         onClick={() => handleExport('png')}
-        disabled={isExporting}
+        disabled={isExporting || !psdData}
       >
         {isExporting ? 'Exporting...' : 'Export PNG'}
       </button>
+      
       <button 
         onClick={() => handleExport('psd')}
-        disabled={isExporting}
+        disabled={isExporting || !psdData}
       >
         {isExporting ? 'Exporting...' : 'Export PSD'}
       </button>
+      
+      {lastError && (
+        <div className="export-error">
+          Error: {lastError}
+        </div>
+      )}
     </div>
   );
 }
