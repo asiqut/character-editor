@@ -11,6 +11,14 @@ function PartSelector({
   currentSubtype,
   onSubtypeChange
 }) {
+  const handleMainChange = (value) => {
+    onChange(part, value);
+  };
+
+  const handleSubtypeChange = (value) => {
+    onSubtypeChange(part, value);
+  };
+
   return (
     <div className={`part-selector ${part}`}>
       <h3>{title}</h3>
@@ -19,21 +27,21 @@ function PartSelector({
           <button
             key={option}
             className={option === current ? 'active' : ''}
-            onClick={() => onChange(part, option)}
+            onClick={() => handleMainChange(option)}
           >
             {option}
           </button>
         ))}
       </div>
       
-      {showSubtypes && subtypes.length > 0 && (
+      {showSubtypes && (
         <div className="subtypes">
           <h4>Варианты:</h4>
           {subtypes.map(subtype => (
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => onSubtypeChange('eyes', subtype)}
+              onClick={() => handleSubtypeChange(subtype)}
             >
               {subtype}
             </button>
