@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
@@ -100,13 +102,7 @@ function renderPart(part, ctx, psdData, character) {
       ctx.drawImage(layer.canvas, 0, 0);
       
       if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
-        ctx.save();
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.fillStyle = layerName.includes('[белок красить]') 
-          ? character.colors.eyesWhite 
-          : character.colors.main;
-        ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
-        ctx.restore();
+        applyColorFilter(ctx, layer, character, layerName);
       }
       
       ctx.restore();
@@ -126,17 +122,16 @@ function renderEyes(ctx, eyesGroup, config, character) {
       ctx.save();
       ctx.translate(layer.left || 0, layer.top || 0);
       
-      if (layerName.includes('[красить]')) {
-        applyColorFilter(ctx, layer, character, layerName);
-      } else if (layerName.includes('[белок красить]')) {
+      if (layer.blendMode) {
+        ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
+      }
+
+      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
         applyColorFilter(ctx, layer, character, layerName);
       } else {
-        if (layer.blendMode) {
-          ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-        }
+        ctx.drawImage(layer.canvas, 0, 0);
       }
       
-      ctx.drawImage(layer.canvas, 0, 0);
       ctx.restore();
     }
   });
@@ -158,20 +153,13 @@ function renderEyes(ctx, eyesGroup, config, character) {
 function applyColorFilter(ctx, layer, character, layerName) {
   if (!character.colors) return;
   
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = layer.canvas.width;
-  tempCanvas.height = layer.canvas.height;
-  const tempCtx = tempCanvas.getContext('2d');
-  
-  tempCtx.drawImage(layer.canvas, 0, 0);
-  
-  tempCtx.globalCompositeOperation = 'source-atop';
-  tempCtx.fillStyle = layerName.includes('[белок красить]') 
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = layerName.includes('[белок красить]') 
     ? character.colors.eyesWhite 
     : character.colors.main;
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
-  ctx.drawImage(tempCanvas, 0, 0);
+  ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
+  ctx.restore();
 }
 
 function convertBlendMode(psdBlendMode) {
