@@ -34,7 +34,8 @@ export async function loadPSD() {
         left: layer.left || 0,
         top: layer.top || 0,
         blendMode: layer.blendMode,
-        clipping: layer.clipping
+        clipping: layer.clipping,
+        opacity: layer.opacity !== undefined ? layer.opacity : 1
       }));
       return;
         case 'Тело': groupName = 'body'; break;
@@ -57,7 +58,8 @@ export async function loadPSD() {
           left: layer.left || 0,
           top: layer.top || 0,
           blendMode: layer.blendMode,
-          clipping: layer.clipping
+          clipping: layer.clipping,
+          opacity: layer.opacity !== undefined ? layer.opacity : 1
         }));
       });
     });
