@@ -7,22 +7,19 @@ export async function loadPSD() {
     
     const arrayBuffer = await response.arrayBuffer();
     const psd = PSD.readPsd(arrayBuffer, {
-      // Включаем обработку режимов наложения
-      parseLayerBlendingModes: true
+      parseLayerBlendingModes: true,
+      preserveLayerPositions: true // Сохраняем позиции слоев
     });
     
     if (!psd || !psd.children) throw new Error('Invalid PSD structure');
     
-    // Нормализуем имена групп
+    // Нормализация данных
     psd.children.forEach(group => {
-      if (group.name) group.name = group.name.replace(/\\/g, '/');
       if (group.children) {
-        group.children.forEach(subGroup => {
-          if (subGroup.name) subGroup.name = subGroup.name.replace(/\\/g, '/');
-          // Сохраняем режимы наложения
-          if (subGroup.blendMode) {
-            subGroup.blendMode = convertBlendMode(subGroup.blendMode);
-          }
+        group.children.forEach(layer => {
+          // Убедимся, что позиции есть
+          layer.left = layer.left || 0;
+          layer.top = layer.top || 0;
         });
       }
     });
@@ -32,15 +29,4 @@ export async function loadPSD() {
     console.error('Error loading PSD:', error);
     throw error;
   }
-}
-
-function convertBlendMode(psdBlendMode) {
-  // Конвертируем PS blend modes в Canvas blend modes
-  const modeMap = {
-    'normal': 'source-over',
-    'multiply': 'multiply',
-    'screen': 'screen',
-    'overlay': 'overlay',
-  };
-  return modeMap[psdBlendMode.toLowerCase()] || 'source-over';
 }
