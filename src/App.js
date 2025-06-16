@@ -27,22 +27,30 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value, subpart = null) => {
-    setCharacter(prev => {
-      const newChar = {...prev};
-      if (subpart) {
-        if (!newChar[part]) newChar[part] = {};
-        newChar[part][subpart] = value;
+const handlePartChange = (part, value, subpart = null) => {
+  setCharacter(prev => {
+    const newChar = {...prev};
+    
+    // Для глаз особый случай
+    if (part === 'eyes') {
+      if (subpart === 'subtype') {
+        // Изменение подтипа глаз
+        newChar.eyes.subtype = value;
       } else {
-        newChar[part] = value;
-        // Сбрасываем подтип при смене типа глаз
-        if (part === 'eyes') {
-          newChar.eyes.subtype = value === 'обычные' ? 'с ресницами' : '';
-        }
+        // Изменение типа глаз
+        newChar.eyes.type = value;
+        // Сбрасываем подтип при смене типа
+        newChar.eyes.subtype = value === 'обычные' ? 'с ресницами' : '';
       }
-      return newChar;
-    });
-  };
+    } 
+    // Для всех остальных частей
+    else {
+      newChar[part] = value;
+    }
+    
+    return newChar;
+  });
+};
 
   const handleColorChange = (colorType, color) => {
   setCharacter(prev => {
@@ -79,25 +87,25 @@ function App() {
         <CharacterPreview psdData={psdData} character={character} />
         
         <div className="controls">
-          <PartSelector
-            title="Уши"
-            part="ears"
-            options={PARTS_STRUCTURE.ears}
-            current={character.ears}
-            onChange={handlePartChange}
-          />
+<PartSelector
+  title="Уши"
+  part="ears"
+  options={PARTS_STRUCTURE.ears}
+  current={character.ears}
+  onChange={handlePartChange} // Теперь передаём только handlePartChange
+/>
           
-          <PartSelector
-            title="Глаза"
-            part="eyes"
-            options={PARTS_STRUCTURE.eyes.types}
-            current={character.eyes.type}
-            onChange={(value) => handlePartChange('eyes', value, 'type')}
-            showSubtypes={character.eyes.type === 'обычные'}
-            subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
-            currentSubtype={character.eyes.subtype}
-            onSubtypeChange={(value) => handlePartChange('eyes', value, 'subtype')}
-          />
+<PartSelector
+  title="Глаза"
+  part="eyes"
+  options={PARTS_STRUCTURE.eyes.types}
+  current={character.eyes.type}
+  onChange={handlePartChange} // Упростили вызов
+  showSubtypes={character.eyes.type === 'обычные'}
+  subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+  currentSubtype={character.eyes.subtype}
+  onSubtypeChange={handlePartChange} // Теперь используем тот же обработчик
+/>
           
           <PartSelector
             title="Грива"
