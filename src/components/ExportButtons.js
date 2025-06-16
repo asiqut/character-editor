@@ -2,12 +2,16 @@ import React, { useRef } from 'react';
 import { exportPNG, exportPSD } from '../lib/exporter';
 
 function ExportButtons({ character, psdData }) {
-  const canvasRef = useRef(null);
-
-  const handleExportPNG = () => {
-    if (psdData) {
-      exportPNG(canvasRef.current, character, psdData);
-    }
+  const handleExportPNG = async () => {
+    if (!psdData) return;
+    
+    // Создаем временный canvas для рендеринга
+    const canvas = document.createElement('canvas');
+    canvas.width = 315;
+    canvas.height = 315;
+    
+    // Используем функцию экспорта
+    exportPNG(canvas, character, psdData);
   };
   
   const handleExportPSD = () => {
@@ -20,13 +24,6 @@ function ExportButtons({ character, psdData }) {
     <div className="export-buttons">
       <button onClick={handleExportPNG}>Export PNG</button>
       <button onClick={handleExportPSD}>Export PSD</button>
-      
-      <canvas 
-        ref={canvasRef} 
-        width={315} 
-        height={315}
-        style={{ display: 'none' }}
-      />
     </div>
   );
 }
