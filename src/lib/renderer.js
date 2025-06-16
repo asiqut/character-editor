@@ -93,7 +93,8 @@ function renderPart(currentPartName, ctx, psdData, character) {
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    
+    const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+  
     if (subtypeLayer?.canvas) {
       ctx.save();
       ctx.translate(subtypeLayer.left, subtypeLayer.top);
