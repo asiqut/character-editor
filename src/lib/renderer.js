@@ -4,28 +4,21 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Размеры PSD
-  const psdWidth = 315;
-  const psdHeight = 315;
-  const scale = 1.15; // Небольшое увеличение
-  
-  // Центрирование
-  const offsetX = (canvas.width - psdWidth * scale) / 2;
-  const offsetY = (canvas.height - psdHeight * scale) / 2;
-
-  ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-
-  // Порядок рендеринга
-  const partsOrder = ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'];
+  // Рендерим без масштабирования и смещения
+  const partsOrder = [
+    'tail',
+    'body',
+    'mane',
+    'head',
+    'cheeks',
+    'eyes',
+    'ears'
+  ];
 
   partsOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(part, ctx, psdData, character);
   });
-
-  ctx.restore();
 }
 
 function renderPart(currentPartName, ctx, psdData, character) {
