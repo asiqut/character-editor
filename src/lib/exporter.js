@@ -2,24 +2,19 @@ import * as PSD from 'ag-psd';
 import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
-  // Создаем canvas для рендеринга
   const canvas = document.createElement('canvas');
-  canvas.width = 315;
+  canvas.width = 315; // Точный размер PSD
   canvas.height = 315;
-  const ctx = canvas.getContext('2d');
-
-  // Очищаем canvas
-  ctx.clearRect(0, 0, 315, 315);
-
-  // Рендерим персонажа без масштабирования (1:1 как в PSD)
+  
+  // Рендерим без каких-либо трансформаций
   renderCharacter(canvas, psdData, character);
 
-  // Экспортируем
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
 };
+
 export const exportPSD = (originalPsd, character) => {
   // Правильный порядок групп (сверху вниз)
   const groupOrder = [
