@@ -6,7 +6,6 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      // Устанавливаем размеры canvas по размерам PSD
       canvasRef.current.width = 800;
       canvasRef.current.height = 800;
       renderCharacter(canvasRef.current, psdData, character);
