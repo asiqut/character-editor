@@ -16,8 +16,8 @@ export const exportPNG = (canvas, character, psdData) => {
 
 export const exportPSD = (psdData, character) => {
   const newPsd = {
-    width: 800,
-    height: 800,
+    width: psdData.width || 800,
+    height: psdData.height || 800,
     children: []
   };
 
@@ -38,6 +38,8 @@ export const exportPSD = (psdData, character) => {
         newPsd.children.push({
           name: `${part}/${variant}/${layer.name}`,
           canvas: layer.canvas,
+          left: layer.left, // Сохраняем оригинальные координаты
+          top: layer.top,
           opacity: layer.opacity
         });
       }
