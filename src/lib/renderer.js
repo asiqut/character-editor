@@ -1,44 +1,44 @@
-export function renderCharacter(canvas, psdData, character) {
+export function renderCharacter(canvas, psdData, character, options = {}) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Размеры PSD и масштаб
+  // Оригинальные размеры PSD
   const psdWidth = 315;
   const psdHeight = 315;
-  const scale = 1.5; // Масштаб увеличения (можно регулировать)
-  
-  // Вычисляем позицию для центрирования
-  const offsetX = (canvas.width - psdWidth * scale) / 2;
-  const offsetY = (canvas.height - psdHeight * scale) / 2;
 
-  // Сохраняем состояние контекста
-  ctx.save();
-  
-  // Применяем трансформации
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
+  // Настройки рендера
+  const {
+    forExport = false, // Флаг для экспорта
+    scale = 1.5        // Масштаб для превью
+  } = options;
 
-  // Правильный порядок рендеринга (снизу вверх)
+  if (forExport) {
+    // Для экспорта - оригинальный размер и позиционирование
+    renderLayers(ctx, psdData, character);
+  } else {
+    // Для превью - увеличенный и по центру
+    const offsetX = (canvas.width - psdWidth * scale) / 2;
+    const offsetY = (canvas.height - psdHeight * scale) / 2;
+    
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+    renderLayers(ctx, psdData, character);
+    ctx.restore();
+  }
+}
+
+function renderLayers(ctx, psdData, character) {
   const partsOrder = [
-    'tail',    // Хвост (самый нижний)
-    'body',    // Тело
-    'mane',    // Грива/шея
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (самый верхний)
+    'tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'
   ];
 
-  // Рендерим каждый слой в правильном порядке
   partsOrder.forEach(currentPartName => {
     if (currentPartName === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(currentPartName, ctx, psdData, character);
   });
-
-  // Восстанавливаем состояние контекста
-  ctx.restore();
 }
 
 function renderPart(currentPartName, ctx, psdData, character) {
