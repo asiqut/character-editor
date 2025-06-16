@@ -27,32 +27,25 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value, subpart = null) => {
-    setCharacter(prev => {
-      const newChar = {...prev};
-      
-      if (part === 'eyes') {
-        if (subpart === 'type') {
-          // Изменение типа глаз
-          newChar.eyes = {
-            type: value,
-            subtype: value === 'обычные' ? 'с ресницами' : null
-          };
-        } else if (subpart === 'subtype') {
-          // Изменение подтипа глаз
-          newChar.eyes = {
-            ...newChar.eyes,
-            subtype: value
-          };
+const handlePartChange = (part, value) => {
+  setCharacter(prev => {
+    // Если изменяем глаза - value это объект {type, subtype}
+    if (part === 'eyes') {
+      return {
+        ...prev,
+        eyes: {
+          ...prev.eyes,
+          ...value
         }
-      } else {
-        // Для остальных частей
-        newChar[part] = value;
-      }
-      
-      return newChar;
-    });
-  };
+      };
+    }
+    // Для остальных частей - value это просто значение
+    return {
+      ...prev,
+      [part]: value
+    };
+  });
+};
 
   const handleColorChange = (colorType, color) => {
     setCharacter(prev => ({
