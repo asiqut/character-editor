@@ -22,10 +22,7 @@ export function renderCharacter(canvas, psdData, character) {
 
 function renderPart(currentPartName, ctx, psdData, character) {
   const partGroup = psdData[currentPartName];
-  if (!partGroup) {
-    console.warn(`Missing part group: ${currentPartName}`);
-    return;
-  }
+  if (!partGroup) return;
 
   let variantName;
   let variantLayers;
@@ -57,9 +54,10 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Сохраняем оригинальную прозрачность из PSD
-    const originalOpacity = layer.opacity !== undefined ? layer.opacity / 100 : 1;
-    ctx.globalAlpha = originalOpacity * (character.layerOpacities?.[currentPartName]?.[layer.name] ?? 1);
+    // Применяем прозрачность
+    const defaultOpacity = layer.opacity !== undefined ? layer.opacity / 100 : 1;
+    const customOpacity = character.layerOpacities?.[currentPartName]?.[layer.name];
+    ctx.globalAlpha = customOpacity !== undefined ? customOpacity : defaultOpacity;
 
     if (layer.name.includes('[красить]')) {
       let colorToUse;
@@ -91,9 +89,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.save();
       ctx.translate(subtypeLayer.left, subtypeLayer.top);
       
-      // Применяем прозрачность для подтипа
-      const originalOpacity = subtypeLayer.opacity !== undefined ? subtypeLayer.opacity / 100 : 1;
-      ctx.globalAlpha = originalOpacity * (character.layerOpacities?.eyes?.[subtypeLayer.name] ?? 1);
+      const defaultOpacity = subtypeLayer.opacity !== undefined ? subtypeLayer.opacity / 100 : 1;
+      const customOpacity = character.layerOpacities?.eyes?.[subtypeLayer.name];
+      ctx.globalAlpha = customOpacity !== undefined ? customOpacity : defaultOpacity;
       
       if (shouldClipLayer(subtypeLayer.name) && colorLayer) {
         renderClippedLayer(ctx, subtypeLayer, colorLayer);
