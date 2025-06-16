@@ -4,31 +4,20 @@ export function renderCharacter(canvas, psdData, character, options = {}) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Оригинальные размеры PSD
+  // Для превью используем увеличение, для экспорта - оригинальный размер
+  const isExport = options.isExport || false;
   const psdWidth = 315;
   const psdHeight = 315;
+  const scale = isExport ? 1 : 1.5; // Только для превью увеличиваем
 
-  // Настройки рендера
-  const {
-    forExport = false, // Флаг для экспорта
-    scale = 1.5        // Масштаб для превью
-  } = options;
-
-  if (forExport) {
-    // Для экспорта - оригинальный размер и позиционирование
-    renderLayers(ctx, psdData, character);
-  } else {
-    // Для превью - увеличенный и по центру
+  if (!isExport) {
+    // Центрирование только для превью
     const offsetX = (canvas.width - psdWidth * scale) / 2;
     const offsetY = (canvas.height - psdHeight * scale) / 2;
-    
     ctx.save();
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
-    renderLayers(ctx, psdData, character);
-    ctx.restore();
   }
-}
 
 function renderLayers(ctx, psdData, character) {
   const partsOrder = [
@@ -185,4 +174,9 @@ function convertBlendMode(psdBlendMode) {
     'lighten': 'lighten'
   };
   return modes[psdBlendMode.toLowerCase()] || 'source-over';
+}
+
+    if (!isExport) {
+    ctx.restore();
+  }
 }
