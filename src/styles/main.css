@@ -155,3 +155,32 @@ body {
   font-size: 0.9rem;
   margin-bottom: 5px;
 }
+
+.opacity-controls {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8f8f8;
+  border-radius: 4px;
+}
+
+.opacity-control {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.opacity-control label {
+  width: 60px;
+  font-size: 0.8rem;
+}
+
+.opacity-control input {
+  flex-grow: 1;
+  margin: 0 10px;
+}
+
+.opacity-control span {
+  width: 40px;
+  text-align: right;
+  font-size: 0.8rem;
+}
