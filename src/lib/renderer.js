@@ -131,6 +131,11 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   );
   
   tempCtx.globalCompositeOperation = 'source-in';
+
+  if (layer.opacity !== undefined && layer.opacity < 1) {
+  tempCtx.globalAlpha = layer.opacity;
+  }
+  
   tempCtx.drawImage(layer.canvas, 0, 0);
   ctx.drawImage(tempCanvas, 0, 0);
 }
@@ -140,6 +145,10 @@ function renderColorLayer(ctx, layer, color) {
   tempCanvas.width = layer.canvas.width;
   tempCanvas.height = layer.canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
+
+  if (layer.opacity !== undefined && layer.opacity < 1) {
+  tempCtx.globalAlpha = layer.opacity;
+  }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
   tempCtx.globalCompositeOperation = 'source-atop';
