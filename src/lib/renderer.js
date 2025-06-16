@@ -9,7 +9,7 @@ export function renderCharacter(canvas, psdData, character) {
   ctx.save();
   ctx.scale(scale, scale);
 
-  // Порядок отрисовки
+  // Порядок отрисовки (от задних к передним)
   const partsOrder = [
     'body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'
   ];
@@ -32,7 +32,6 @@ function renderPart(part, ctx, psdData, character) {
       group: 'Глаза',
       variant: character.eyes?.type || 'обычные',
       layers: ['блики', 'лайн', 'свет', 'тень', '[красить]', '[белок красить]'],
-      // Особый случай для глаз
       subtype: character.eyes?.subtype || 'с ресницами'
     },
     cheeks: {
@@ -71,13 +70,13 @@ function renderPart(part, ctx, psdData, character) {
     return;
   }
 
-  // Для глаз особый случай
+  // Обработка глаз (особый случай)
   if (part === 'eyes') {
     renderEyes(ctx, group, partConfig, character);
     return;
   }
 
-  // Находим вариант (подгруппу)
+  // Для остальных частей
   const variantGroup = partConfig.variant ? 
     group.children?.find(g => g.name === partConfig.variant) : 
     group;
@@ -87,12 +86,17 @@ function renderPart(part, ctx, psdData, character) {
     return;
   }
 
-  // Рисуем слои
   partConfig.layers.forEach(layerName => {
     const layer = variantGroup.children?.find(l => l.name === layerName);
     if (layer?.canvas) {
       ctx.save();
-      applyColorFilter(ctx, layer, character);
+      // Применяем цвет только к слоям с маркерами
+      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
+        applyColorFilter(ctx, layer, character);
+      } else {
+        // Для обычных слоев сохраняем оригинальные режимы наложения
+        ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
+      }
       ctx.drawImage(layer.canvas, 0, 0);
       ctx.restore();
     }
@@ -110,7 +114,13 @@ function renderEyes(ctx, eyesGroup, config, character) {
     const layer = variantGroup.children?.find(l => l.name === layerName);
     if (layer?.canvas) {
       ctx.save();
-      applyColorFilter(ctx, layer, character);
+      // Для слоев окраски применяем цвет
+      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
+        applyColorFilter(ctx, layer, character);
+      } else {
+        // Сохраняем оригинальный режим наложения
+        ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
+      }
       ctx.drawImage(layer.canvas, 0, 0);
       ctx.restore();
     }
@@ -119,7 +129,10 @@ function renderEyes(ctx, eyesGroup, config, character) {
   // Затем рисуем выбранный подтип (ресницы)
   const subtypeLayer = variantGroup.children?.find(l => l.name === config.subtype);
   if (subtypeLayer?.canvas) {
+    ctx.save();
+    ctx.globalCompositeOperation = subtypeLayer.blendMode?.toLowerCase() || 'source-over';
     ctx.drawImage(subtypeLayer.canvas, 0, 0);
+    ctx.restore();
   }
 }
 
