@@ -6,26 +6,30 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      // Большой канвас для превью
-      canvasRef.current.width = 800;
-      canvasRef.current.height = 800;
+      // Для превью используем увеличенный размер
+      canvasRef.current.width = 630;
+      canvasRef.current.height = 630;
       renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
   
   return (
     <div style={{
-      width: '800px',
-      height: '800px',
+      width: '315px', // Отображаем в оригинальном размере
+      height: '315px',
       position: 'relative',
       border: '1px solid #ddd',
-      overflow: 'hidden'
+      overflow: 'hidden' // Обрезаем увеличенное изображение
     }}>
       <canvas 
         ref={canvasRef} 
-        width={800}
-        height={800}
-        style={{ display: 'block' }}
+        width={630}
+        height={630}
+        style={{ 
+          display: 'block',
+          transform: 'scale(0.5)',
+          transformOrigin: '0 0'
+        }}
       />
     </div>
   );
