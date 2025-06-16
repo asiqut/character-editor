@@ -32,12 +32,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
   let variantName;
   let variantLayers;
   
-  // Особый случай для головы - берём слои напрямую из partGroup
   if (currentPartName === 'head') {
-    console.log('Head layers (direct):', partGroup);
     variantLayers = Array.isArray(partGroup) ? partGroup : [];
-  } 
-  else {
+  } else {
     switch (currentPartName) {
       case 'ears': variantName = character.ears || 'торчком обычные'; break;
       case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
@@ -50,11 +47,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
-  console.log(`${currentPartName} layers:`, variantLayers);
-
-  // Остальной код обработки слоёв остаётся без изменений
-  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
@@ -65,22 +57,22 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Если это слой покраски
+    // Вот сюда вставляем ваш код для обработки слоев покраски
     if (layer.name.includes('[красить]')) {
-      renderColorLayer(
-        ctx, 
-        layer,
-        currentPartName === 'eyes' && layer.name.includes('[белок красить]') 
-          ? character.colors?.eyesWhite || '#ffffff'
-          : character.colors?.main || '#f1ece4'
-      );
-    } 
-    // Если слой требует клиппинга и есть слой покраски
-    else if (colorLayer && shouldClipLayer(layer.name)) {
-      renderClippedLayer(ctx, layer, colorLayer);
+      let colorToUse;
+      if (layer.name.includes('[белок красить]')) {
+        colorToUse = character.colors?.eyesWhite || '#ffffff';
+      } else if (character.partColors?.[currentPartName]) {
+        colorToUse = character.partColors[currentPartName];
+      } else {
+        colorToUse = character.colors?.main || '#f1ece4';
+      }
+      renderColorLayer(ctx, layer, colorToUse);
     }
-    // Обычный слой
-    else {
+    // Остальная логика рендеринга...
+    else if (shouldClipLayer(layer.name)) {
+      // Логика для клиппинга слоев
+    } else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
     
