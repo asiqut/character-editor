@@ -8,44 +8,52 @@ export async function loadPSD() {
     const arrayBuffer = await response.arrayBuffer();
     const psd = PSD.readPsd(arrayBuffer, {
       parseLayerBlendingModes: true,
-      preserveLayerPositions: true
+      preserveLayerPositions: true,
+      skipLayerImageData: false
     });
     
     if (!psd || !psd.children) throw new Error('Invalid PSD structure');
     
-    // Преобразуем структуру PSD в удобный формат
     const processedData = {};
+    const groupOrder = []; // Сохраняем порядок групп
     
-psd.children.forEach(group => {
-  if (!group.name || !group.children) return;
-  
-  let groupName;
-  switch(group.name) {
-    case 'Грудь/шея/грива': groupName = 'mane'; break;
-    case 'Уши': groupName = 'ears'; break;
-    case 'Глаза': groupName = 'eyes'; break;
-    case 'Щёки': groupName = 'cheeks'; break; // Добавлено
-    case 'Голова': groupName = 'head'; break; // Добавлено
-    case 'Тело': groupName = 'body'; break;
-    case 'Хвосты': groupName = 'tail'; break;
-    default: return;
-  }
+    psd.children.forEach(group => {
+      if (!group.name || !group.children) return;
+      
+      let groupName;
+      switch(group.name) {
+        case 'Грудь/шея/грива': groupName = 'mane'; break;
+        case 'Уши': groupName = 'ears'; break;
+        case 'Глаза': groupName = 'eyes'; break;
+        case 'Щёки': groupName = 'cheeks'; break;
+        case 'Голова': groupName = 'head'; break;
+        case 'Тело': groupName = 'body'; break;
+        case 'Хвосты': groupName = 'tail'; break;
+        default: return;
+      }
       
       processedData[groupName] = {};
+      groupOrder.push(groupName); // Сохраняем порядок
       
       group.children.forEach(variant => {
         if (!variant.name || !variant.children) return;
         
-        processedData[groupName][variant.name] = variant.children.map(layer => ({
+        // Для головы используем 'default' вместо имени папки
+        const variantName = groupName === 'head' ? 'default' : variant.name;
+        
+        processedData[groupName][variantName] = variant.children.map(layer => ({
           name: layer.name,
           canvas: layer.canvas,
           left: layer.left || 0,
           top: layer.top || 0,
           blendMode: layer.blendMode,
-          clipping: layer.clipping // Сохраняем информацию о клиппинге
+          clipping: layer.clipping
         }));
       });
     });
+    
+    // Сохраняем порядок групп для правильного рендеринга
+    processedData._order = groupOrder.reverse(); // Инвертируем, так как в PSD верхние слои идут первыми
     
     return processedData;
   } catch (error) {
