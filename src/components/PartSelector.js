@@ -19,7 +19,7 @@ function PartSelector({
           <button
             key={option}
             className={option === current ? 'active' : ''}
-            onClick={() => onChange(option)}
+            onClick={() => onChange(part, option)} // Изменено здесь
           >
             {option}
           </button>
@@ -33,7 +33,7 @@ function PartSelector({
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => onSubtypeChange(subtype)}
+              onClick={() => onSubtypeChange('eyes', subtype)} // Изменено здесь
             >
               {subtype}
             </button>
