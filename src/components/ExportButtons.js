@@ -1,27 +1,42 @@
-import React, { useRef } from 'react';
+// src/components/ExportButtons.js
+import React, { useState } from 'react';
 import { exportPNG, exportPSD } from '../lib/exporter';
 
 function ExportButtons({ character, psdData }) {
+  const [isExporting, setIsExporting] = useState(false);
+
   const handleExport = async (type) => {
-    if (!psdData) return;
+    if (!psdData || isExporting) return;
+    
+    setIsExporting(true);
     
     try {
       if (type === 'png') {
-        const { exportPNG } = await import('../lib/exporter');
-        exportPNG(character, psdData);
+        await exportPNG(character, psdData);
       } else {
-        const { exportPSD } = await import('../lib/exporter');
-        exportPSD(psdData, character);
+        await exportPSD(psdData, character);
       }
     } catch (error) {
       console.error(`Export ${type} error:`, error);
+    } finally {
+      setIsExporting(false);
     }
   };
 
   return (
     <div className="export-buttons">
-      <button onClick={() => handleExport('png')}>Export PNG</button>
-      <button onClick={() => handleExport('psd')}>Export PSD</button>
+      <button 
+        onClick={() => handleExport('png')}
+        disabled={isExporting}
+      >
+        {isExporting ? 'Exporting...' : 'Export PNG'}
+      </button>
+      <button 
+        onClick={() => handleExport('psd')}
+        disabled={isExporting}
+      >
+        {isExporting ? 'Exporting...' : 'Export PSD'}
+      </button>
     </div>
   );
 }
