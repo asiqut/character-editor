@@ -27,32 +27,22 @@ function App() {
     load();
   }, []);
 
-const handlePartChange = (part, value, subpart = null) => {
-  setCharacter(prev => {
-    const newChar = {...prev};
-    
-    if (part === 'eyes') {
-      if (subpart === 'subtype') {
-        // Обновляем только подтип глаз
-        newChar.eyes = {
-          ...newChar.eyes,
-          subtype: value
-        };
-      } else {
-        // Обновляем основной тип глаз
+  const handlePartChange = (part, value) => {
+    setCharacter(prev => {
+      const newChar = {...prev};
+      
+      if (part === 'eyes') {
         newChar.eyes = {
           type: value,
           subtype: value === 'обычные' ? 'с ресницами' : null
         };
+      } else {
+        newChar[part] = value;
       }
-    } else {
-      // Для остальных частей
-      newChar[part] = value;
-    }
-    
-    return newChar;
-  });
-};
+      
+      return newChar;
+    });
+  };
 
   const handleSubtypeChange = (part, subtype) => {
     if (part !== 'eyes') return;
@@ -96,17 +86,17 @@ const handlePartChange = (part, value, subpart = null) => {
             onChange={(value) => handlePartChange('ears', value)}
           />
           
-<PartSelector
-  title="Глаза"
-  part="eyes"
-  options={PARTS_STRUCTURE.eyes.types}
-  current={character.eyes.type}
-  onChange={(value) => handlePartChange('eyes', value)}
-  showSubtypes={character.eyes.type === 'обычные'}
-  subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
-  currentSubtype={character.eyes.subtype}
-  onSubtypeChange={(value) => handlePartChange('eyes', value, 'subtype')}
-/>
+      <PartSelector
+        title="Глаза"
+        part="eyes"
+        options={PARTS_STRUCTURE.eyes.types}
+        current={character.eyes.type}
+        onChange={handlePartChange}
+        showSubtypes={character.eyes.type === 'обычные'}
+        subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+        currentSubtype={character.eyes.subtype}
+        onSubtypeChange={handleSubtypeChange}
+      />
           
           <PartSelector
             title="Грива"
