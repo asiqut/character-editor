@@ -1,3 +1,5 @@
+import React from 'react';
+
 function PartSelector({
   title,
   part,
@@ -9,14 +11,6 @@ function PartSelector({
   currentSubtype,
   onSubtypeChange
 }) {
-  const handleMainOptionClick = (option) => {
-    onChange(part, option);
-  };
-
-  const handleSubtypeClick = (subtype) => {
-    onSubtypeChange(part, subtype);
-  };
-
   return (
     <div className={`part-selector ${part}`}>
       <h3>{title}</h3>
@@ -25,7 +19,7 @@ function PartSelector({
           <button
             key={option}
             className={option === current ? 'active' : ''}
-            onClick={() => handleMainOptionClick(option)}
+            onClick={() => onChange(part, option)}
           >
             {option}
           </button>
@@ -39,7 +33,7 @@ function PartSelector({
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => handleSubtypeClick(subtype)}
+              onClick={() => onSubtypeChange('eyes', subtype, 'subtype')}
             >
               {subtype}
             </button>
@@ -49,3 +43,5 @@ function PartSelector({
     </div>
   );
 }
+
+export default PartSelector;
