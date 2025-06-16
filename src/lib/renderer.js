@@ -6,7 +6,7 @@ export function renderCharacter(canvas, psdData, character) {
   
   // Порядок отрисовки частей
   const partsOrder = [
-    'Тело', 'Хвосты', 'Грудь\шея\грива', 
+    'Тело', 'Хвосты', 'Грудь, шея, грива', 
     'Голова', 'Уши', 'Щёки', 'Глаза'
   ];
 
@@ -31,7 +31,7 @@ function renderPart(partName, ctx, psdData, character) {
     case 'Глаза':
       variantName = character.eyes?.type || 'обычные';
       break;
-    case 'Грудь\шея\грива':
+    case 'Грудь, шея, грива':
       variantName = character.mane || 'обычная';
       break;
     case 'Тело':
