@@ -7,6 +7,8 @@ export const DEFAULT_CHARACTER = {
   mane: 'обычная',
   body: 'v1',
   tail: 'обычный',
+  cheeks: 'пушистые',
+  head: 'default'
   colors: {
     main: '#f1ece4',
     eyesWhite: '#ffffff'
@@ -23,5 +25,7 @@ export const PARTS_STRUCTURE = {
   },
   mane: ['пышная', 'обычная', 'короткошерстная'],
   body: ['v3', 'v2', 'v1'],
-  tail: ['длинный тонкий', 'куцый', 'пышный', 'обычный']
+  tail: ['длинный тонкий', 'куцый', 'пышный', 'обычный'],
+  cheeks: ['пушистые'],
+  head: ['default']
 };
