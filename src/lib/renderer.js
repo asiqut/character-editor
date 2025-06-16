@@ -51,9 +51,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
   let variantName;
   let variantLayers;
   
-  // Особый случай для головы - берём слои напрямую из partGroup
   if (currentPartName === 'head') {
-    console.log('Head layers (direct):', partGroup);
     variantLayers = Array.isArray(partGroup) ? partGroup : [];
   } 
   else {
@@ -68,6 +66,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
     }
     variantLayers = partGroup[variantName] || [];
   }
+
 
   console.log(`${currentPartName} layers:`, variantLayers);
 
