@@ -16,7 +16,7 @@ export function renderCharacter(canvas, psdData, character) {
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  // Порядок отрисовки
+  // Порядок отрисовки (от задних слоев к передним)
   const partsOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
 
   partsOrder.forEach(part => {
@@ -75,6 +75,12 @@ function renderPart(part, ctx, psdData, character) {
     return;
   }
 
+  // Для глаз особая обработка
+  if (part === 'eyes') {
+    renderEyes(ctx, group, partConfig, character);
+    return;
+  }
+
   // Находим вариант (подгруппу)
   const variantGroup = partConfig.variant ? 
     group.children?.find(g => g.name === partConfig.variant) : 
@@ -93,7 +99,7 @@ function renderPart(part, ctx, psdData, character) {
       // Учитываем позицию слоя из PSD
       ctx.translate(layer.left || 0, layer.top || 0);
       
-      if (layerName.includes('[красить]')) {
+      if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
         applyColorFilter(ctx, layer, character);
       } else {
         ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
@@ -103,35 +109,6 @@ function renderPart(part, ctx, psdData, character) {
       ctx.restore();
     }
   });
-}
-  // Для всех слоев учитываем их оригинальное положение
-  if (part === 'eyes') {
-    renderEyes(ctx, group, partConfig, character);
-  } else {
-    const variantGroup = partConfig.variant ? 
-      group.children?.find(g => g.name === partConfig.variant) : 
-      group;
-
-    if (!variantGroup) return;
-
-    partConfig.layers.forEach(layerName => {
-      const layer = variantGroup.children?.find(l => l.name === layerName);
-      if (layer?.canvas) {
-        ctx.save();
-        // Учитываем позицию слоя из PSD
-        ctx.translate(layer.left || 0, layer.top || 0);
-        
-        if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
-          applyColorFilter(ctx, layer, character);
-        } else {
-          ctx.globalCompositeOperation = layer.blendMode?.toLowerCase() || 'source-over';
-        }
-        
-        ctx.drawImage(layer.canvas, 0, 0);
-        ctx.restore();
-      }
-    });
-  }
 }
 
 function renderEyes(ctx, eyesGroup, config, character) {
@@ -158,14 +135,16 @@ function renderEyes(ctx, eyesGroup, config, character) {
     }
   });
 
-  // Слой с ресницами
-  const subtypeLayer = variantGroup.children?.find(l => l.name === config.subtype);
-  if (subtypeLayer?.canvas) {
-    ctx.save();
-    ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
-    ctx.globalCompositeOperation = subtypeLayer.blendMode?.toLowerCase() || 'source-over';
-    ctx.drawImage(subtypeLayer.canvas, 0, 0);
-    ctx.restore();
+  // Слой с ресницами (только для обычных глаз)
+  if (config.variant === 'обычные') {
+    const subtypeLayer = variantGroup.children?.find(l => l.name === config.subtype);
+    if (subtypeLayer?.canvas) {
+      ctx.save();
+      ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
+      ctx.globalCompositeOperation = subtypeLayer.blendMode?.toLowerCase() || 'source-over';
+      ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      ctx.restore();
+    }
   }
 }
 
