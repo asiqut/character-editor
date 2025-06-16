@@ -50,7 +50,28 @@ function renderPart(part, ctx, psdData, character) {
       group: 'Голова',
       layers: ['лайн', 'свет', 'тень', '[красить]']
     },
-      if (part === 'mane') {
+    mane: {
+      group: 'Грудь/шея/грива',
+      variant: character.mane || 'обычная',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    body: {
+      group: 'Тело',
+      variant: character.body || 'v1',
+      layers: ['лайн', 'тень', 'свет', 'свет2', '[красить]']
+    },
+    tail: {
+      group: 'Хвосты',
+      variant: character.tail || 'обычный',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    }
+  };
+
+  const partConfig = config[part];
+  if (!partConfig) return;
+
+  // Специальная обработка для гривы
+  if (part === 'mane') {
     const group = psdData.children?.find(g => g.name === 'Грудь/шея/грива');
     if (!group) {
       console.error("Группа 'Грудь/шея/грива' не найдена");
@@ -85,25 +106,6 @@ function renderPart(part, ctx, psdData, character) {
     });
     return;
   }
-    mane: {
-      group: 'Грудь/шея/грива',
-      variant: character.mane || 'обычная',
-      layers: ['лайн', 'свет', 'тень', '[красить]']
-    },
-    body: {
-      group: 'Тело',
-      variant: character.body || 'v1',
-      layers: ['лайн', 'тень', 'свет', 'свет2', '[красить]']
-    },
-    tail: {
-      group: 'Хвосты',
-      variant: character.tail || 'обычный',
-      layers: ['лайн', 'свет', 'тень', '[красить]']
-    }
-  };
-
-  const partConfig = config[part];
-  if (!partConfig) return;
 
   // Находим основную группу
   const group = psdData.children?.find(g => g.name === partConfig.group);
