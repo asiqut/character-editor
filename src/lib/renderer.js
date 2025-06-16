@@ -67,14 +67,16 @@ function renderPart(currentPartName, ctx, psdData, character) {
     
     // Если это слой покраски
     if (layer.name.includes('[красить]')) {
-      renderColorLayer(
-        ctx, 
-        layer,
-        currentPartName === 'eyes' && layer.name.includes('[белок красить]') 
-          ? character.colors?.eyesWhite || '#ffffff'
-          : character.colors?.main || '#f1ece4'
-      );
-    } 
+      let colorToUse;
+    if (layer.name.includes('[белок красить]')) {
+      colorToUse = character.colors?.eyesWhite || '#ffffff';
+      } else if (character.partColors?.[currentPartName]) {
+      colorToUse = character.partColors[currentPartName];
+      } else {
+      colorToUse = character.colors?.main || '#f1ece4';
+      }
+      renderColorLayer(ctx, layer, colorToUse);
+    }
     // Если слой требует клиппинга и есть слой покраски
     else if (colorLayer && shouldClipLayer(layer.name)) {
       renderClippedLayer(ctx, layer, colorLayer);
