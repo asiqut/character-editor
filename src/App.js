@@ -27,56 +27,44 @@ function App() {
     load();
   }, []);
 
-const handlePartChange = (part, value, subpart = null) => {
-  setCharacter(prev => {
-    const newChar = {...prev};
-    
-    if (part === 'eyes') {
-      if (subpart === 'subtype') {
-        // Изменяем только подтип, сохраняя текущий тип глаз
-        newChar.eyes = {
-          ...newChar.eyes,
-          subtype: value
-        };
-      } else {
-        // Изменяем тип глаз
+  const handlePartChange = (part, value) => {
+    setCharacter(prev => {
+      const newChar = {...prev};
+      
+      if (part === 'eyes') {
+        // Изменение типа глаз
         newChar.eyes = {
           type: value,
-          // Для обычных глаз устанавливаем подтип по умолчанию
           subtype: value === 'обычные' ? 'с ресницами' : null
         };
+      } else {
+        // Для остальных частей
+        newChar[part] = value;
       }
-    } else {
-      // Для остальных частей просто обновляем значение
-      newChar[part] = value;
-    }
-    
-    return newChar;
-  });
-};
-  
-  const handleColorChange = (colorType, color) => {
-  setCharacter(prev => {
-    const newColors = {
-      ...prev.colors,
-      [colorType]: color
-    };
-    
-    // При изменении основного цвета сбрасываем все части к базовому цвету
-    if (colorType === 'main') {
-      return {
-        ...prev,
-        colors: newColors
-      };
-    }
-    
-    // При изменении цвета белков оставляем как есть
-    return {
+      
+      return newChar;
+    });
+  };
+
+  const handleSubtypeChange = (subtype) => {
+    setCharacter(prev => ({
       ...prev,
-      colors: newColors
-    };
-  });
-};
+      eyes: {
+        ...prev.eyes,
+        subtype: subtype
+      }
+    }));
+  };
+
+  const handleColorChange = (colorType, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      colors: {
+        ...prev.colors,
+        [colorType]: color
+      }
+    }));
+  };
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -95,27 +83,27 @@ const handlePartChange = (part, value, subpart = null) => {
             part="ears"
             options={PARTS_STRUCTURE.ears}
             current={character.ears}
-            onChange={handlePartChange}
+            onChange={(value) => handlePartChange('ears', value)}
           />
           
-<PartSelector
-  title="Глаза"
-  part="eyes"
-  options={PARTS_STRUCTURE.eyes.types}
-  current={character.eyes.type}
-  onChange={handlePartChange} // Упростили вызов
-  showSubtypes={character.eyes.type === 'обычные'}
-  subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
-  currentSubtype={character.eyes.subtype}
-  onSubtypeChange={handlePartChange} // Теперь используем тот же обработчик
-/>
+          <PartSelector
+            title="Глаза"
+            part="eyes"
+            options={PARTS_STRUCTURE.eyes.types}
+            current={character.eyes.type}
+            onChange={(value) => handlePartChange('eyes', value)}
+            showSubtypes={character.eyes.type === 'обычные'}
+            subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+            currentSubtype={character.eyes.subtype}
+            onSubtypeChange={handleSubtypeChange}
+          />
           
           <PartSelector
             title="Грива"
             part="mane"
             options={PARTS_STRUCTURE.mane}
             current={character.mane}
-            onChange={handlePartChange}
+            onChange={(value) => handlePartChange('mane', value)}
           />
           
           <PartSelector
@@ -123,7 +111,7 @@ const handlePartChange = (part, value, subpart = null) => {
             part="body"
             options={PARTS_STRUCTURE.body}
             current={character.body}
-            onChange={handlePartChange}
+            onChange={(value) => handlePartChange('body', value)}
           />
           
           <PartSelector
@@ -131,7 +119,7 @@ const handlePartChange = (part, value, subpart = null) => {
             part="tail"
             options={PARTS_STRUCTURE.tail}
             current={character.tail}
-            onChange={handlePartChange}
+            onChange={(value) => handlePartChange('tail', value)}
           />
           
           <ColorPicker
