@@ -40,7 +40,7 @@ body {
 }
 
 .controls {
-  width: 350px;
+  width: 900px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
