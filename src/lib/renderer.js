@@ -6,7 +6,7 @@ export function renderCharacter(canvas, psdData, character) {
   
   // Используем сохраненный порядок из PSD или стандартный, если его нет
   const partsOrder = psdData._order || [
-    'body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'
+    'ears', 'eyes', 'cheeks', 'head', 'mane', 'body', 'tail'
   ];
 
   partsOrder.forEach(partName => {
