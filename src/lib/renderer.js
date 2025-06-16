@@ -1,14 +1,23 @@
-console.log("PSD Structure:", psdData.children.map(g => g.name));
-
 export function renderCharacter(canvas, psdData, character) {
-  if (!psdData || !character) return;
+  if (!psdData || !character) {
+    console.error("PSD data or character not provided");
+    return;
+  }
+
+  // Для отладки - выводим структуру PSD только если данные есть
+  console.log("PSD Structure:", psdData.children?.map(g => g.name));
 
   const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    console.error("Could not get canvas context");
+    return;
+  }
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   // Получаем размеры PSD и рассчитываем масштаб
-  const psdWidth = psdData.width;
-  const psdHeight = psdData.height;
+  const psdWidth = psdData.width || 800;
+  const psdHeight = psdData.height || 800;
   const scale = Math.min(canvas.width / psdWidth, canvas.height / psdHeight);
   
   // Центрируем изображение
@@ -22,7 +31,11 @@ export function renderCharacter(canvas, psdData, character) {
   const partsOrder = ['body', 'tail', 'mane', 'head', 'ears', 'cheeks', 'eyes'];
 
   partsOrder.forEach(part => {
-    renderPart(part, ctx, psdData, character);
+    try {
+      renderPart(part, ctx, psdData, character);
+    } catch (error) {
+      console.error(`Error rendering ${part}:`, error);
+    }
   });
 
   ctx.restore();
@@ -68,24 +81,35 @@ function renderPart(part, ctx, psdData, character) {
   };
 
   const partConfig = config[part];
-  if (!partConfig) return;
+  if (!partConfig) {
+    console.warn(`No config found for part: ${part}`);
+    return;
+  }
 
-  // Специальная обработка для гривы
+  // Находим основную группу
+  const group = psdData.children?.find(g => g.name === partConfig.group);
+  if (!group) {
+    console.warn(`Group not found: ${partConfig.group}`);
+    console.log("Available groups:", psdData.children?.map(g => g.name));
+    return;
+  }
+
+  // Для глаз особая обработка
+  if (part === 'eyes') {
+    renderEyes(ctx, group, partConfig, character);
+    return;
+  }
+
+  // Для гривы специальная обработка
   if (part === 'mane') {
-    const group = psdData.children?.find(g => g.name === 'Грудь/шея/грива');
-    if (!group) {
-      console.error("Группа 'Грудь/шея/грива' не найдена");
-      return;
-    }
-
     const variant = group.children?.find(g => g.name === character.mane);
     if (!variant) {
-      console.error(`Вариант гривы '${character.mane}' не найден`);
+      console.warn(`Mane variant not found: ${character.mane}`);
+      console.log("Available mane variants:", group.children?.map(g => g.name));
       return;
     }
 
     const layersOrder = ['лайн', 'свет', 'тень', '[красить]'];
-    
     layersOrder.forEach(layerName => {
       const layer = variant.children?.find(l => l.name === layerName);
       if (layer?.canvas) {
@@ -100,27 +124,12 @@ function renderPart(part, ctx, psdData, character) {
         
         ctx.drawImage(layer.canvas, 0, 0);
         ctx.restore();
-      } else {
-        console.warn(`Слой '${layerName}' не найден в варианте '${character.mane}'`);
       }
     });
     return;
   }
 
-  // Находим основную группу
-  const group = psdData.children?.find(g => g.name === partConfig.group);
-  if (!group) {
-    console.warn(`Group not found: ${partConfig.group}`);
-    return;
-  }
-
-  // Для глаз особая обработка
-  if (part === 'eyes') {
-    renderEyes(ctx, group, partConfig, character);
-    return;
-  }
-
-  // Находим вариант (подгруппу)
+  // Находим вариант (подгруппу) для остальных частей
   const variantGroup = partConfig.variant ? 
     group.children?.find(g => g.name === partConfig.variant) : 
     group;
@@ -135,7 +144,6 @@ function renderPart(part, ctx, psdData, character) {
     const layer = variantGroup.children?.find(l => l.name === layerName);
     if (layer?.canvas) {
       ctx.save();
-      // Учитываем позицию слоя из PSD
       ctx.translate(layer.left || 0, layer.top || 0);
       
       if (layerName.includes('[красить]') || layerName.includes('[белок красить]')) {
