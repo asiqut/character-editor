@@ -27,32 +27,30 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value, isSubtype = false) => {
-    setCharacter(prev => {
-      const newChar = {...prev};
-      
-      if (part === 'eyes') {
-        if (isSubtype) {
-          // Обновляем только подтип глаз
-          newChar.eyes = {
-            ...prev.eyes,
-            subtype: value
-          };
-        } else {
-          // Обновляем основной тип глаз
-          newChar.eyes = {
-            type: value,
-            subtype: value === 'обычные' ? 'с ресницами' : null
-          };
-        }
+const handlePartChange = (part, value, isSubtype = false) => {
+  setCharacter(prev => {
+    const newChar = {...prev};
+    
+    if (part === 'eyes') {
+      if (isSubtype) {
+        newChar.eyes = {
+          ...prev.eyes,
+          subtype: value
+        };
       } else {
-        // Для всех остальных частей
-        newChar[part] = value;
+        newChar.eyes = {
+          type: value,
+          subtype: value === 'обычные' ? 'с ресницами' : null
+        };
       }
-      
-      return newChar;
-    });
-  };
+    } else {
+      // Для гривы и других частей
+      newChar[part] = value;
+    }
+    
+    return newChar;
+  });
+};
 
   const handleSubtypeChange = (part, subtype) => {
     if (part !== 'eyes') return;
