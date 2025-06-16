@@ -45,7 +45,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
-  // Находим слой для клиппинга ([красить])
   const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
 
   variantLayers.forEach(layer => {
@@ -58,7 +57,10 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Обработка слоя покраски
+    // Сохраняем оригинальную прозрачность из PSD
+    const originalOpacity = layer.opacity !== undefined ? layer.opacity / 100 : 1;
+    ctx.globalAlpha = originalOpacity * (character.layerOpacities?.[currentPartName]?.[layer.name] ?? 1);
+
     if (layer.name.includes('[красить]')) {
       let colorToUse;
       if (layer.name.includes('[белок красить]')) {
@@ -70,11 +72,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
       }
       renderColorLayer(ctx, layer, colorToUse);
     }
-    // Обработка слоёв, требующих клиппинга (тень, свет и т.д.)
     else if (shouldClipLayer(layer.name) && colorLayer) {
       renderClippedLayer(ctx, layer, colorLayer);
     }
-    // Обычные слои (лайн и другие)
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
@@ -82,7 +82,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.restore();
   });
 
-  // Особый случай для глаз (подтипы)
+  // Обработка подтипов глаз
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
@@ -91,7 +91,10 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.save();
       ctx.translate(subtypeLayer.left, subtypeLayer.top);
       
-      // Для подтипов глаз также применяем клиппинг если нужно
+      // Применяем прозрачность для подтипа
+      const originalOpacity = subtypeLayer.opacity !== undefined ? subtypeLayer.opacity / 100 : 1;
+      ctx.globalAlpha = originalOpacity * (character.layerOpacities?.eyes?.[subtypeLayer.name] ?? 1);
+      
       if (shouldClipLayer(subtypeLayer.name) && colorLayer) {
         renderClippedLayer(ctx, subtypeLayer, colorLayer);
       } else {
