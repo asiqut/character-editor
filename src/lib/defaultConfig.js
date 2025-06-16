@@ -8,7 +8,7 @@ export const DEFAULT_CHARACTER = {
   body: 'v1',
   tail: 'обычный',
   cheeks: 'пушистые',
-  head: 'default'
+  head: 'default',
   colors: {
     main: '#f1ece4',
     eyesWhite: '#ffffff'
