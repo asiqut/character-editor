@@ -13,7 +13,14 @@ export async function loadPSD() {
     });
     
     if (!psd || !psd.children) throw new Error('Invalid PSD structure');
-    
+    width: psd.width,
+    height: psd.height,
+    canvasWidth: 800, // Фиксированный размер, который мы используем
+    canvasHeight: 800,
+    offsetX: (800 - psd.width) / 2, // Смещение для центрирования
+    offsetY: (800 - psd.height) / 2
+    };
+  
     const processedData = {};
     const groupOrder = []; // Сохраняем порядок групп
     
