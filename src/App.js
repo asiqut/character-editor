@@ -84,17 +84,17 @@ function App() {
             onChange={(value) => handlePartChange('ears', value)}
           />
           
-          <PartSelector
-            title="Глаза"
-            part="eyes"
-            options={PARTS_STRUCTURE.eyes.types}
-            current={character.eyes.type}
-            onChange={(value) => handlePartChange('eyes', value, 'type')}
-            showSubtypes={character.eyes.type === 'обычные'}
-            subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
-            currentSubtype={character.eyes.subtype}
-            onSubtypeChange={(value) => handlePartChange('eyes', value, 'subtype')}
-          />
+<PartSelector
+  title="Глаза"
+  part="eyes"
+  options={PARTS_STRUCTURE.eyes.types}
+  current={character.eyes.type}
+  onChange={(value) => handlePartChange(value, 'type')}
+  showSubtypes={character.eyes.type === 'обычные'}
+  subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+  currentSubtype={character.eyes.subtype}
+  onSubtypeChange={(value) => handlePartChange(value, 'subtype')}
+/>
           
           <PartSelector
             title="Грива"
