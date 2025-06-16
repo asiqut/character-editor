@@ -28,7 +28,41 @@ export function renderCharacter(canvas, psdData, character) {
 
 function renderPart(part, ctx, psdData, character) {
   const config = {
-    // ... (остальные настройки частей остаются прежними)
+    ears: {
+      group: 'Уши',
+      variant: character.ears || 'торчком обычные',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    eyes: {
+      group: 'Глаза',
+      variant: character.eyes?.type || 'обычные',
+      layers: ['блики', 'лайн', 'свет', 'тень', '[красить]', '[белок красить]'],
+      subtype: character.eyes?.subtype || 'с ресницами'
+    },
+    cheeks: {
+      group: 'Щёки',
+      variant: 'пушистые',
+      layers: ['лайн', 'тень', 'свет', '[красить]']
+    },
+    head: {
+      group: 'Голова',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    mane: {
+      group: 'Грудь/шея/грива',
+      variant: character.mane || 'обычная',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    },
+    body: {
+      group: 'Тело',
+      variant: character.body || 'v1',
+      layers: ['лайн', 'тень', 'свет', 'свет2', '[красить]']
+    },
+    tail: {
+      group: 'Хвосты',
+      variant: character.tail || 'обычный',
+      layers: ['лайн', 'свет', 'тень', '[красить]']
+    }
   };
 
   const partConfig = config[part];
