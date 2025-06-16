@@ -3,28 +3,38 @@ import * as PSD from 'ag-psd';
 export async function loadPSD() {
   try {
     const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
+    if (!response.ok) throw new Error(`Failed to fetch PSD: ${response.status}`);
+    
     const arrayBuffer = await response.arrayBuffer();
     const psd = PSD.readPsd(arrayBuffer, {
       parseLayerBlendingModes: true,
-      useImageData: true,
       preserveLayerPositions: true
     });
     
-    console.log('Loaded PSD structure:', psd);
+    if (!psd || !psd.children) throw new Error('Invalid PSD structure');
     
-    // Нормализация данных
-    if (psd.children) {
-      psd.children.forEach(group => {
-        if (group.children) {
-          group.children.forEach(layer => {
-            layer.left = layer.left || 0;
-            layer.top = layer.top || 0;
-          });
-        }
+    // Преобразуем структуру PSD в удобный формат
+    const processedData = {};
+    
+    psd.children.forEach(group => {
+      if (!group.name || !group.children) return;
+      
+      processedData[group.name] = {};
+      
+      group.children.forEach(variant => {
+        if (!variant.name || !variant.children) return;
+        
+        processedData[group.name][variant.name] = variant.children.map(layer => ({
+          name: layer.name,
+          canvas: layer.canvas,
+          left: layer.left || 0,
+          top: layer.top || 0,
+          blendMode: layer.blendMode
+        }));
       });
-    }
+    });
     
-    return psd;
+    return processedData;
   } catch (error) {
     console.error('Error loading PSD:', error);
     throw error;
