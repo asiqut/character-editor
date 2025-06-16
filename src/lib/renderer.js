@@ -5,13 +5,13 @@ export function renderCharacter(canvas, psdData, character) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const partsOrder = [
-    'tail',    // Хвост (самый нижний)
-    'body',    // Тело
-    'mane',    // Грива/шея
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (самый верхний)
+    'tail',
+    'body',
+    'mane',
+    'head',
+    'cheeks',
+    'eyes',
+    'ears'
   ];
 
   partsOrder.forEach(currentPartName => {
@@ -47,27 +47,13 @@ function renderPart(currentPartName, ctx, psdData, character) {
 
   // Находим слой для клиппинга ([красить])
   const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
-  // Сортируем слои для правильного порядка рендеринга
-  const sortedLayers = [...variantLayers].sort((a, b) => {
-    // Сначала [красить], затем остальные
-    if (a.name.includes('[красить]')) return -1;
-    if (b.name.includes('[красить]')) return 1;
-    return 0;
-  });
 
-  sortedLayers.forEach(layer => {
+  variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
     
-    // Устанавливаем прозрачность
-    if (layer.opacity !== undefined) {
-      ctx.globalAlpha = layer.opacity;
-    }
-    
-    // Устанавливаем режим наложения
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
@@ -105,10 +91,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.save();
       ctx.translate(subtypeLayer.left, subtypeLayer.top);
       
-      if (subtypeLayer.opacity !== undefined) {
-        ctx.globalAlpha = subtypeLayer.opacity;
-      }
-      
       // Для подтипов глаз также применяем клиппинг если нужно
       if (shouldClipLayer(subtypeLayer.name) && colorLayer) {
         renderClippedLayer(ctx, subtypeLayer, colorLayer);
@@ -122,8 +104,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
 }
 
 function shouldClipLayer(layerName) {
-  const clipLayers = ['свет', 'тень', 'свет2', 'блики', 'с ресницами', 'без ресниц'];
-  return clipLayers.includes(layerName);
+  return ['свет', 'тень', 'свет2', 'блики', 'с ресницами', 'без ресниц'].includes(layerName);
 }
 
 function renderClippedLayer(ctx, layer, clipLayer) {
@@ -131,11 +112,6 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCanvas.width = Math.max(layer.canvas.width, clipLayer.canvas.width);
   tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
   const tempCtx = tempCanvas.getContext('2d');
-  
-  // Сохраняем прозрачность
-  if (layer.opacity !== undefined) {
-    tempCtx.globalAlpha = layer.opacity;
-  }
   
   // Рендерим слой клиппинга
   tempCtx.drawImage(clipLayer.canvas, 
@@ -171,13 +147,7 @@ function convertBlendMode(psdBlendMode) {
     'screen': 'screen',
     'overlay': 'overlay',
     'darken': 'darken',
-    'lighten': 'lighten',
-    'linear dodge': 'lighter',
-    'color dodge': 'color-dodge',
-    'linear burn': 'darken',
-    'color burn': 'color-burn',
-    'hard light': 'hard-light',
-    'soft light': 'soft-light'
+    'lighten': 'lighten'
   };
   return modes[psdBlendMode.toLowerCase()] || 'source-over';
 }
