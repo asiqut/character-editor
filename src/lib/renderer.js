@@ -80,24 +80,25 @@ function renderPart(currentPartName, ctx, psdData, character) {
   });
 
   // Особый случай для глаз (подтипы)
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
+if (currentPartName === 'eyes' && variantName === 'обычные') {
+  const subtype = character.eyes?.subtype || 'с ресницами';
+  const subtypeLayer = variantLayers.find(l => l.name === subtype);
+  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+  
+  if (subtypeLayer?.canvas) {
+    ctx.save();
+    ctx.translate(subtypeLayer.left, subtypeLayer.top);
     
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      
-      // Для подтипов глаз также применяем клиппинг если нужно
-      if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
-        renderClippedLayer(ctx, subtypeLayer, colorLayer);
-      } else {
-        ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      }
-      
-      ctx.restore();
+    // Для подтипов глаз также применяем клиппинг если нужно
+    if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
+      renderClippedLayer(ctx, subtypeLayer, colorLayer);
+    } else {
+      ctx.drawImage(subtypeLayer.canvas, 0, 0);
     }
+    
+    ctx.restore();
   }
+}
 }
 
 function shouldClipLayer(layerName) {
