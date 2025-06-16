@@ -4,11 +4,11 @@ export const DEFAULT_CHARACTER = {
     type: 'обычные',
     subtype: 'с ресницами'
   },
+  cheeks: 'пушистые', // Добавили щёки по умолчанию
+  head: 'default',
   mane: 'обычная',
   body: 'v1',
   tail: 'обычный',
-  cheeks: 'пушистые',
-  head: 'default',
   colors: {
     main: '#f1ece4',
     eyesWhite: '#ffffff'
@@ -23,9 +23,8 @@ export const PARTS_STRUCTURE = {
       'обычные': ['с ресницами', 'без ресниц']
     }
   },
+  cheeks: ['пушистые'], // Добавили варианты щёк
   mane: ['пышная', 'обычная', 'короткошерстная'],
   body: ['v3', 'v2', 'v1'],
-  tail: ['длинный тонкий', 'куцый', 'пышный', 'обычный'],
-  cheeks: ['пушистые'],
-  head: ['default']
+  tail: ['длинный тонкий', 'куцый', 'пышный', 'обычный']
 };
