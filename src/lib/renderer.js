@@ -4,16 +4,18 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Правильный порядок рендеринга (снизу вверх)
   const partsOrder = [
-    'tail',
-    'body',
-    'mane',
-    'head',
-    'cheeks',
-    'eyes',
-    'ears'
+    'tail',    // Хвост (самый нижний)
+    'body',    // Тело
+    'mane',    // Грива/шея
+    'head',    // Голова
+    'cheeks',  // Щёки
+    'eyes',    // Глаза
+    'ears'     // Уши (самый верхний)
   ];
 
+  // Рендерим каждый слой в правильном порядке
   partsOrder.forEach(currentPartName => {
     if (currentPartName === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(currentPartName, ctx, psdData, character);
@@ -30,7 +32,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
   let variantName;
   let variantLayers;
   
+  // Особый случай для головы - берём слои напрямую из partGroup
   if (currentPartName === 'head') {
+    console.log('Head layers (direct):', partGroup);
     variantLayers = Array.isArray(partGroup) ? partGroup : [];
   } 
   else {
@@ -46,77 +50,9 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
-  // Обработка глаз - особый случай для подтипов
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const eyesSubtype = character.eyes?.subtype || 'с ресницами';
-    const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-    
-    variantLayers.forEach(layer => {
-      if (!layer.canvas) return;
-      
-      // Пропускаем слои ресниц в зависимости от выбранного подтипа
-      if ((layer.name === 'с ресницами' && eyesSubtype === 'без ресниц') || 
-          (layer.name === 'без ресниц' && eyesSubtype === 'с ресницами')) {
-        return;
-      }
-      
-      // Пропускаем технические слои ([красить], [белок красить]) - они обрабатываются отдельно
-      if (layer.name.includes('[красить]') || layer.name.includes('[белок красить]')) {
-        return;
-      }
-      
-      ctx.save();
-      ctx.translate(layer.left, layer.top);
-      
-      if (layer.opacity !== undefined && layer.opacity < 1) {
-        ctx.globalAlpha = layer.opacity;
-      }
-      
-      if (layer.blendMode) {
-        ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-      }
-      
-      // Для обычных слоев глаз применяем клиппинг если нужно
-      if (colorLayer && shouldClipLayer(layer.name)) {
-        renderClippedLayer(ctx, layer, colorLayer);
-      } else {
-        ctx.drawImage(layer.canvas, 0, 0);
-      }
-      
-      ctx.restore();
-    });
-    
-    // Обрабатываем слои покраски отдельно
-    variantLayers.forEach(layer => {
-      if (!layer.canvas || 
-          (!layer.name.includes('[красить]') && !layer.name.includes('[белок красить]'))) {
-        return;
-      }
-      
-      ctx.save();
-      ctx.translate(layer.left, layer.top);
-      
-      if (layer.opacity !== undefined && layer.opacity < 1) {
-        ctx.globalAlpha = layer.opacity;
-      }
-      
-      let colorToUse;
-      if (layer.name.includes('[белок красить]')) {
-        colorToUse = character.colors?.eyesWhite || '#ffffff';
-      } else if (character.partColors?.[currentPartName]) {
-        colorToUse = character.partColors[currentPartName];
-      } else {
-        colorToUse = character.colors?.main || '#f1ece4';
-      }
-      
-      renderColorLayer(ctx, layer, colorToUse);
-      ctx.restore();
-    });
-    
-    return;
-  }
+  console.log(`${currentPartName} layers:`, variantLayers);
 
-  // Остальной код для других частей
+  // Остальной код обработки слоёв остаётся без изменений
   const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
   
   variantLayers.forEach(layer => {
@@ -125,34 +61,54 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.save();
     ctx.translate(layer.left, layer.top);
     
-    if (layer.opacity !== undefined && layer.opacity < 1) {
-      ctx.globalAlpha = layer.opacity;
-    }
-    
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
+    // Если это слой покраски
     if (layer.name.includes('[красить]')) {
       let colorToUse;
-      if (layer.name.includes('[белок красить]')) {
-        colorToUse = character.colors?.eyesWhite || '#ffffff';
+    if (layer.name.includes('[белок красить]')) {
+      colorToUse = character.colors?.eyesWhite || '#ffffff';
       } else if (character.partColors?.[currentPartName]) {
-        colorToUse = character.partColors[currentPartName];
+      colorToUse = character.partColors[currentPartName];
       } else {
-        colorToUse = character.colors?.main || '#f1ece4';
+      colorToUse = character.colors?.main || '#f1ece4';
       }
       renderColorLayer(ctx, layer, colorToUse);
     }
+    // Если слой требует клиппинга и есть слой покраски
     else if (colorLayer && shouldClipLayer(layer.name)) {
       renderClippedLayer(ctx, layer, colorLayer);
     }
+    // Обычный слой
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
     
     ctx.restore();
   });
+
+  // Особый случай для глаз (подтипы)
+  if (currentPartName === 'eyes' && variantName === 'обычные') {
+    const subtype = character.eyes?.subtype || 'с ресницами';
+    const subtypeLayer = variantLayers.find(l => l.name === subtype);
+    const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+  
+    if (subtypeLayer?.canvas) {
+      ctx.save();
+      ctx.translate(subtypeLayer.left, subtypeLayer.top);
+      
+      // Для подтипов глаз также применяем клиппинг если нужно
+      if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
+        renderClippedLayer(ctx, subtypeLayer, colorLayer);
+      } else {
+        ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      }
+      
+      ctx.restore();
+    }
+  }
 }
 
 function shouldClipLayer(layerName) {
@@ -171,11 +127,6 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   );
   
   tempCtx.globalCompositeOperation = 'source-in';
-  
-  if (layer.opacity !== undefined && layer.opacity < 1) {
-    tempCtx.globalAlpha = layer.opacity;
-  }
-  
   tempCtx.drawImage(layer.canvas, 0, 0);
   ctx.drawImage(tempCanvas, 0, 0);
 }
@@ -185,10 +136,6 @@ function renderColorLayer(ctx, layer, color) {
   tempCanvas.width = layer.canvas.width;
   tempCanvas.height = layer.canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
-  
-  if (layer.opacity !== undefined && layer.opacity < 1) {
-    tempCtx.globalAlpha = layer.opacity;
-  }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
   tempCtx.globalCompositeOperation = 'source-atop';
