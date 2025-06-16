@@ -86,10 +86,10 @@ function App() {
         
         <div className="controls">
           <PartSelector
-            title="Уши"
-            part="ears"
-            options={PARTS_STRUCTURE.ears}
-            current={character.ears}
+            title="Щёки"
+            part="cheeks"
+            options={PARTS_STRUCTURE.cheeks}
+            current={character.cheeks}
             onChange={(part, value) => handlePartChange(part, value)}
           />
           
