@@ -1,18 +1,11 @@
 export default {
-  // Системные настройки
-  system: {
-    debugMode: false,     // Режим отладки
-    defaultColor: '#f1ece4'
-  },
-
-  // Холст
-  canvas: {
+  canvasSettings: {
     width: 315,
     height: 315,
-    background: '#f5f5f5'
+    backgroundColor: '#f5f5f5'
   },
 
-  // Все части персонажа
+  // 2. Все части персонажа
   parts: {
     // УШИ
     ears: {
@@ -286,7 +279,7 @@ export default {
     }
   },
 
-  // Цвета
+  // 3. Цвета
   colors: {
     ears: {
       default: '#f1ece4'
@@ -317,27 +310,9 @@ export default {
       default: '#ffffff',
       layerMarker: '[белок красить]'
     }
-  }
+  },
 
-  // Порядок отрисовки (снизу вверх)
-  renderOrder: 
-    'tail',    // Самый нижний слой
-    'body',
-    'mane',
-    'head',
-    'cheeks',
-    'eyes',
-    'ears'     // Самый верхний слой
-  ],
-
-  // Экспорт
-  export: {
-    png: {
-      quality: 1,
-      transparent: false
-    },
-    psd: {
-      preserveGroups: true
-    }
-  }
+  defaultRenderOrder: [
+    'tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'
+  ]
 };
