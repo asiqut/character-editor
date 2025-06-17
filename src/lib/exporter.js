@@ -46,37 +46,37 @@ export const exportPSD = (originalPsd, character) => {
   };
 
   // Функция для применения цвета к слою
-  const applyColorToLayer = (layer, partName, character) => {
-    if (!layer.canvas) return layer;
-    
-    // Создаем временный canvas
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = layer.canvas.width;
-    tempCanvas.height = layer.canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    // Определяем цвет
-    let color;
-    if (layer.name.includes('[белок красить]')) {
-      color = character.colors?.eyesWhite || '#ffffff';
-    } else if (layer.name.includes('[красить]')) {
-      color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
-    } else {
-      return layer; // Не меняем слои без покраски
-    }
-    
-    // Применяем цвет
-    tempCtx.drawImage(layer.canvas, 0, 0);
-    tempCtx.globalCompositeOperation = 'source-atop';
-    tempCtx.fillStyle = color;
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    // Возвращаем обновленный слой
-    return {
-      ...layer,
-      canvas: tempCanvas
-    };
+const applyColorToLayer = (layer, partName, character) => {
+  if (!layer.canvas) return layer;
+  
+  // Создаем временный canvas
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Определяем цвет
+  let color;
+  if (layer.name.includes('[белок красить]')) {
+    color = character.colors?.eyesWhite || '#ffffff';
+  } else if (layer.name.includes('[красить]')) {
+    color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+  } else {
+    return layer; // Не меняем слои без покраски
+  }
+  
+  // Применяем цвет
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  tempCtx.globalCompositeOperation = 'source-atop';
+  tempCtx.fillStyle = color;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+  // Возвращаем обновленный слой
+  return {
+    ...layer,
+    canvas: tempCanvas
   };
+};
 
   // Создаем группы в правильном порядке
   groupOrder.forEach(groupName => {
