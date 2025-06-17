@@ -1,7 +1,7 @@
 {
   "name": "character-editor",
   "version": "1.0.0",
-  "homepage": "https://ваш-username.github.io/character-editor",
+  "homepage": "https://asiqut.github.io/character-editor/",
   "scripts": {
     "start": "vite",                          // Запуск dev-сервера
     "build": "vite build",                    // Сборка проекта
