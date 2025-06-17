@@ -1,18 +1,15 @@
 {
   "name": "character-editor",
   "version": "1.0.0",
-  "description": "Character Editor for KINWOODS",
   "scripts": {
-    "start": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "start": "http-server -c-1",
+    "deploy": "gh-pages -d ."
   },
   "dependencies": {
-    "ag-psd": "^1.0.0",
-    "vite": "^4.4.0"
+    "ag-psd": "^1.0.0"
   },
   "devDependencies": {
-    "gh-pages": "^5.0.0"
+    "gh-pages": "^5.0.0",
+    "http-server": "^14.1.1"
   }
 }
