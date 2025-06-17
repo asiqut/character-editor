@@ -47,47 +47,37 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
-
-  console.log(`${currentPartName} layers:`, variantLayers);
-
-  // Остальной код обработки слоёв остаётся без изменений
-  const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
+  // Обработка цвета для глаз
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
-
-    if (layer.blendMode) {
-    ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-    }
-    
-    if (layer.opacity !== undefined && layer.opacity < 1) {
-      ctx.globalAlpha = layer.opacity;
-    }
     
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Если это слой покраски
-    if (layer.name.includes('[красить]')) {
-      let colorToUse;
-      if (layer.name.includes('[белок красить]')) {
-        colorToUse = character.colors?.eyesWhite || '#ffffff';
-      } else if (character.partColors?.[currentPartName]) {
-        colorToUse = character.partColors[currentPartName];
+    // Особый обработчик для белков глаз
+    if (layer.name.includes('[белок красить]')) {
+      const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
+      renderColorLayer(ctx, layer, eyeWhiteColor);
+    }
+    // Обычные слои для покраски
+    else if (layer.name.includes('[красить]')) {
+      const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
+      renderColorLayer(ctx, layer, partColor);
+    }
+    // Слои с клиппингом
+    else if (shouldClipLayer(layer.name)) {
+      const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+      if (colorLayer) {
+        renderClippedLayer(ctx, layer, colorLayer);
       } else {
-        colorToUse = character.colors?.main || '#f1ece4';
+        ctx.drawImage(layer.canvas, 0, 0);
       }
-      renderColorLayer(ctx, layer, colorToUse);
     }
-    // Если слой требует клиппинга и есть слой покраски
-    else if (colorLayer && shouldClipLayer(layer.name)) {
-      renderClippedLayer(ctx, layer, colorLayer);
-    }
-    // Обычный слой
+    // Обычные слои
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
@@ -95,19 +85,22 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.restore();
   });
 
-  // Особый случай для глаз (подтипы)
+  // Обработка подтипов глаз
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-  
+    
     if (subtypeLayer?.canvas) {
       ctx.save();
       ctx.translate(subtypeLayer.left, subtypeLayer.top);
       
-      // Для подтипов глаз также применяем клиппинг если нужно
-      if (colorLayer && shouldClipLayer(subtypeLayer.name)) {
-        renderClippedLayer(ctx, subtypeLayer, colorLayer);
+      if (shouldClipLayer(subtypeLayer.name)) {
+        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+        if (colorLayer) {
+          renderClippedLayer(ctx, subtypeLayer, colorLayer);
+        } else {
+          ctx.drawImage(subtypeLayer.canvas, 0, 0);
+        }
       } else {
         ctx.drawImage(subtypeLayer.canvas, 0, 0);
       }
