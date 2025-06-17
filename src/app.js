@@ -99,7 +99,6 @@ class CharacterEditor {
       config.canvasSettings.height
     );
   }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   new CharacterEditor();
