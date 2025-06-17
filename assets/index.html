@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Editor KINWOODS</title>
+  <link rel="stylesheet" href="./styles/editor.css">
+</head>
+<body>
+  <div class="editor-container">
+    <h1 class="editor-title">Редактор персонажа KINWOODS</h1>
+    
+    <div class="preview-area">
+      <canvas id="preview-canvas" width="315" height="315"></canvas>
+    </div>
+    
+    <div class="controls-panel" id="parts-container">
+      <!-- Здесь будут динамически генерироваться элементы управления -->
+    </div>
+    
+    <div class="export-buttons">
+      <button id="export-png">Экспортировать как PNG</button>
+      <button id="export-psd">Экспортировать как PSD</button>
+    </div>
+  </div>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
