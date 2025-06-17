@@ -98,7 +98,6 @@ class CharacterEditor {
       config.canvasSettings.width,
       config.canvasSettings.height
     );
-    );
   }
 }
 
