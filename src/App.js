@@ -63,15 +63,15 @@ function App() {
     }));
   };
 
-  const handleColorChange = (colorType, color) => {
-    setCharacter(prev => ({
-      ...prev,
-      colors: {
-        ...prev.colors,
-        [colorType]: color
-      }
-    }));
-  };
+const handleColorChange = (colorType, color) => {
+  setCharacter(prev => ({
+    ...prev,
+    colors: {
+      ...prev.colors,
+      [colorType]: color
+    }
+  }));
+};
 
   const handlePartColorChange = (part, color) => {
     setCharacter(prev => ({
