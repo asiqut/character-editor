@@ -219,11 +219,13 @@ function App() {
                 }));
               }}
             />
-            <ColorPicker
+                
+          <ColorPicker
               title="Белки глаз"
               color={character.colors.eyesWhite}
               onChange={(color) => handleColorChange('eyesWhite', color)}
-            />
+          />
+                
           </div>
 
           <ExportButtons character={character} psdData={psdData} />
