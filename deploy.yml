@@ -1,5 +1,8 @@
-name: Deploy Character Editor
-on: [push]
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
 
 jobs:
   deploy:
@@ -7,10 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-        with: { node-version: 18 }
-      - run: npm install && npm run build     # Сборка проекта
-      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          node-version: 18
+      - run: npm install
+      - run: npm run build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist                # Папка для деплоя
-          keep_files: false
+          publish_dir: ./dist
