@@ -102,4 +102,92 @@ class CharacterEditor {
 
 document.addEventListener('DOMContentLoaded', () => {
   new CharacterEditor();
+
+  initPartsUI() {
+  Object.keys(this.config.parts).forEach(partId => {
+    const part = this.config.parts[partId];
+    if (part.hideInUI) return;
+
+    // Проверяем зависимости (например, ресницы только для обычных глаз)
+    if (part.dependsOn) {
+      const dependsOnValue = this.state.activeParts[part.dependsOn.part]?.label;
+      if (dependsOnValue !== part.dependsOn.variant) return;
+    }
+
+    const partContainer = document.createElement('div');
+    partContainer.className = 'part-container';
+    
+    const title = document.createElement('h3');
+    title.textContent = part.title;
+    partContainer.appendChild(title);
+
+    const variantsContainer = document.createElement('div');
+    variantsContainer.className = 'variants-container';
+    
+    Object.keys(part.variants).forEach(variantId => {
+      const variant = part.variants[variantId];
+      const button = document.createElement('button');
+      
+      button.textContent = variant.label;
+      button.className = 'variant-button';
+      button.dataset.partId = partId;
+      button.dataset.variantId = variantId;
+      
+      button.addEventListener('click', () => {
+        this.setPartVariant(partId, variantId);
+      });
+      
+      variantsContainer.appendChild(button);
+    });
+    
+    partContainer.appendChild(variantsContainer);
+    this.ui.partsContainer.appendChild(partContainer);
+  });
+}
+
+initColorPickers() {
+  // Главный цвет
+  this.createColorPicker('main', 'Основной цвет');
+  
+  // Цвета для отдельных частей
+  Object.keys(this.config.colors).forEach(colorId => {
+    if (colorId !== 'main' && !colorId.includes('White')) {
+      this.createColorPicker(colorId, this.getColorLabel(colorId));
+    }
+  });
+}
+
+createColorPicker(colorId, label) {
+  const container = document.createElement('div');
+  container.className = 'color-picker-container';
+  
+  const labelEl = document.createElement('span');
+  labelEl.textContent = label;
+  container.appendChild(labelEl);
+  
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.value = this.state.colors[colorId];
+  input.dataset.colorId = colorId;
+  
+  input.addEventListener('input', (e) => {
+    this.setColor(colorId, e.target.value);
+  });
+  
+  container.appendChild(input);
+  this.ui.partsContainer.appendChild(container);
+}
+
+getColorLabel(colorId) {
+  const labels = {
+    ears: 'Цвет ушей',
+    eyes: 'Цвет глаз',
+    cheeks: 'Цвет щёк',
+    head: 'Цвет головы',
+    mane: 'Цвет гривы',
+    body: 'Цвет тела',
+    tail: 'Цвет хвоста'
+  };
+  return labels[colorId] || colorId;
+}
 });
