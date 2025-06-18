@@ -100,9 +100,6 @@ class CharacterEditor {
     );
   }
 
-document.addEventListener('DOMContentLoaded', () => {
-  new CharacterEditor();
-
 initPartsUI() {
   const partsContainer = this.ui.partsContainer;
   partsContainer.innerHTML = '';
@@ -250,4 +247,8 @@ downloadBlob(blob, filename) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new CharacterEditor();
 });
