@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { renderCharacter } from './renderer'; // Изменили путь с '../lib/renderer'
+import { renderCharacter } from '../lib/renderer'; // Правильный путь
 
 function CharacterPreview({ psdData, character }) {
   const canvasRef = useRef(null);
