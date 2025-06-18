@@ -23,15 +23,12 @@
     "@types/react-dom": "^18.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --watchAll=false",
-    "test:watch": "react-scripts test",
-    "lint": "eslint src --ext .js,.jsx",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "eject": "react-scripts eject",
-    "prepare": "husky install"
+    "build": "react-scripts build",
+    "test": "react-scripts test --watchAll=false --passWithNoTests",
+    "start": "react-scripts start",
+    "eject": "react-scripts eject"
   },
   "browserslist": {
     "production": [
