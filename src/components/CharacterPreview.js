@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { renderCharacter } from '../lib/renderer';
+import { renderCharacter } from './renderer'; // Изменили путь с '../lib/renderer'
 
 function CharacterPreview({ psdData, character }) {
   const canvasRef = useRef(null);
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      // Для превью используем увеличенный размер
       canvasRef.current.width = 630;
       canvasRef.current.height = 630;
       renderCharacter(canvasRef.current, psdData, character);
@@ -19,7 +18,7 @@ function CharacterPreview({ psdData, character }) {
       height: '315px',
       position: 'relative',
       border: '1px solid #ddd',
-      overflow: 'hidden' // Обрезаем увеличенное изображение
+      overflow: 'hidden'
     }}>
       <canvas 
         ref={canvasRef} 
