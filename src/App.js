@@ -134,7 +134,6 @@ const handleColorChange = (colorType, color) => {
           </div>
 
           {/* Щёки */}
-          {character.cheeks !== 'нет' && (
             <div className="part-group">
               <PartSelector
                 title="Щёки"
