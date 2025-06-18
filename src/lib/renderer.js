@@ -110,7 +110,7 @@ if (currentPartName === 'eyes' && variantName === 'обычные') {
     
     ctx.restore();
   }
-}
+},
 
 function shouldClipLayer(layerName) {
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
