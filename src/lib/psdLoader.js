@@ -2,7 +2,7 @@ import * as PSD from 'ag-psd';
 
 export async function loadPSD() {
   try {
-    const response = await fetch(`${window.publicPath || ''}public/assets/model_kinwoods.psd`);
+    const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
     if (!response.ok) throw new Error(`Failed to fetch PSD: ${response.status}`);
     
     const arrayBuffer = await response.arrayBuffer();
