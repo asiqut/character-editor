@@ -2,7 +2,7 @@
   "name": "kinwoods-character-editor",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://your-username.github.io/kinwoods-character-editor",
+  "homepage": "https://asiqut.github.io/kinwoods-character-editor",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
