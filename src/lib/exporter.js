@@ -120,7 +120,63 @@ const applyColorToLayer = (layer, partName, character) => {
         clipping: layer.clipping,
         hidden: false
       };
+
+      if (partName === 'eyes') {
+  // Базовые слои (исключаем слои ресниц)
+  const baseLayers = layers.filter(layer => 
+    !['с ресницами', 'без ресниц'].includes(layer.name)
+  );
+
+  // Копируем базовые слои
+  baseLayers.forEach(layer => {
+    const coloredLayer = applyColorToLayer(layer, partName, character);
+    groupLayers.push({
+      name: layer.name,
+      canvas: coloredLayer.canvas,
+      left: layer.left,
+      top: layer.top,
+      opacity: layer.opacity,
+      blendMode: layer.blendMode,
+      clipping: layer.clipping,
+      hidden: false
     });
+  });
+
+  // Добавляем только выбранный слой ресниц
+  if (variantName === 'обычные') {
+    const lashesLayers = originalPsd.eyes['обычные_lashes'] || [];
+    const selectedLashesLayer = lashesLayers.find(
+      layer => layer.name === character.eyes.subtype
+    );
+
+    if (selectedLashesLayer) {
+      groupLayers.push({
+        name: selectedLashesLayer.name,
+        canvas: selectedLashesLayer.canvas,
+        left: selectedLashesLayer.left,
+        top: selectedLashesLayer.top,
+        opacity: selectedLashesLayer.opacity,
+        blendMode: selectedLashesLayer.blendMode,
+        clipping: selectedLashesLayer.clipping,
+        hidden: false
+      });
+    }
+  }
+} else {
+  // Обычная обработка других частей
+  layers.forEach(layer => {
+    const coloredLayer = applyColorToLayer(layer, partName, character);
+    groupLayers.push({
+      name: layer.name,
+      canvas: coloredLayer.canvas,
+      left: layer.left,
+      top: layer.top,
+      opacity: layer.opacity,
+      blendMode: layer.blendMode,
+      clipping: layer.clipping,
+      hidden: false
+    });
+  });
 
     // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
