@@ -25,43 +25,42 @@ export async function loadPSD() {
         case 'Грудь Шея Грива': groupName = 'mane'; break;
         case 'Уши': groupName = 'ears'; break;
         case 'Глаза': 
-  groupName = 'eyes';
-  processedData[groupName] = {};
-  
-  group.children.forEach(variant => {
-    if (!variant.name || !variant.children) return;
+          groupName = 'eyes';
+          processedData[groupName] = {};
+          
+          group.children.forEach(variant => {
+            const baseLayers = [];
+            const subtypeLayers = {};
+            
+            variant.children.forEach(layer => {
+              if (layer.name.includes('ресниц') || layer.name.includes('без ресниц')) {
+                subtypeLayers[layer.name] = {
+                  canvas: layer.canvas,
+                  left: layer.left || 0,
+                  top: layer.top || 0,
+                  blendMode: layer.blendMode,
+                  clipping: layer.clipping,
+                  opacity: layer.opacity !== undefined ? layer.opacity : 1
+                };
+              } else {
+                baseLayers.push({
+                  name: layer.name,
+                  canvas: layer.canvas,
+                  left: layer.left || 0,
+                  top: layer.top || 0,
+                  blendMode: layer.blendMode,
+                  clipping: layer.clipping,
+                  opacity: layer.opacity !== undefined ? layer.opacity : 1
+                });
+              }
+            });
     
-    // Разделяем базовые слои и слои ресниц
-    const baseLayers = variant.children.filter(
-      layer => !['с ресницами', 'без ресниц'].includes(layer.name)
-    );
-    
-    const lashesLayers = variant.children.filter(
-      layer => ['с ресницами', 'без ресниц'].includes(layer.name)
-    );
-    
-    processedData[groupName][variant.name] = baseLayers.map(layer => ({
-      name: layer.name,
-      canvas: layer.canvas,
-      left: layer.left || 0,
-      top: layer.top || 0,
-      blendMode: layer.blendMode,
-      clipping: layer.clipping,
-      opacity: layer.opacity !== undefined ? layer.opacity : 1
-    }));
-    
-    // Сохраняем слои ресниц отдельно
-    processedData[groupName][`${variant.name}_lashes`] = lashesLayers.map(layer => ({
-      name: layer.name,
-      canvas: layer.canvas,
-      left: layer.left || 0,
-      top: layer.top || 0,
-      blendMode: layer.blendMode,
-      clipping: layer.clipping,
-      opacity: layer.opacity !== undefined ? layer.opacity : 1
-    }));
-  });
-  break;
+            processedData[groupName][variant.name] = {
+              base: baseLayers,
+              subtypes: subtypeLayers
+            };
+          });
+          break;
         case 'Щёки': groupName = 'cheeks'; break;
         case 'Голова': 
       groupName = 'head';
