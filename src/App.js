@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
-import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
+import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/psdStructure';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
