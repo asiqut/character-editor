@@ -1,126 +1,210 @@
 import * as PSD from 'ag-psd';
 
 /**
- * Загружает и обрабатывает PSD-файл
+ * Загружает и обрабатывает PSD-файл с проверкой структуры
  * @param {string} url - Путь к PSD-файлу
- * @returns {Promise<Object>} - Обработанные данные слоёв
+ * @returns {Promise<Object>} - Нормализованные данные слоёв
  */
 export async function loadPSD(url) {
   try {
+    console.log(`[PSD Loader] Начинаю загрузку PSD из ${url}`);
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+    }
+
     const buffer = await response.arrayBuffer();
     const psd = PSD.readPsd(buffer, {
       skipLayerImageData: false,
-      parseLayerBlendingModes: true,
-      preserveLayerPositions: true
+      useImageData: true,
+      preserveLayerPositions: true,
+      throwForMissingFeatures: true
     });
 
-    if (!psd || !psd.children) throw new Error('Invalid PSD structure');
-    return processPSD(psd);
+    if (!psd || !psd.children) {
+      throw new Error('PSD файл не содержит слоев');
+    }
 
+    console.log('[PSD Loader] PSD загружен, начинаю обработку...');
+    const processed = processPSD(psd);
+    console.log('[PSD Loader] Обработка завершена', processed);
+    
+    return processed;
   } catch (error) {
-    console.error('PSD loading failed:', error);
-    throw new Error('Не удалось загрузить PSD файл');
+    console.error('[PSD Loader] Ошибка загрузки:', error);
+    throw new Error(`Не удалось загрузить PSD: ${error.message}`);
   }
 }
 
 /**
- * Обрабатывает структуру PSD в удобный для работы формат
- * @param {Object} psd - Данные PSD
- * @returns {Object} - Структурированные данные слоёв
+ * Основная функция обработки PSD-структуры
+ * @param {PSD.Root} psd - Распарсенный PSD-файл
+ * @returns {Object} - Нормализованная структура
  */
 function processPSD(psd) {
-  const parts = {};
-  const groupMap = {
+  // Соответствие русских названий групп английским идентификаторам
+  const GROUP_MAPPING = {
     'Уши': 'ears',
     'Глаза': 'eyes',
     'Щёки': 'cheeks',
-    'Грудь/шея/грива': 'mane',
+    'Грива': 'mane',
     'Голова': 'head',
     'Тело': 'body',
-    'Хвосты': 'tail'
+    'Хвост': 'tail',
+    'Ресницы': 'lashes'
   };
 
+  const result = { _meta: { version: '1.0', processedAt: new Date().toISOString() } };
+
+  // Обрабатываем каждую группу в PSD
   psd.children.forEach(group => {
-    const partId = groupMap[group.name];
-    if (!partId || !group.children) return;
+    if (!group.name || !group.children) return;
 
-    parts[partId] = {};
+    const groupId = GROUP_MAPPING[group.name];
+    if (!groupId) {
+      console.warn(`[PSD Processor] Неизвестная группа: ${group.name}`);
+      return;
+    }
 
+    console.log(`[PSD Processor] Обрабатываю группу: ${group.name} (${groupId})`);
+
+    // Специальная обработка головы (один вариант)
+    if (groupId === 'head') {
+      result[groupId] = processLayers(group.children);
+      return;
+    }
+
+    // Обработка вариантов для всех остальных групп
+    result[groupId] = {};
     group.children.forEach(variantGroup => {
-      const variantName = variantGroup.name;
-      if (!variantName || !variantGroup.children) return;
+      if (!variantGroup.name || !variantGroup.children) return;
 
-      // Специальная обработка головы (единственный вариант)
-      if (partId === 'head') {
-        parts[partId] = variantGroup.children.map(processLayer);
-        return;
-      }
-
-      parts[partId][variantName] = variantGroup.children.map(processLayer);
+      const variantName = normalizeVariantName(variantGroup.name);
+      result[groupId][variantName] = processLayers(variantGroup.children);
     });
   });
 
-  // Добавляем ресницы как отдельные слои
-  if (parts.eyes?.обычные) {
-    parts.lashes = {
-      'с ресницами': [createLayerFromName('Глаза/обычные/с ресницами')],
-      'без ресниц': [createLayerFromName('Глаза/обычные/без ресниц')]
-    };
-  }
-
-  return parts;
+  // Валидация обязательных групп
+  validateStructure(result);
+  return result;
 }
 
 /**
- * Обрабатывает слой PSD
- * @param {Object} layer - Слой PSD
- * @returns {Object} - Нормализованный слой
+ * Нормализует имена вариантов (убирает лишние пробелы, приводит к lowercase)
  */
-function processLayer(layer) {
-  return {
-    name: layer.name,
+function normalizeVariantName(name) {
+  return name.trim().toLowerCase();
+}
+
+/**
+ * Обрабатывает массив слоев, извлекает необходимые данные
+ */
+function processLayers(layers) {
+  return layers.map(layer => ({
+    name: layer.name || 'unnamed',
     canvas: layer.canvas,
     left: layer.left || 0,
     top: layer.top || 0,
-    blendMode: layer.blendMode,
-    opacity: layer.opacity ?? 1,
-    visible: layer.hidden !== true
-  };
+    opacity: typeof layer.opacity === 'number' ? layer.opacity : 1,
+    blendMode: layer.blendMode || 'normal',
+    clipping: layer.clipping || false,
+    visible: !layer.hidden,
+    tags: extractLayerTags(layer.name)
+  }));
 }
 
 /**
- * Создаёт виртуальный слой по имени
- * (Для ресниц, которые могут быть в общей структуре)
+ * Извлекает теги из имени слоя ([красить], [белок] и т.д.)
  */
-function createLayerFromName(layerName) {
-  return {
-    name: layerName,
-    canvas: null, // Будет заполнено при рендеринге
-    left: 0,
-    top: 0,
-    blendMode: 'normal',
-    opacity: 1,
-    visible: true
-  };
+function extractLayerTags(layerName) {
+  if (!layerName) return [];
+  
+  const tags = [];
+  const tagRegex = /\[(.*?)\]/g;
+  let match;
+  
+  while ((match = tagRegex.exec(layerName)) !== null) {
+    tags.push(match[1].toLowerCase());
+  }
+  
+  return tags;
 }
 
 /**
- * Находит слой в структуре PSD
- * @param {Object} psdData - Данные PSD
- * @param {string} path - Путь к слою (например: 'Глаза/обычные/блики')
- * @returns {Object|null} - Найденный слой
+ * Проверяет наличие обязательных групп и слоев
  */
-export function findLayer(psdData, path) {
+function validateStructure(data) {
+  const REQUIRED_GROUPS = ['ears', 'eyes', 'body'];
+  const missingGroups = REQUIRED_GROUPS.filter(g => !data[g]);
+  
+  if (missingGroups.length > 0) {
+    throw new Error(`Отсутствуют обязательные группы: ${missingGroups.join(', ')}`);
+  }
+
+  // Проверка что есть хотя бы один вариант для каждой группы
+  for (const group in data) {
+    if (group === '_meta' || group === 'head') continue;
+    
+    const variants = Object.keys(data[group]);
+    if (variants.length === 0) {
+      throw new Error(`Группа ${group} не содержит вариантов`);
+    }
+  }
+}
+
+/**
+ * Вспомогательные функции для работы со слоями
+ */
+
+// Поиск слоя по пути (например: 'eyes/лисьи/радужка')
+export function findLayer(data, path) {
   const parts = path.split('/');
-  let current = psdData;
+  let current = data;
 
   for (const part of parts) {
-    if (!current[part]) return null;
+    if (!current[part]) {
+      console.warn(`Слой не найден: ${path} (на этапе ${part})`);
+      return null;
+    }
     current = current[part];
   }
 
   return current;
+}
+
+// Применение цвета к слою
+export function applyColorToLayer(layer, color) {
+  if (!layer?.canvas) return layer;
+
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const ctx = tempCanvas.getContext('2d');
+
+  // 1. Рисуем оригинальный слой
+  ctx.drawImage(layer.canvas, 0, 0);
+  
+  // 2. Применяем цвет
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+  return {
+    ...layer,
+    canvas: tempCanvas
+  };
+}
+
+/**
+ * Группировка слоев по тегам (для быстрого доступа)
+ */
+export function groupLayersByTag(layers) {
+  return layers.reduce((acc, layer) => {
+    layer.tags?.forEach(tag => {
+      if (!acc[tag]) acc[tag] = [];
+      acc[tag].push(layer);
+    });
+    return acc;
+  }, {});
 }
