@@ -15,7 +15,7 @@ function CharacterPreview({ psdData, character }) {
   
   return (
     <div style={{
-      width: '315px', // Отображаем в оригинальном размере
+      width: '315px',
       height: '315px',
       position: 'relative',
       border: '1px solid #ddd',
