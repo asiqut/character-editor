@@ -88,9 +88,12 @@ const handleColorChange = (colorType, color) => {
     }));
   };
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
-  if (!psdData) return <div>Данные не загружены</div>;
+if (loading) return <div>Загрузка PSD файла...</div>;
+if (error) return <div>Ошибка загрузки: {error}</div>;
+if (!psdData) return <div>Не удалось загрузить данные PSD</div>;
+
+// В return добавим проверку
+<CharacterPreview psdData={psdData} character={character} />
 
   return (
     <div className="character-editor">
