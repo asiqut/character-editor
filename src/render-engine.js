@@ -1,25 +1,21 @@
-// render-engine.js - Движок отрисовки персонажа
-import agPsd from 'ag-psd'; // Библиотека для работы с PSD
+import { readPsd, writePsd } from 'ag-psd';
 
 export class RenderEngine {
   constructor(config) {
     this.config = config;
     this.psd = null;
-    this.layerCache = new Map(); // Кэш для быстрого доступа к слоям
+    this.layerCache = new Map();
   }
 
   async loadPSD(filePath) {
     try {
-      // Загрузка PSD файла
       const response = await fetch(filePath);
       const arrayBuffer = await response.arrayBuffer();
       
-      // Парсинг PSD
-      this.psd = agPsd.readPsd(arrayBuffer);
+      // Используем readPsd напрямую
+      this.psd = readPsd(arrayBuffer);
       
-      // Строим кэш слоёв для быстрого доступа
       this.buildLayerCache(this.psd.children);
-      
       return this.psd;
     } catch (error) {
       console.error('Ошибка загрузки PSD:', error);
