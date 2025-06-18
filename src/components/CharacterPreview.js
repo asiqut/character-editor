@@ -6,29 +6,35 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      // Для превью используем увеличенный размер
-      canvasRef.current.width = 630;
-      canvasRef.current.height = 630;
-      renderCharacter(canvasRef.current, psdData, character);
+      console.log('Rendering character with data:', psdData); // Добавим лог
+      try {
+        canvasRef.current.width = 630;
+        canvasRef.current.height = 630;
+        renderCharacter(canvasRef.current, psdData, character);
+      } catch (error) {
+        console.error('Error rendering character:', error);
+      }
     }
   }, [psdData, character]);
   
   return (
     <div style={{
-      width: '315px', // Отображаем в оригинальном размере
+      width: '315px',
       height: '315px',
       position: 'relative',
       border: '1px solid #ddd',
-      overflow: 'hidden' // Обрезаем увеличенное изображение
+      overflow: 'hidden'
     }}>
-      <canvas 
-        ref={canvasRef} 
-        width={315}
-        height={315}
-        style={{ 
-          display: 'block'
-        }}
-      />
+      {psdData ? (
+        <canvas 
+          ref={canvasRef} 
+          width={315}
+          height={315}
+          style={{ display: 'block' }}
+        />
+      ) : (
+        <div>Загрузка модели...</div>
+      )}
     </div>
   );
 }
