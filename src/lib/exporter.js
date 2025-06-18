@@ -124,7 +124,12 @@ const applyColorToLayer = (layer, partName, character) => {
 
     // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
-      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
+      const subtype = character.eyes.subtype;
+      const subtypeLayer = layers.find(l => 
+        l.name === subtype || 
+        (subtype === 'с ресницами' && l.name.includes('ресницами')) ||
+        (subtype === 'без ресниц' && l.name.includes('без ресниц')));
+  
       if (subtypeLayer) {
         groupLayers.push({
           name: subtypeLayer.name,
