@@ -1,6 +1,7 @@
 {
   "name": "character-editor",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "start": "http-server -c-1",
     "deploy": "gh-pages -d ."
