@@ -1,146 +1,141 @@
 import * as PSD from 'ag-psd';
-import { renderCharacter } from './renderer';
 
-export const exportPNG = (character, psdData) => {
-  const canvas = document.createElement('canvas');
-  canvas.width = 315;
-  canvas.height = 315;
-  
-  renderCharacter(canvas, psdData, character);
+// Основная функция рендеринга
+export function renderCharacter(canvas, psdData, character) {
+  if (!psdData || !character) return;
 
-  const link = document.createElement('a');
-  link.download = `character_${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-};
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-export const exportPSD = (originalPsd, character) => {
-  const groupOrder = [
-    'Уши',
-    'Глаза',
-    'Щёки',
-    'Голова',
-    'Грудь Шея Грива',
-    'Тело',
-    'Хвосты'
+  const partsOrder = [
+    'tail',
+    'body', 
+    'mane',
+    'head',
+    'cheeks',
+    'eyes',
+    'ears'
   ];
 
-  const newPsd = {
-    width: 315,
-    height: 315,
-    children: []
-  };
+  partsOrder.forEach(part => {
+    if (part === 'cheeks' && character.cheeks === 'нет') return;
+    renderPart(part, ctx, psdData, character);
+  });
+}
 
-  const partToGroupName = {
-    'ears': 'Уши',
-    'eyes': 'Глаза',
-    'cheeks': 'Щёки',
-    'head': 'Голова',
-    'mane': 'Грудь Шея Грива',
-    'body': 'Тело',
-    'tail': 'Хвосты'
-  };
+// Вспомогательные функции
+function renderPart(currentPartName, ctx, psdData, character) {
+  const partGroup = psdData[currentPartName];
+  if (!partGroup) return;
 
-  const applyColorToLayer = (layer, partName, character) => {
-    if (!layer.canvas) return layer;
-    
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = layer.canvas.width;
-    tempCanvas.height = layer.canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    let color;
-    if (layer.name.includes('[белок красить]')) {
-      color = character.colors?.eyesWhite || '#ffffff';
-    } else if (layer.name.includes('[красить]')) {
-      color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
-    } else {
-      return layer;
+  let variantName;
+  let variantLayers;
+  
+  if (currentPartName === 'head') {
+    variantLayers = Array.isArray(partGroup) ? partGroup : [];
+  } else {
+    switch (currentPartName) {
+      case 'ears': variantName = character.ears || 'торчком обычные'; break;
+      case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
+      case 'mane': variantName = character.mane || 'обычная'; break;
+      case 'body': variantName = character.body || 'v1'; break;
+      case 'tail': variantName = character.tail || 'обычный'; break;
+      case 'cheeks': variantName = 'пушистые'; break;
+      default: variantName = 'default';
     }
     
-    tempCtx.drawImage(layer.canvas, 0, 0);
-    tempCtx.globalCompositeOperation = 'source-atop';
-    tempCtx.fillStyle = color;
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    return {
-      ...layer,
-      canvas: tempCanvas
-    };
-  };
-
-  groupOrder.forEach(groupName => {
-    const partName = Object.keys(partToGroupName).find(
-      key => partToGroupName[key] === groupName
-    );
-    
-    if (!partName) return;
-    if (partName === 'cheeks' && character.cheeks === 'нет') return;
-
-    let variantName;
-    if (partName === 'head') {
-      variantName = 'default';
-    } else if (partName === 'eyes') {
-      variantName = character.eyes.type;
-    } else {
-      variantName = character[partName];
-    }
-
-    let layers = [];
-    if (partName === 'eyes') {
-      const eyeData = originalPsd[partName]?.[variantName];
+    if (currentPartName === 'eyes') {
+      const eyeData = partGroup[variantName];
       if (eyeData?.base) {
-        layers = eyeData.base.map(layer => 
-          applyColorToLayer(layer, partName, character)
-        );
+        eyeData.base.forEach(layer => renderLayer(ctx, layer, currentPartName, character));
         
         if (variantName === 'обычные' && eyeData.subtypes) {
-          const subtype = character.eyes.subtype;
+          const subtype = character.eyes?.subtype;
           const subtypeKey = subtype === 'с ресницами' ? 'с ресницами' : 'без ресниц';
           const subtypeLayer = eyeData.subtypes[subtypeKey];
-          
-          if (subtypeLayer) {
-            layers.push(applyColorToLayer(subtypeLayer, partName, character));
-          }
+          if (subtypeLayer) renderLayer(ctx, subtypeLayer, currentPartName, character);
         }
       }
-    } else if (partName === 'head') {
-      layers = (originalPsd[partName] || []).map(layer => 
-        applyColorToLayer(layer, partName, character)
-      );
-    } else {
-      layers = (originalPsd[partName]?.[variantName] || []).map(layer => 
-        applyColorToLayer(layer, partName, character)
-      );
+      return;
     }
+    
+    variantLayers = partGroup[variantName] || [];
+  }
 
-    if (layers.length > 0) {
-      newPsd.children.unshift({
-        name: groupName,
-        children: layers.map(layer => ({
-          name: layer.name,
-          canvas: layer.canvas,
-          left: layer.left,
-          top: layer.top,
-          opacity: layer.opacity,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping,
-          hidden: false
-        }))
-      });
-    }
-  });
+  variantLayers.forEach(layer => renderLayer(ctx, layer, currentPartName, character));
+}
 
-  const psdBytes = PSD.writePsd(newPsd);
-  const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
+function renderLayer(ctx, layer, partName, character) {
+  if (!layer.canvas) return;
   
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `character_${Date.now()}.psd`;
-  a.click();
+  ctx.save();
+  ctx.translate(layer.left, layer.top);
   
-  URL.revokeObjectURL(url);
-};
+  if (layer.blendMode) {
+    ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
+  }
+  
+  if (layer.name.includes('[белок красить]')) {
+    renderColorLayer(ctx, layer, character.colors?.eyesWhite || '#ffffff');
+  } 
+  else if (layer.name.includes('[красить]')) {
+    const color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+    renderColorLayer(ctx, layer, color);
+  }
+  else if (shouldClipLayer(layer.name)) {
+    const colorLayer = variantLayers?.find(l => l.name.includes('[красить]'));
+    if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
+    else ctx.drawImage(layer.canvas, 0, 0);
+  }
+  else {
+    ctx.drawImage(layer.canvas, 0, 0);
+  }
+  
+  ctx.restore();
+}
 
-export { renderCharacter };
+function shouldClipLayer(layerName) {
+  return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
+}
+
+function renderClippedLayer(ctx, layer, clipLayer) {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = Math.max(layer.canvas.width, clipLayer.canvas.width);
+  tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  tempCtx.drawImage(clipLayer.canvas, clipLayer.left - layer.left, clipLayer.top - layer.top);
+  tempCtx.globalCompositeOperation = 'source-in';
+  
+  if (layer.opacity !== undefined && layer.opacity < 1) {
+    tempCtx.globalAlpha = layer.opacity;
+  }
+  
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  ctx.drawImage(tempCanvas, 0, 0);
+}
+
+function renderColorLayer(ctx, layer, color) {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  tempCtx.globalCompositeOperation = 'source-atop';
+  tempCtx.fillStyle = color;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  ctx.drawImage(tempCanvas, 0, 0);
+}
+
+function convertBlendMode(psdBlendMode) {
+  const modes = {
+    'normal': 'source-over',
+    'multiply': 'multiply',
+    'screen': 'screen',
+    'overlay': 'overlay',
+    'darken': 'darken',
+    'lighten': 'lighten'
+  };
+  return modes[psdBlendMode.toLowerCase()] || 'source-over';
+}
