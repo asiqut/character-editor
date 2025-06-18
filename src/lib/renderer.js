@@ -1,146 +1,144 @@
-export function renderCharacter(canvas, psdData, character) {
-  if (!psdData || !character) return;
+import * as PSD from 'ag-psd';
+import { renderCharacter } from './renderer';
 
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+export const exportPNG = (character, psdData) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 315;
+  canvas.height = 315;
+  
+  renderCharacter(canvas, psdData, character);
 
-  const partsOrder = [
-    'tail',    // Хвост (нижний слой)
-    'body',    // Тело
-    'mane',    // Грива
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (верхний слой)
+  const link = document.createElement('a');
+  link.download = `character_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+};
+
+export const exportPSD = (originalPsd, character) => {
+  const groupOrder = [
+    'Уши',
+    'Глаза',
+    'Щёки',
+    'Голова',
+    'Грудь Шея Грива',
+    'Тело',
+    'Хвосты'
   ];
 
-  partsOrder.forEach(part => {
-    if (part === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(part, ctx, psdData, character);
-  });
-}
-  
-function renderPart(currentPartName, ctx, psdData, character) {
-  const partGroup = psdData[currentPartName];
-  if (!partGroup) {
-    console.warn(`Missing part group: ${currentPartName}`);
-    return;
-  }
+  const newPsd = {
+    width: 315,
+    height: 315,
+    children: []
+  };
 
-  let variantName;
-  let variantLayers;
-  
-  if (currentPartName === 'head') {
-    variantLayers = Array.isArray(partGroup) ? partGroup : [];
-  } 
-  else {
-    switch (currentPartName) {
-      case 'ears': variantName = character.ears || 'торчком обычные'; break;
-      case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
-      case 'mane': variantName = character.mane || 'обычная'; break;
-      case 'body': variantName = character.body || 'v1'; break;
-      case 'tail': variantName = character.tail || 'обычный'; break;
-      case 'cheeks': variantName = 'пушистые'; break;
-      default: variantName = 'default';
-    }
-    variantLayers = partGroup[variantName] || [];
-  }
+  const partToGroupName = {
+    'ears': 'Уши',
+    'eyes': 'Глаза',
+    'cheeks': 'Щёки',
+    'head': 'Голова',
+    'mane': 'Грудь Шея Грива',
+    'body': 'Тело',
+    'tail': 'Хвосты'
+  };
 
-  variantLayers.forEach(layer => {
-    if (!layer.canvas || ['с ресницами', 'без ресниц'].includes(layer.name)) return;
+  const applyColorToLayer = (layer, partName, character) => {
+    if (!layer.canvas) return layer;
     
-    ctx.save();
-    ctx.translate(layer.left, layer.top);
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = layer.canvas.width;
+    tempCanvas.height = layer.canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
     
-    if (layer.blendMode) {
-      ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-    }
-    
+    let color;
     if (layer.name.includes('[белок красить]')) {
-      const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
-      renderColorLayer(ctx, layer, eyeWhiteColor);
-    }
-    else if (layer.name.includes('[красить]')) {
-      const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
-      renderColorLayer(ctx, layer, partColor);
-    }
-    else if (shouldClipLayer(layer.name)) {
-      const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-      if (colorLayer) {
-        renderClippedLayer(ctx, layer, colorLayer);
-      } else {
-        ctx.drawImage(layer.canvas, 0, 0);
-      }
-    }
-    else {
-      ctx.drawImage(layer.canvas, 0, 0);
+      color = character.colors?.eyesWhite || '#ffffff';
+    } else if (layer.name.includes('[красить]')) {
+      color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+    } else {
+      return layer;
     }
     
-    ctx.restore();
-  });
+    tempCtx.drawImage(layer.canvas, 0, 0);
+    tempCtx.globalCompositeOperation = 'source-atop';
+    tempCtx.fillStyle = color;
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+    return {
+      ...layer,
+      canvas: tempCanvas
+    };
+  };
 
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const lashesVariant = character.eyes?.subtype;
-    const lashesLayer = (psdData.eyes?.ordinary_lashes || []).find(
-      l => l.name === lashesVariant
+  groupOrder.forEach(groupName => {
+    const partName = Object.keys(partToGroupName).find(
+      key => partToGroupName[key] === groupName
     );
     
-    if (lashesLayer?.canvas) {
-      ctx.save();
-      ctx.translate(lashesLayer.left, lashesLayer.top);
-      ctx.drawImage(lashesLayer.canvas, 0, 0);
-      ctx.restore();
+    if (!partName) return;
+    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+
+    let variantName;
+    if (partName === 'head') {
+      variantName = 'default';
+    } else if (partName === 'eyes') {
+      variantName = character.eyes.type;
+    } else {
+      variantName = character[partName];
     }
-  }
-}
 
-// Move these helper functions outside of renderPart
-function shouldClipLayer(layerName) {
-  return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
-}
+    let layers = [];
+    if (partName === 'eyes') {
+      const eyeData = originalPsd[partName]?.[variantName];
+      if (eyeData?.base) {
+        layers = eyeData.base.map(layer => 
+          applyColorToLayer(layer, partName, character)
+        );
+        
+        if (variantName === 'обычные' && eyeData.subtypes) {
+          const subtype = character.eyes.subtype;
+          const subtypeKey = subtype === 'с ресницами' ? 'с ресницами' : 'без ресниц';
+          const subtypeLayer = eyeData.subtypes[subtypeKey];
+          
+          if (subtypeLayer) {
+            layers.push(applyColorToLayer(subtypeLayer, partName, character));
+          }
+        }
+      }
+    } else if (partName === 'head') {
+      layers = (originalPsd[partName] || []).map(layer => 
+        applyColorToLayer(layer, partName, character)
+      );
+    } else {
+      layers = (originalPsd[partName]?.[variantName] || []).map(layer => 
+        applyColorToLayer(layer, partName, character)
+      );
+    }
 
-function renderClippedLayer(ctx, layer, clipLayer) {
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = Math.max(layer.canvas.width, clipLayer.canvas.width);
-  tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
-  const tempCtx = tempCanvas.getContext('2d');
+    if (layers.length > 0) {
+      newPsd.children.unshift({
+        name: groupName,
+        children: layers.map(layer => ({
+          name: layer.name,
+          canvas: layer.canvas,
+          left: layer.left,
+          top: layer.top,
+          opacity: layer.opacity,
+          blendMode: layer.blendMode,
+          clipping: layer.clipping,
+          hidden: false
+        }))
+      });
+    }
+  });
+
+  const psdBytes = PSD.writePsd(newPsd);
+  const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
   
-  tempCtx.drawImage(clipLayer.canvas, 
-    clipLayer.left - layer.left, 
-    clipLayer.top - layer.top
-  );
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `character_${Date.now()}.psd`;
+  a.click();
   
-  tempCtx.globalCompositeOperation = 'source-in';
-
-  if (layer.opacity !== undefined && layer.opacity < 1) {
-    tempCtx.globalAlpha = layer.opacity;
-  }
-  
-  tempCtx.drawImage(layer.canvas, 0, 0);
-  ctx.drawImage(tempCanvas, 0, 0);
-}
-
-function renderColorLayer(ctx, layer, color) {
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = layer.canvas.width;
-  tempCanvas.height = layer.canvas.height;
-  const tempCtx = tempCanvas.getContext('2d');
-  
-  tempCtx.drawImage(layer.canvas, 0, 0);
-  tempCtx.globalCompositeOperation = 'source-atop';
-  tempCtx.fillStyle = color;
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  ctx.drawImage(tempCanvas, 0, 0);
-}
-
-function convertBlendMode(psdBlendMode) {
-  const modes = {
-    'normal': 'source-over',
-    'multiply': 'multiply',
-    'screen': 'screen',
-    'overlay': 'overlay',
-    'darken': 'darken',
-    'lighten': 'lighten'
-  };
-  return modes[psdBlendMode.toLowerCase()] || 'source-over';
-}
+  URL.revokeObjectURL(url);
+};
