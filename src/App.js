@@ -134,22 +134,22 @@ const handleColorChange = (colorType, color) => {
           </div>
 
           {/* Щёки */}
-          {character.cheeks !== 'нет' && (
-            <div className="part-group">
+          <div className="part-group">
               <PartSelector
-                title="Щёки"
-                part="cheeks"
-                options={PARTS_STRUCTURE.cheeks}
-                current={character.cheeks}
-                onChange={(part, value) => handlePartChange(part, value)}
-              />
+              title="Щёки"
+              part="cheeks"
+              options={PARTS_STRUCTURE.cheeks}
+              current={character.cheeks}
+              onChange={(part, value) => handlePartChange(part, value)}
+            />
+            {character.cheeks !== 'нет' && (
               <ColorPicker
                 title="Цвет"
                 color={character.partColors.cheeks}
                 onChange={(color) => handlePartColorChange('cheeks', color)}
               />
+              )}
             </div>
-          )}
 
           {/* Грива */}
           <div className="part-group">
