@@ -148,6 +148,7 @@ const handleColorChange = (colorType, color) => {
                 color={character.partColors.cheeks}
                 onChange={(color) => handlePartColorChange('cheeks', color)}
               />
+            )}
           </div>
 
           {/* Грива */}
