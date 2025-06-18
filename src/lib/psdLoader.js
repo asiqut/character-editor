@@ -22,7 +22,7 @@ export async function loadPSD() {
       
       let groupName;
       switch(group.name) {
-        case 'Грудь/шея/грива': groupName = 'mane'; break;
+        case 'Грудь Шея Грива': groupName = 'mane'; break;
         case 'Уши': groupName = 'ears'; break;
         case 'Глаза': groupName = 'eyes'; break;
         case 'Щёки': groupName = 'cheeks'; break;
