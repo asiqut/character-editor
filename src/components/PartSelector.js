@@ -1,57 +1,43 @@
-import React from 'react';
-import ColorPicker from './ColorPicker';
+// src/hooks/useCharacterParts.js
+import { useState } from 'react';
+import { DEFAULT_CHARACTER } from '../lib/defaultConfig';
 
-function PartSelector({
-  title,
-  part,
-  options,
-  current,
-  onChange,
-  color,
-  onColorChange,
-  showSubtypes = false,
-  subtypes = [],
-  currentSubtype,
-  onSubtypeChange
-}) {
-  return (
-    <div className={`part-selector ${part}`}>
-      <h3>{title}</h3>
-      <div className="options-grid">
-        {options.map(option => (
-          <button
-            key={option}
-            className={`option-btn ${option === current ? 'active' : ''}`}
-            onClick={() => onChange(part, option)}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
+export function useCharacterParts(initialState = DEFAULT_CHARACTER) {
+  const [character, setCharacter] = useState(initialState);
 
-      {showSubtypes && (
-        <div className="subtypes">
-          {subtypes.map(subtype => (
-            <button
-              key={subtype}
-              className={`subtype-btn ${subtype === currentSubtype ? 'active' : ''}`}
-              onClick={() => onSubtypeChange(part, subtype)}
-            >
-              {subtype}
-            </button>
-          ))}
-        </div>
-      )}
+  const handlePartChange = (part, value, isSubtype = false) => {
+    setCharacter(prev => {
+      if (part === 'eyes') {
+        return {
+          ...prev,
+          eyes: isSubtype 
+            ? { ...prev.eyes, subtype: value }
+            : { type: value, subtype: value === 'обычные' ? 'с ресницами' : null }
+        };
+      }
+      return { ...prev, [part]: value };
+    });
+  };
 
-      {color && (
-        <ColorPicker 
-          color={color}
-          onChange={(newColor) => onColorChange(part, newColor)}
-          label={`Цвет ${title.toLowerCase()}`}
-        />
-      )}
-    </div>
-  );
+  const handleColorChange = (type, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      colors: { ...prev.colors, [type]: color }
+    }));
+  };
+
+  const handlePartColorChange = (part, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      partColors: { ...prev.partColors, [part]: color }
+    }));
+  };
+
+  return {
+    character,
+    handlePartChange,
+    handleColorChange,
+    handlePartColorChange,
+    resetCharacter: () => setCharacter(DEFAULT_CHARACTER)
+  };
 }
-
-export default React.memo(PartSelector);
