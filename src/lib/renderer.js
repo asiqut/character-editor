@@ -49,7 +49,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
 
   // Обработка цвета для глаз
   variantLayers.forEach(layer => {
-    if (!layer.canvas) return;
+    if (!layer.canvas || ['с ресницами', 'без ресниц'].includes(layer.name)) return;
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
@@ -86,31 +86,17 @@ function renderPart(currentPartName, ctx, psdData, character) {
   });
 
   // Обработка подтипов глаз
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype;
-    const subtypeLayer = variantLayers.find(l => 
-      l.name === subtype ||
-      (subtype === 'с ресницами' && l.name.includes('ресницами')) ||
-      (subtype === 'без ресниц' && l.name.includes('без ресниц'))
-    );
-
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      
-      if (shouldClipLayer(subtypeLayer.name)) {
-        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-        if (colorLayer) {
-          renderClippedLayer(ctx, subtypeLayer, colorLayer);
-        } else {
-          ctx.drawImage(subtypeLayer.canvas, 0, 0);
-        }
-      } else {
-        ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      }
-      
-      ctx.restore();
-    }
+if (currentPartName === 'eyes' && variantName === 'обычные') {
+  const lashesVariant = character.eyes?.subtype;
+  const lashesLayer = (psdData.eyes?.ordinary_lashes || []).find(
+    l => l.name === lashesVariant
+  );
+  
+  if (lashesLayer?.canvas) {
+    ctx.save();
+    ctx.translate(lashesLayer.left, lashesLayer.top);
+    ctx.drawImage(lashesLayer.canvas, 0, 0);
+    ctx.restore();
   }
 }
 
