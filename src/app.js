@@ -1,6 +1,6 @@
-import { RenderEngine } from './render-engine.js';
-import { ExportEngine } from './export-engine.js';
-import config from './config.js';
+import { RenderEngine } from './render-engine.js'
+import { ExportEngine } from './export-engine.js'
+import config from './config.js'
 
 class CharacterEditor {
   constructor() {
