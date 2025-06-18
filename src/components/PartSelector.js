@@ -1,44 +1,71 @@
 import React from 'react';
 
 function PartSelector({
-  title,
-  part,
-  options,
-  current,
-  onChange,
-  showSubtypes = false,
-  subtypes = [],
-  currentSubtype,
+  partName, // Имя части (например 'ears', 'eyes')
+  character,
+  onPartChange,
   onSubtypeChange
 }) {
+  const partConfig = PARTS_STRUCTURE[partName];
+  if (!partConfig) return null;
+
+  // Для частей с одним вариантом (голова)
+  if (partConfig.isSingleVariant) {
+    return (
+      <div className={`part-selector ${partName}`}>
+        <h3>{partConfig.title}</h3>
+        <ColorPicker
+          title="Цвет"
+          color={character.partColors[partName] || character.colors.main}
+          onChange={(color) => onPartChange(partName, color, 'color')}
+        />
+      </div>
+    );
+  }
+
+  // Для частей с вариантами
+  const currentVariant = partName === 'eyes' 
+    ? character.eyes.type 
+    : character[partName];
+
   return (
-    <div className={`part-selector ${part}`}>
-      <h3>{title}</h3>
+    <div className={`part-selector ${partName}`}>
+      <h3>{partConfig.title}</h3>
       <div className="options">
-        {options.map(option => (
+        {Object.keys(partConfig.variants).map(variantKey => (
           <button
-            key={option}
-            className={option === current ? 'active' : ''}
-            onClick={() => onChange(part, option)}
+            key={variantKey}
+            className={variantKey === currentVariant ? 'active' : ''}
+            onClick={() => onPartChange(partName, variantKey)}
           >
-            {option}
+            {variantKey}
           </button>
         ))}
       </div>
-      
-      {showSubtypes && (
+
+      {/* Подтипы для глаз */}
+      {partName === 'eyes' && currentVariant === 'обычные' && (
         <div className="subtypes">
           <h4>Варианты:</h4>
-          {subtypes.map(subtype => (
+          {Object.keys(partConfig.variants['обычные'].subtypes).map(subtype => (
             <button
               key={subtype}
-              className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => onSubtypeChange(part, subtype)}
+              className={subtype === character.eyes.subtype ? 'active' : ''}
+              onClick={() => onSubtypeChange(partName, subtype)}
             >
               {subtype}
             </button>
           ))}
         </div>
+      )}
+
+      {/* Цветовой пикер для всех частей кроме глаз (у них особый цвет) */}
+      {partName !== 'eyes' && (
+        <ColorPicker
+          title="Цвет"
+          color={character.partColors[partName] || character.colors.main}
+          onChange={(color) => onPartChange(partName, color, 'color')}
+        />
       )}
     </div>
   );
