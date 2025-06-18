@@ -142,3 +142,5 @@ export const exportPSD = (originalPsd, character) => {
   
   URL.revokeObjectURL(url);
 };
+
+export { renderCharacter };
