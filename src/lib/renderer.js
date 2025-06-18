@@ -4,7 +4,6 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Без масштабирования и смещения - точь-в-точь как в PSD
   const partsOrder = [
     'tail',    // Хвост (нижний слой)
     'body',    // Тело
@@ -47,7 +46,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = partGroup[variantName] || [];
   }
 
-  // Обработка цвета для глаз
   variantLayers.forEach(layer => {
     if (!layer.canvas || ['с ресницами', 'без ресниц'].includes(layer.name)) return;
     
@@ -58,17 +56,14 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Особый обработчик для белков глаз
     if (layer.name.includes('[белок красить]')) {
       const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
       renderColorLayer(ctx, layer, eyeWhiteColor);
     }
-    // Обычные слои для покраски
     else if (layer.name.includes('[красить]')) {
       const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
       renderColorLayer(ctx, layer, partColor);
     }
-    // Слои с клиппингом
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
       if (colorLayer) {
@@ -77,7 +72,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
         ctx.drawImage(layer.canvas, 0, 0);
       }
     }
-    // Обычные слои
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
@@ -85,21 +79,22 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.restore();
   });
 
-  // Обработка подтипов глаз
-if (currentPartName === 'eyes' && variantName === 'обычные') {
-  const lashesVariant = character.eyes?.subtype;
-  const lashesLayer = (psdData.eyes?.ordinary_lashes || []).find(
-    l => l.name === lashesVariant
-  );
-  
-  if (lashesLayer?.canvas) {
-    ctx.save();
-    ctx.translate(lashesLayer.left, lashesLayer.top);
-    ctx.drawImage(lashesLayer.canvas, 0, 0);
-    ctx.restore();
+  if (currentPartName === 'eyes' && variantName === 'обычные') {
+    const lashesVariant = character.eyes?.subtype;
+    const lashesLayer = (psdData.eyes?.ordinary_lashes || []).find(
+      l => l.name === lashesVariant
+    );
+    
+    if (lashesLayer?.canvas) {
+      ctx.save();
+      ctx.translate(lashesLayer.left, lashesLayer.top);
+      ctx.drawImage(lashesLayer.canvas, 0, 0);
+      ctx.restore();
+    }
   }
 }
 
+// Move these helper functions outside of renderPart
 function shouldClipLayer(layerName) {
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
 }
@@ -118,7 +113,7 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCtx.globalCompositeOperation = 'source-in';
 
   if (layer.opacity !== undefined && layer.opacity < 1) {
-  tempCtx.globalAlpha = layer.opacity;
+    tempCtx.globalAlpha = layer.opacity;
   }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
