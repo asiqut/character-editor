@@ -1,12 +1,12 @@
 import * as PSD from 'ag-psd';
-import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
   canvas.width = 315;
   canvas.height = 315;
   
-  renderCharacter(canvas, psdData, character);
+  // Используем глобально доступную функцию renderCharacter
+  window.renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
@@ -18,7 +18,7 @@ export const exportPSD = (originalPsd, character) => {
   const groupOrder = [
     'Уши',
     'Глаза',
-    'Щёки', 
+    'Щёки',
     'Голова',
     'Грудь Шея Грива',
     'Тело',
@@ -75,7 +75,6 @@ export const exportPSD = (originalPsd, character) => {
     );
     
     if (!partName) return;
-
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
 
     let variantName;
@@ -87,22 +86,21 @@ export const exportPSD = (originalPsd, character) => {
       variantName = character[partName];
     }
 
+    const groupLayers = [];
     let layers = [];
+
     if (partName === 'head') {
       layers = originalPsd[partName] || [];
     } else {
       layers = originalPsd[partName]?.[variantName] || [];
     }
 
-    const groupLayers = [];
-    
+    // Обработка глаз с ресницами
     if (partName === 'eyes') {
-      // Base layers (excluding lash layers)
-      const baseLayers = layers.filter(layer => 
-        !['с ресницами', 'без ресниц'].includes(layer.name)
-      );
-
-      baseLayers.forEach(layer => {
+      // Базовые слои глаз (без ресниц)
+      layers.forEach(layer => {
+        if (layer.name === 'с ресницами' || layer.name === 'без ресниц') return;
+        
         const coloredLayer = applyColorToLayer(layer, partName, character);
         groupLayers.push({
           name: layer.name,
@@ -116,28 +114,26 @@ export const exportPSD = (originalPsd, character) => {
         });
       });
 
-      // Add selected lash layer
+      // Добавляем только выбранный слой ресниц
       if (variantName === 'обычные') {
-        const lashesLayers = originalPsd.eyes['обычные_lashes'] || [];
-        const selectedLashesLayer = lashesLayers.find(
-          layer => layer.name === character.eyes.subtype
-        );
-
-        if (selectedLashesLayer) {
+        const subtype = character.eyes.subtype;
+        const lashLayer = layers.find(layer => layer.name === subtype);
+        
+        if (lashLayer) {
           groupLayers.push({
-            name: selectedLashesLayer.name,
-            canvas: selectedLashesLayer.canvas,
-            left: selectedLashesLayer.left,
-            top: selectedLashesLayer.top,
-            opacity: selectedLashesLayer.opacity,
-            blendMode: selectedLashesLayer.blendMode,
-            clipping: selectedLashesLayer.clipping,
+            name: lashLayer.name,
+            canvas: lashLayer.canvas,
+            left: lashLayer.left,
+            top: lashLayer.top,
+            opacity: lashLayer.opacity,
+            blendMode: lashLayer.blendMode,
+            clipping: lashLayer.clipping,
             hidden: false
           });
         }
       }
     } else {
-      // Normal processing for other parts
+      // Обычные части
       layers.forEach(layer => {
         const coloredLayer = applyColorToLayer(layer, partName, character);
         groupLayers.push({
