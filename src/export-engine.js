@@ -1,5 +1,4 @@
-// export-engine.js - Движок экспорта файлов
-import agPsd from 'ag-psd';
+import { readPsd, writePsd } from 'ag-psd';
 
 export class ExportEngine {
   constructor(config) {
@@ -17,17 +16,12 @@ export class ExportEngine {
 
   // Экспорт в PSD
   async exportToPSD(psdData, activeParts, colors, width, height) {
-    // Создаем копию PSD чтобы не менять оригинал
     const exportPsd = this.clonePSD(psdData);
-    
-    // Очищаем PSD - удаляем скрытые элементы
     this.cleanPSD(exportPsd, activeParts);
-    
-    // Применяем цвета к слоям
     this.applyColorsToPSD(exportPsd, activeParts, colors);
     
-    // Генерируем PSD файл
-    const psdBuffer = agPsd.writePsd(exportPsd, { 
+    // Используем writePsd напрямую
+    const psdBuffer = writePsd(exportPsd, { 
       width, 
       height,
       generateThumbnail: true
