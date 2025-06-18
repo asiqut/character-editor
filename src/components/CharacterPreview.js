@@ -23,12 +23,10 @@ function CharacterPreview({ psdData, character }) {
     }}>
       <canvas 
         ref={canvasRef} 
-        width={630}
-        height={630}
+        width={315}
+        height={315}
         style={{ 
-          display: 'block',
-          transform: 'scale(0.5)',
-          transformOrigin: '0 0'
+          display: 'block'
         }}
       />
     </div>
