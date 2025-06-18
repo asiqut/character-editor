@@ -142,6 +142,7 @@ const handleColorChange = (colorType, color) => {
               current={character.cheeks}
               onChange={(part, value) => handlePartChange(part, value)}
             />
+            {/* ColorPicker показываем только если щёки не "нет" */}
             {character.cheeks !== 'нет' && (
               <ColorPicker
                 title="Цвет"
