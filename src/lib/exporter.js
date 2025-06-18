@@ -1,12 +1,13 @@
 import * as PSD from 'ag-psd';
+import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 315;
+  canvas.width = 315; // Точный размер PSD
   canvas.height = 315;
   
-  // Используем глобально доступную функцию renderCharacter
-  window.renderCharacter(canvas, psdData, character);
+  // Рендерим без каких-либо трансформаций
+  renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
@@ -15,68 +16,80 @@ export const exportPNG = (character, psdData) => {
 };
 
 export const exportPSD = (originalPsd, character) => {
+  // Правильный порядок групп (сверху вниз)
   const groupOrder = [
     'Уши',
     'Глаза',
-    'Щёки',
+    'Щёки', 
     'Голова',
-    'Грудь Шея Грива',
+    'Грудь/шея/грива',
     'Тело',
     'Хвосты'
   ];
 
+  // Создаем новый PSD
   const newPsd = {
     width: 315,
     height: 315,
     children: []
   };
 
+  // Соответствие между английскими и русскими названиями
   const partToGroupName = {
     'ears': 'Уши',
     'eyes': 'Глаза',
     'cheeks': 'Щёки',
     'head': 'Голова',
-    'mane': 'Грудь Шея Грива',
+    'mane': 'Грудь/шея/грива',
     'body': 'Тело',
     'tail': 'Хвосты'
   };
 
-  const applyColorToLayer = (layer, partName, character) => {
-    if (!layer.canvas) return layer;
-    
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = layer.canvas.width;
-    tempCanvas.height = layer.canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    let color;
-    if (layer.name.includes('[белок красить]')) {
-      color = character.colors?.eyesWhite || '#ffffff';
-    } else if (layer.name.includes('[красить]')) {
-      color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
-    } else {
-      return layer;
-    }
-    
-    tempCtx.drawImage(layer.canvas, 0, 0);
-    tempCtx.globalCompositeOperation = 'source-atop';
-    tempCtx.fillStyle = color;
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    return {
-      ...layer,
-      canvas: tempCanvas
-    };
+  // Функция для применения цвета к слою
+const applyColorToLayer = (layer, partName, character) => {
+  if (!layer.canvas) return layer;
+  
+  // Создаем временный canvas
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Определяем цвет
+  let color;
+  if (layer.name.includes('[белок красить]')) {
+    color = character.colors?.eyesWhite || '#ffffff';
+  } else if (layer.name.includes('[красить]')) {
+    color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+  } else {
+    return layer; // Не меняем слои без покраски
+  }
+  
+  // Применяем цвет
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  tempCtx.globalCompositeOperation = 'source-atop';
+  tempCtx.fillStyle = color;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+  // Возвращаем обновленный слой
+  return {
+    ...layer,
+    canvas: tempCanvas
   };
+};
 
+  // Создаем группы в правильном порядке
   groupOrder.forEach(groupName => {
     const partName = Object.keys(partToGroupName).find(
       key => partToGroupName[key] === groupName
     );
     
     if (!partName) return;
+
+    // Пропускаем щёки если они отключены
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
 
+    // Получаем вариант для текущей части
     let variantName;
     if (partName === 'head') {
       variantName = 'default';
@@ -86,69 +99,47 @@ export const exportPSD = (originalPsd, character) => {
       variantName = character[partName];
     }
 
-    const groupLayers = [];
+    // Получаем слои для этой части
     let layers = [];
-
     if (partName === 'head') {
       layers = originalPsd[partName] || [];
     } else {
       layers = originalPsd[partName]?.[variantName] || [];
     }
 
-    // Обработка глаз с ресницами
-    if (partName === 'eyes') {
-      // Базовые слои глаз (без ресниц)
-      layers.forEach(layer => {
-        if (layer.name === 'с ресницами' || layer.name === 'без ресниц') return;
-        
-        const coloredLayer = applyColorToLayer(layer, partName, character);
-        groupLayers.push({
-          name: layer.name,
-          canvas: coloredLayer.canvas,
-          left: layer.left,
-          top: layer.top,
-          opacity: layer.opacity,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping,
-          hidden: false
-        });
-      });
+    // Копируем слои с сохранением всех свойств и применяем цвета
+    const groupLayers = layers.map(layer => {
+      const coloredLayer = applyColorToLayer(layer, partName, character);
+      return {
+        name: layer.name,
+        canvas: coloredLayer.canvas,
+        left: layer.left,
+        top: layer.top,
+        opacity: layer.opacity,
+        blendMode: layer.blendMode,
+        clipping: layer.clipping,
+        hidden: false
+      };
+    });
 
-      // Добавляем только выбранный слой ресниц
-      if (variantName === 'обычные') {
-        const subtype = character.eyes.subtype;
-        const lashLayer = layers.find(layer => layer.name === subtype);
-        
-        if (lashLayer) {
-          groupLayers.push({
-            name: lashLayer.name,
-            canvas: lashLayer.canvas,
-            left: lashLayer.left,
-            top: lashLayer.top,
-            opacity: lashLayer.opacity,
-            blendMode: lashLayer.blendMode,
-            clipping: lashLayer.clipping,
-            hidden: false
-          });
-        }
-      }
-    } else {
-      // Обычные части
-      layers.forEach(layer => {
-        const coloredLayer = applyColorToLayer(layer, partName, character);
+    // Добавляем подтип для глаз
+    if (partName === 'eyes' && variantName === 'обычные') {
+      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
+      if (subtypeLayer) {
         groupLayers.push({
-          name: layer.name,
-          canvas: coloredLayer.canvas,
-          left: layer.left,
-          top: layer.top,
-          opacity: layer.opacity,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping,
+          name: subtypeLayer.name,
+          canvas: subtypeLayer.canvas,
+          left: subtypeLayer.left,
+          top: subtypeLayer.top,
+          opacity: subtypeLayer.opacity,
+          blendMode: subtypeLayer.blendMode,
+          clipping: subtypeLayer.clipping,
           hidden: false
         });
-      });
+      }
     }
 
+    // Добавляем группу в PSD
     if (groupLayers.length > 0) {
       newPsd.children.unshift({
         name: groupName,
@@ -157,6 +148,7 @@ export const exportPSD = (originalPsd, character) => {
     }
   });
 
+  // Экспортируем PSD
   const psdBytes = PSD.writePsd(newPsd);
   const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
