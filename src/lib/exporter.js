@@ -40,7 +40,7 @@ export const exportPSD = (originalPsd, character) => {
     'eyes': 'Глаза',
     'cheeks': 'Щёки',
     'head': 'Голова',
-    'mane': 'Грудь/шея/грива',
+    'mane': 'Грудь Шея Грива',
     'body': 'Тело',
     'tail': 'Хвосты'
   };
