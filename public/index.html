@@ -3,36 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Редактор персонажей Kinwoods" />
-  <title>Kinwoods Character Editor</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <meta name="description" content="Редактор персонажей Kinwoods - создавайте и экспортируйте уникальные персонажи" />
+  
+  <title>Редактор персонажа Kinwoods</title>
+  
+  <!-- Предзагрузка основных шрифтов -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Favicon (можно добавить позже) -->
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  
+  <!-- Основные стили -->
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
     body {
+      margin: 0;
       font-family: 'Roboto', sans-serif;
       background-color: #f5f5f5;
       color: #333;
-      line-height: 1.6;
     }
+    
     #root {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+    
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 1.5rem;
+    }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <!-- Контейнер для React-приложения -->
+  <div id="root">
+    <div class="loading">Загрузка редактора...</div>
+  </div>
+  
+  <!-- Скрипт для определения базового пути на GitHub Pages -->
   <script>
-    // Устанавливаем базовый путь для GitHub Pages
     window.publicPath = window.location.pathname.includes('character-editor') 
-      ? '/character-editor' 
-      : '';
+      ? '/character-editor/' 
+      : '/';
   </script>
 </body>
 </html>
