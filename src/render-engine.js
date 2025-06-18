@@ -128,17 +128,19 @@ export class RenderEngine {
   }
 
   // Базовая отрисовка изображения слоя
-  drawLayerImage(ctx, layer) {
-    if (!layer.canvas) return;
-    
-    // Для простоты - используем ImageData
-    // В реальности нужно учитывать все особенности PSD слоя
+drawLayerImage(ctx, layer) {
+  if (!layer.imageData) return;
+  
+  try {
     const imageData = new ImageData(
       new Uint8ClampedArray(layer.imageData),
       layer.width,
       layer.height
     );
-    
     ctx.putImageData(imageData, 0, 0);
+  } catch (e) {
+    console.error('Error drawing layer:', layer.name, e);
   }
+}
+  
 }
