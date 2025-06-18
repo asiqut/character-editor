@@ -1,18 +1,26 @@
-// export-engine.js - Движок экспорта файлов
-import agPsd from 'ag-psd';
+import { readPsd, writePsd } from 'ag-psd';
 
-export class ExportEngine {
+export class RenderEngine {
   constructor(config) {
     this.config = config;
+    this.psd = null;
+    this.layerCache = new Map();
   }
 
-  // Экспорт в PNG
-  async exportToPNG(canvas, width, height) {
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(blob);
-      }, 'image/png', 1.0);
-    });
+  async loadPSD(filePath) {
+    try {
+      const response = await fetch(filePath);
+      const arrayBuffer = await response.arrayBuffer();
+      
+      // Используем readPsd напрямую
+      this.psd = readPsd(arrayBuffer);
+      
+      this.buildLayerCache(this.psd.children);
+      return this.psd;
+    } catch (error) {
+      console.error('Ошибка загрузки PSD:', error);
+      throw error;
+    }
   }
 
   // Экспорт в PSD
