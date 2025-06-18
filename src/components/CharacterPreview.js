@@ -9,8 +9,8 @@ function CharacterPreview({ psdData, character }) {
       console.log('Starting render...');
       try {
         const canvas = canvasRef.current;
-        canvas.width = 630;
-        canvas.height = 630;
+        canvas.width = 315;
+        canvas.height = 315;
         
         console.log('Canvas before render:', canvas);
         renderCharacter(canvas, psdData, character);
