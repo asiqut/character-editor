@@ -17,6 +17,7 @@ export function renderCharacter(canvas, psdData, character) {
 
   partsOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
+    renderPart(part, ctx, psdData, character);
   });
 }
   
