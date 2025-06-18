@@ -1,1 +1,63 @@
+/* Parts Controls */
+.parts-controls {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
+.part-group {
+  margin-bottom: 15px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+
+.part-group h3 {
+  font-size: 0.95rem;
+  margin: 0 0 10px 0;
+  color: #555;
+}
+
+.variant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.variant-button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.variant-button:hover {
+  background: #d0d0d0;
+}
+
+.variant-button.active {
+  background: #4a89dc;
+  color: white;
+}
+
+/* Специфичные стили для частей */
+.part-ears .variant-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.part-eyes .variant-options {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .variant-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
