@@ -1,254 +1,155 @@
-import { RenderEngine } from './render-engine.js'
-import { ExportEngine } from './export-engine.js'
-import config from './config.js'
+import React, { useState, useEffect, useRef } from 'react';
+import { loadPSD } from './lib/psdUtils';
+import { renderCharacter } from './lib/renderUtils';
+import { DEFAULT_CHARACTER, PARTS_CONFIG, RENDER_ORDER } from './lib/config';
+import CharacterEditor from './components/CharacterEditor';
+import './styles/main.css';
 
-class CharacterEditor {
-  constructor() {
-    this.state = {
-      activeParts: {},
-      colors: {},
-      psdData: null
+const App = () => {
+  const [appState, setAppState] = useState({
+    psdData: null,
+    character: DEFAULT_CHARACTER,
+    loading: true,
+    error: null
+  });
+
+  const canvasRef = useRef(null);
+
+  // Загрузка PSD при монтировании
+  useEffect(() => {
+    const initializeEditor = async () => {
+      try {
+        const psd = await loadPSD(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
+        
+        setAppState(prev => ({
+          ...prev,
+          psdData: psd,
+          loading: false
+        }));
+      } catch (err) {
+        console.error('PSD initialization error:', err);
+        setAppState(prev => ({
+          ...prev,
+          error: 'Failed to load character data',
+          loading: false
+        }));
+      }
     };
 
-    this.renderEngine = new RenderEngine(config);
-    this.exportEngine = new ExportEngine(config);
+    initializeEditor();
+  }, []);
 
-    this.ui = {
-      previewCanvas: document.getElementById('preview-canvas'),
-      partsContainer: document.getElementById('parts-container'),
-      colorPickers: {}
-    };
+  // Рендеринг при изменениях
+  useEffect(() => {
+    if (appState.psdData && canvasRef.current) {
+      renderCharacter(
+        canvasRef.current,
+        appState.psdData,
+        appState.character,
+        RENDER_ORDER
+      );
+    }
+  }, [appState.psdData, appState.character]);
 
-    this.init();
-  }
-
-  async init() {
-    await this.loadPSD();
-    this.initDefaultState();
-    this.render();
-    this.initUI();
-  }
-
-  async loadPSD() {
-    this.state.psdData = await this.renderEngine.loadPSD('assets/model.psd');
-  }
-
-  initDefaultState() {
-    Object.keys(config.parts).forEach(partId => {
-      const part = config.parts[partId];
-      
-      if (part.isSingleVariant) {
-        this.state.activeParts[partId] = part.variant;
-      } else {
-        const firstVariant = Object.keys(part.variants)[0];
-        this.state.activeParts[partId] = part.variants[firstVariant];
+  // Обработчики изменений
+  const handlePartChange = (part, value, isSubtype = false) => {
+    setAppState(prev => {
+      // Особый случай для глаз
+      if (part === 'eyes') {
+        return {
+          ...prev,
+          character: {
+            ...prev.character,
+            eyes: isSubtype 
+              ? { ...prev.character.eyes, subtype: value }
+              : { type: value, subtype: value === 'обычные' ? 'с ресницами' : null }
+          }
+        };
       }
-    });
 
-    Object.keys(config.colors).forEach(colorId => {
-      this.state.colors[colorId] = config.colors[colorId].default;
-    });
-  }
-
-  render() {
-    this.renderEngine.render(
-      this.ui.previewCanvas, 
-      this.state.psdData, 
-      this.state.activeParts, 
-      this.state.colors
-    );
-  }
-
-  initUI() {
-    this.initPartsUI();
-    this.initColorPickers();
-    this.initExportButtons();
-  }
-
-  setPartVariant(partId, variantId) {
-    this.state.activeParts[partId] = config.parts[partId].variants[variantId];
-    this.render();
-  }
-
-  setColor(colorId, colorValue) {
-    this.state.colors[colorId] = colorValue;
-    
-    if (colorId === 'main') {
-      config.colors.main.affects.forEach(affectedPart => {
-        this.state.colors[affectedPart] = colorValue;
-      });
-    }
-    
-    this.render();
-  }
-
-  async exportPNG() {
-    return this.exportEngine.exportToPNG(
-      this.ui.previewCanvas,
-      config.canvasSettings.width,
-      config.canvasSettings.height
-    );
-  }
-
-  async exportPSD() {
-    return this.exportEngine.exportToPSD(
-      this.state.psdData,
-      this.state.activeParts,
-      this.state.colors,
-      config.canvasSettings.width,
-      config.canvasSettings.height
-    );
-  }
-
-initPartsUI() {
-  const partsContainer = this.ui.partsContainer;
-  partsContainer.innerHTML = '';
-
-  Object.entries(config.parts).forEach(([partId, part]) => {
-    // Проверяем зависимости (например, ресницы только для обычных глаз)
-    if (part.dependsOn) {
-      const dependsOnPart = this.state.activeParts[part.dependsOn.part];
-      if (!dependsOnPart || dependsOnPart !== part.dependsOn.variant) {
-        return;
-      }
-    }
-
-    // Пропускаем скрытые в UI элементы
-    if (part.variants) {
-      const firstVariant = Object.values(part.variants)[0];
-      if (firstVariant.hideInUI) return;
-    }
-
-    // Создаем контейнер для части
-    const partContainer = document.createElement('div');
-    partContainer.className = 'part-container';
-
-    // Добавляем заголовок
-    const title = document.createElement('h3');
-    title.textContent = part.title;
-    partContainer.appendChild(title);
-
-    // Добавляем варианты, если они есть
-    if (part.variants && !part.isSingleVariant) {
-      const variantsContainer = document.createElement('div');
-      variantsContainer.className = 'variants-container';
-
-      Object.entries(part.variants).forEach(([variantId, variant]) => {
-        if (variant.hideInUI) return;
-
-        const button = document.createElement('button');
-        button.className = 'variant-button';
-        if (this.state.activeParts[partId] === variant) {
-          button.classList.add('active');
+      // Общий случай для других частей
+      return {
+        ...prev,
+        character: {
+          ...prev.character,
+          [part]: value
         }
-        button.textContent = variant.label;
-        button.addEventListener('click', () => {
-          this.setPartVariant(partId, variantId);
-          // Обновляем активные кнопки
-          variantsContainer.querySelectorAll('.variant-button').forEach(btn => {
-            btn.classList.remove('active');
-          });
-          button.classList.add('active');
-        });
-        variantsContainer.appendChild(button);
-      });
+      };
+    });
+  };
 
-      partContainer.appendChild(variantsContainer);
-    }
+  const handleColorChange = (type, color) => {
+    setAppState(prev => ({
+      ...prev,
+      character: {
+        ...prev.character,
+        colors: {
+          ...prev.character.colors,
+          [type]: color
+        }
+      }
+    }));
+  };
 
-    partsContainer.appendChild(partContainer);
-  });
-}
+  const handlePartColorChange = (part, color) => {
+    setAppState(prev => ({
+      ...prev,
+      character: {
+        ...prev.character,
+        partColors: {
+          ...prev.character.partColors,
+          [part]: color
+        }
+      }
+    }));
+  };
 
-initColorPickers() {
-  Object.entries(config.colors).forEach(([colorId, colorConfig]) => {
-    // Для main цвета создаем отдельный пикер
-    if (colorId === 'main') {
-      this.createColorPicker(colorId, colorConfig, true);
-    } else if (!colorConfig.layerMarker) { // Игнорируем специальные цвета вроде eyesWhite
-      this.createColorPicker(colorId, colorConfig);
-    }
-  });
-}
-
-createColorPicker(colorId, colorConfig, isMain = false) {
-  // Находим контейнер соответствующей части
-  let container = null;
-  
-  if (isMain) {
-    // Для основного цвета создаем отдельный контейнер вверху
-    container = document.createElement('div');
-    container.className = 'part-container';
-    const title = document.createElement('h3');
-    title.textContent = 'Основной цвет';
-    container.appendChild(title);
-    this.ui.partsContainer.prepend(container);
-  } else {
-    // Находим контейнер части по colorId
-    const partId = colorId; // В нашем конфиге colorId совпадает с partId
-    container = Array.from(document.querySelectorAll('.part-container'))
-      .find(el => el.querySelector('h3')?.textContent === config.parts[partId]?.title);
-    
-    if (!container) return;
+  // Состояния загрузки и ошибок
+  if (appState.loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        <p>Loading character editor...</p>
+      </div>
+    );
   }
 
-  const colorContainer = document.createElement('div');
-  colorContainer.className = 'color-picker-container';
+  if (appState.error) {
+    return (
+      <div className="error-screen">
+        <h2>Error</h2>
+        <p>{appState.error}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    );
+  }
 
-  const label = document.createElement('span');
-  label.textContent = isMain ? 'Основной цвет:' : 'Цвет:';
-  colorContainer.appendChild(label);
+  if (!appState.psdData) {
+    return (
+      <div className="error-screen">
+        <h2>Data Not Loaded</h2>
+        <p>Character data failed to initialize</p>
+      </div>
+    );
+  }
 
-  const colorInput = document.createElement('input');
-  colorInput.type = 'color';
-  colorInput.value = this.state.colors[colorId] || colorConfig.default;
-  colorInput.addEventListener('input', (e) => {
-    this.setColor(colorId, e.target.value);
-  });
+  return (
+    <div className="character-editor">
+      <header>
+        <h1>Kinwoods Character Editor</h1>
+        <p className="subtitle">Customize your character's appearance</p>
+      </header>
 
-  const hexInput = document.createElement('input');
-  hexInput.type = 'text';
-  hexInput.value = this.state.colors[colorId] || colorConfig.default;
-  hexInput.placeholder = 'HEX цвет';
-  hexInput.addEventListener('change', (e) => {
-    if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
-      this.setColor(colorId, e.target.value);
-      colorInput.value = e.target.value;
-    }
-  });
+      <CharacterEditor
+        innerRef={canvasRef}
+        config={PARTS_CONFIG}
+        character={appState.character}
+        onPartChange={handlePartChange}
+        onColorChange={handleColorChange}
+        onPartColorChange={handlePartColorChange}
+      />
+    </div>
+  );
+};
 
-  colorContainer.appendChild(colorInput);
-  colorContainer.appendChild(hexInput);
-  container.appendChild(colorContainer);
-
-  // Сохраняем ссылку на пикер
-  this.ui.colorPickers[colorId] = { colorInput, hexInput };
-}
-
-initExportButtons() {
-  document.getElementById('export-png').addEventListener('click', async () => {
-    const blob = await this.exportPNG();
-    this.downloadBlob(blob, 'character.png');
-  });
-
-  document.getElementById('export-psd').addEventListener('click', async () => {
-    const blob = await this.exportPSD();
-    this.downloadBlob(blob, 'character.psd');
-  });
-}
-
-downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  new CharacterEditor();
-});
+export default App;
