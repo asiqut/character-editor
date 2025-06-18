@@ -143,11 +143,13 @@ const handleColorChange = (colorType, color) => {
                 current={character.cheeks}
                 onChange={(part, value) => handlePartChange(part, value)}
               />
-              <ColorPicker
-                title="Цвет"
-                color={character.partColors.cheeks}
-                onChange={(color) => handlePartColorChange('cheeks', color)}
-              />
+              {character.cheeks !== 'нет' && (
+                <ColorPicker
+                  title="Цвет"
+                  color={character.partColors.cheeks}
+                  onChange={(color) => handlePartColorChange('cheeks', color)}
+                />
+              )}
             </div>
           )}
 
