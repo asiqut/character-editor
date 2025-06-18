@@ -103,91 +103,151 @@ class CharacterEditor {
 document.addEventListener('DOMContentLoaded', () => {
   new CharacterEditor();
 
-  initPartsUI() {
-  Object.keys(this.config.parts).forEach(partId => {
-    const part = this.config.parts[partId];
-    if (part.hideInUI) return;
+initPartsUI() {
+  const partsContainer = this.ui.partsContainer;
+  partsContainer.innerHTML = '';
 
+  Object.entries(config.parts).forEach(([partId, part]) => {
     // Проверяем зависимости (например, ресницы только для обычных глаз)
     if (part.dependsOn) {
-      const dependsOnValue = this.state.activeParts[part.dependsOn.part]?.label;
-      if (dependsOnValue !== part.dependsOn.variant) return;
+      const dependsOnPart = this.state.activeParts[part.dependsOn.part];
+      if (!dependsOnPart || dependsOnPart !== part.dependsOn.variant) {
+        return;
+      }
     }
 
+    // Пропускаем скрытые в UI элементы
+    if (part.variants) {
+      const firstVariant = Object.values(part.variants)[0];
+      if (firstVariant.hideInUI) return;
+    }
+
+    // Создаем контейнер для части
     const partContainer = document.createElement('div');
     partContainer.className = 'part-container';
-    
+
+    // Добавляем заголовок
     const title = document.createElement('h3');
     title.textContent = part.title;
     partContainer.appendChild(title);
 
-    const variantsContainer = document.createElement('div');
-    variantsContainer.className = 'variants-container';
-    
-    Object.keys(part.variants).forEach(variantId => {
-      const variant = part.variants[variantId];
-      const button = document.createElement('button');
-      
-      button.textContent = variant.label;
-      button.className = 'variant-button';
-      button.dataset.partId = partId;
-      button.dataset.variantId = variantId;
-      
-      button.addEventListener('click', () => {
-        this.setPartVariant(partId, variantId);
+    // Добавляем варианты, если они есть
+    if (part.variants && !part.isSingleVariant) {
+      const variantsContainer = document.createElement('div');
+      variantsContainer.className = 'variants-container';
+
+      Object.entries(part.variants).forEach(([variantId, variant]) => {
+        if (variant.hideInUI) return;
+
+        const button = document.createElement('button');
+        button.className = 'variant-button';
+        if (this.state.activeParts[partId] === variant) {
+          button.classList.add('active');
+        }
+        button.textContent = variant.label;
+        button.addEventListener('click', () => {
+          this.setPartVariant(partId, variantId);
+          // Обновляем активные кнопки
+          variantsContainer.querySelectorAll('.variant-button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          button.classList.add('active');
+        });
+        variantsContainer.appendChild(button);
       });
-      
-      variantsContainer.appendChild(button);
-    });
-    
-    partContainer.appendChild(variantsContainer);
-    this.ui.partsContainer.appendChild(partContainer);
+
+      partContainer.appendChild(variantsContainer);
+    }
+
+    partsContainer.appendChild(partContainer);
   });
 }
 
 initColorPickers() {
-  // Главный цвет
-  this.createColorPicker('main', 'Основной цвет');
-  
-  // Цвета для отдельных частей
-  Object.keys(this.config.colors).forEach(colorId => {
-    if (colorId !== 'main' && !colorId.includes('White')) {
-      this.createColorPicker(colorId, this.getColorLabel(colorId));
+  Object.entries(config.colors).forEach(([colorId, colorConfig]) => {
+    // Для main цвета создаем отдельный пикер
+    if (colorId === 'main') {
+      this.createColorPicker(colorId, colorConfig, true);
+    } else if (!colorConfig.layerMarker) { // Игнорируем специальные цвета вроде eyesWhite
+      this.createColorPicker(colorId, colorConfig);
     }
   });
 }
 
-createColorPicker(colorId, label) {
-  const container = document.createElement('div');
-  container.className = 'color-picker-container';
+createColorPicker(colorId, colorConfig, isMain = false) {
+  // Находим контейнер соответствующей части
+  let container = null;
   
-  const labelEl = document.createElement('span');
-  labelEl.textContent = label;
-  container.appendChild(labelEl);
-  
-  const input = document.createElement('input');
-  input.type = 'color';
-  input.value = this.state.colors[colorId];
-  input.dataset.colorId = colorId;
-  
-  input.addEventListener('input', (e) => {
+  if (isMain) {
+    // Для основного цвета создаем отдельный контейнер вверху
+    container = document.createElement('div');
+    container.className = 'part-container';
+    const title = document.createElement('h3');
+    title.textContent = 'Основной цвет';
+    container.appendChild(title);
+    this.ui.partsContainer.prepend(container);
+  } else {
+    // Находим контейнер части по colorId
+    const partId = colorId; // В нашем конфиге colorId совпадает с partId
+    container = Array.from(document.querySelectorAll('.part-container'))
+      .find(el => el.querySelector('h3')?.textContent === config.parts[partId]?.title);
+    
+    if (!container) return;
+  }
+
+  const colorContainer = document.createElement('div');
+  colorContainer.className = 'color-picker-container';
+
+  const label = document.createElement('span');
+  label.textContent = isMain ? 'Основной цвет:' : 'Цвет:';
+  colorContainer.appendChild(label);
+
+  const colorInput = document.createElement('input');
+  colorInput.type = 'color';
+  colorInput.value = this.state.colors[colorId] || colorConfig.default;
+  colorInput.addEventListener('input', (e) => {
     this.setColor(colorId, e.target.value);
   });
-  
-  container.appendChild(input);
-  this.ui.partsContainer.appendChild(container);
+
+  const hexInput = document.createElement('input');
+  hexInput.type = 'text';
+  hexInput.value = this.state.colors[colorId] || colorConfig.default;
+  hexInput.placeholder = 'HEX цвет';
+  hexInput.addEventListener('change', (e) => {
+    if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+      this.setColor(colorId, e.target.value);
+      colorInput.value = e.target.value;
+    }
+  });
+
+  colorContainer.appendChild(colorInput);
+  colorContainer.appendChild(hexInput);
+  container.appendChild(colorContainer);
+
+  // Сохраняем ссылку на пикер
+  this.ui.colorPickers[colorId] = { colorInput, hexInput };
 }
 
-getColorLabel(colorId) {
-  const labels = {
-    ears: 'Цвет ушей',
-    eyes: 'Цвет глаз',
-    cheeks: 'Цвет щёк',
-    head: 'Цвет головы',
-    mane: 'Цвет гривы',
-    body: 'Цвет тела',
-    tail: 'Цвет хвоста'
-  };
-  return labels[colorId] || colorId;
+initExportButtons() {
+  document.getElementById('export-png').addEventListener('click', async () => {
+    const blob = await this.exportPNG();
+    this.downloadBlob(blob, 'character.png');
+  });
+
+  document.getElementById('export-psd').addEventListener('click', async () => {
+    const blob = await this.exportPSD();
+    this.downloadBlob(blob, 'character.psd');
+  });
+}
+
+downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 });
