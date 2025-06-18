@@ -15,6 +15,11 @@ export function renderCharacter(canvas, psdData, character) {
     'ears'     // Уши (верхний слой)
   ];
 
+  partsOrder.forEach(part => {
+    if (part === 'cheeks' && character.cheeks === 'нет') return;
+  });
+}
+  
 function renderPart(currentPartName, ctx, psdData, character) {
   const partGroup = psdData[currentPartName];
   if (!partGroup) {
