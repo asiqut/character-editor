@@ -1,29 +1,12 @@
 import React from 'react';
+import { PARTS_STRUCTURE } from '../lib/psdStructure';
+import ColorPicker from './ColorPicker';
 
-function PartSelector({
-  partName, // Имя части (например 'ears', 'eyes')
-  character,
-  onPartChange,
-  onSubtypeChange
-}) {
+function PartSelector({ partName, character, onPartChange, onSubtypeChange }) {
   const partConfig = PARTS_STRUCTURE[partName];
   if (!partConfig) return null;
 
-  // Для частей с одним вариантом (голова)
-  if (partConfig.isSingleVariant) {
-    return (
-      <div className={`part-selector ${partName}`}>
-        <h3>{partConfig.title}</h3>
-        <ColorPicker
-          title="Цвет"
-          color={character.partColors[partName] || character.colors.main}
-          onChange={(color) => onPartChange(partName, color, 'color')}
-        />
-      </div>
-    );
-  }
-
-  // Для частей с вариантами
+  // Получаем текущее значение варианта
   const currentVariant = partName === 'eyes' 
     ? character.eyes.type 
     : character[partName];
@@ -31,17 +14,21 @@ function PartSelector({
   return (
     <div className={`part-selector ${partName}`}>
       <h3>{partConfig.title}</h3>
-      <div className="options">
-        {Object.keys(partConfig.variants).map(variantKey => (
-          <button
-            key={variantKey}
-            className={variantKey === currentVariant ? 'active' : ''}
-            onClick={() => onPartChange(partName, variantKey)}
-          >
-            {variantKey}
-          </button>
-        ))}
-      </div>
+      
+      {/* Для частей с вариантами */}
+      {!partConfig.isSingleVariant && (
+        <div className="options">
+          {Object.keys(partConfig.variants).map(variant => (
+            <button
+              key={variant}
+              className={variant === currentVariant ? 'active' : ''}
+              onClick={() => onPartChange(partName, variant)}
+            >
+              {variant}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Подтипы для глаз */}
       {partName === 'eyes' && currentVariant === 'обычные' && (
@@ -51,7 +38,7 @@ function PartSelector({
             <button
               key={subtype}
               className={subtype === character.eyes.subtype ? 'active' : ''}
-              onClick={() => onSubtypeChange(partName, subtype)}
+              onClick={() => onSubtypeChange('eyes', subtype)}
             >
               {subtype}
             </button>
@@ -59,8 +46,17 @@ function PartSelector({
         </div>
       )}
 
-      {/* Цветовой пикер для всех частей кроме глаз (у них особый цвет) */}
-      {partName !== 'eyes' && (
+      {/* Цветовой пикер для всех частей кроме глаз (их цвет в основном блоке) */}
+      {partName !== 'eyes' && !partConfig.isSingleVariant && (
+        <ColorPicker
+          title="Цвет"
+          color={character.partColors[partName] || character.colors.main}
+          onChange={(color) => onPartChange(partName, color, 'color')}
+        />
+      )}
+
+      {/* Для головы (только цвет) */}
+      {partConfig.isSingleVariant && (
         <ColorPicker
           title="Цвет"
           color={character.partColors[partName] || character.colors.main}
