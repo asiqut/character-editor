@@ -24,6 +24,21 @@
     </div>
   </div>
 
-  <script type="module" src="./src/app.js"></script>
+<script type="module">
+  // Добавим эту проверку для тестирования
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const response = await fetch('assets/model.psd');
+      if (!response.ok) {
+        console.error('PSD файл не найден по пути:', response.url);
+      } else {
+        console.log('PSD файл найден, можно загружать редактор');
+        new CharacterEditor();
+      }
+    } catch (error) {
+      console.error('Ошибка при проверке PSD файла:', error);
+    }
+  });
+</script>
 </body>
 </html>
