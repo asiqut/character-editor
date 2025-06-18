@@ -1,5 +1,4 @@
-# .github/workflows/deploy.yml
-name: Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -7,25 +6,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with: { node-version: 18 }
-      - run: npm ci
-      - run: npm test
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Полная история коммитов для правильной работы gh-pages
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with: { node-version: 18 }
-      - run: npm ci
-      - run: npm run build
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g gh-pages
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+
+      - name: Build project
+        run: npm run build
+        env:
+          CI: false  # Отключаем CI-специфичное поведение в сборке
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
+          user_name: 'asiqut'
+          user_email: 'sofyazemlanaya@gmail.com'
+          commit_message: 'Auto-deploy from ${{ github.sha }}'
+          force_orphan: true  # Чистая история в ветке gh-pages
