@@ -6,42 +6,29 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
-      console.log('Starting render...');
-      try {
-        const canvas = canvasRef.current;
-        canvas.width = 315;
-        canvas.height = 315;
-        
-        console.log('Canvas before render:', canvas);
-        renderCharacter(canvas, psdData, character);
-        console.log('Render completed');
-      } catch (error) {
-        console.error('Render error:', error);
-      }
+      // Для превью используем увеличенный размер
+      canvasRef.current.width = 630;
+      canvasRef.current.height = 630;
+      renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
-
+  
   return (
     <div style={{
-      width: '315px',
+      width: '315px', // Отображаем в оригинальном размере
       height: '315px',
       position: 'relative',
       border: '1px solid #ddd',
-      backgroundColor: '#f5f5f5', // Добавим фон для видимости
-      overflow: 'hidden'
+      overflow: 'hidden' // Обрезаем увеличенное изображение
     }}>
       <canvas 
-        ref={canvasRef}
+        ref={canvasRef} 
         width={315}
         height={315}
-        style={{ display: 'block' }}
+        style={{ 
+          display: 'block'
+        }}
       />
-      {!psdData && <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)'
-      }}>Loading model...</div>}
     </div>
   );
 }
