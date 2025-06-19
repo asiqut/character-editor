@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
-import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/psdStructure';
+import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
@@ -27,46 +27,41 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value, changeType) => {
-  setCharacter(prev => {
-    if (changeType === 'color') {
-      return {
-        ...prev,
-        partColors: {
-          ...prev.partColors,
-          [part]: value
+  const handlePartChange = (part, value, isSubtype = false) => {
+    setCharacter(prev => {
+      const newChar = {...prev};
+      
+      if (part === 'eyes') {
+        if (isSubtype) {
+          newChar.eyes = {
+            ...prev.eyes,
+            subtype: value
+          };
+        } else {
+          newChar.eyes = {
+            type: value,
+            subtype: value === 'обычные' ? 'с ресницами' : null
+          };
         }
-      };
-    }
+      } else {
+        newChar[part] = value;
+      }
+      
+      return newChar;
+    });
+  };
 
-    if (part === 'eyes') {
-      return {
-        ...prev,
-        eyes: {
-          type: value,
-          subtype: value === 'обычные' ? 'с ресницами' : null
-        }
-      };
-    }
-
-    return {
+  const handleSubtypeChange = (part, subtype) => {
+    if (part !== 'eyes') return;
+    
+    setCharacter(prev => ({
       ...prev,
-      [part]: value
-    };
-  });
-};
-
-const handleSubtypeChange = (part, subtype) => {
-  if (part !== 'eyes') return;
-  
-  setCharacter(prev => ({
-    ...prev,
-    eyes: {
-      ...prev.eyes,
-      subtype
-    }
-  }));
-};
+      eyes: {
+        ...prev.eyes,
+        subtype: subtype
+      }
+    }));
+  };
 
 const handleColorChange = (colorType, color) => {
   setCharacter(prev => ({
@@ -88,12 +83,9 @@ const handleColorChange = (colorType, color) => {
     }));
   };
 
-if (loading) return <div>Загрузка PSD файла...</div>;
-if (error) return <div>Ошибка загрузки: {error}</div>;
-if (!psdData) return <div>Не удалось загрузить данные PSD</div>;
-
-// В return добавим проверку
-<CharacterPreview psdData={psdData} character={character} />
+  if (loading) return <div>Загрузка...</div>;
+  if (error) return <div>Ошибка: {error}</div>;
+  if (!psdData) return <div>Данные не загружены</div>;
 
   return (
     <div className="character-editor">
@@ -105,53 +97,139 @@ if (!psdData) return <div>Не удалось загрузить данные PS
         </div>
         
         <div className="controls">
-  {Object.keys(PARTS_STRUCTURE).map(partName => (
-    <div className="part-group" key={partName}>
-      <PartSelector
-        partName={partName}
-        character={character}
-        onPartChange={handlePartChange}
-        onSubtypeChange={handleSubtypeChange}
-      />
-      
-      {/* Для головы цвет уже встроен в PartSelector */}
-      {partName !== 'head' && partName !== 'eyes' && (
-        <ColorPicker
-          title="Цвет"
-          color={character.partColors[partName] || character.colors.main}
-          onChange={(color) => handlePartChange(partName, color, 'color')}
-        />
-      )}
-    </div>
-  ))}
+          {/* Уши */}
+          <div className="part-group">
+            <PartSelector
+              title="Уши"
+              part="ears"
+              options={PARTS_STRUCTURE.ears}
+              current={character.ears}
+              onChange={(part, value) => handlePartChange(part, value)}
+            />
+            <ColorPicker
+              title="Цвет"
+              color={character.partColors.ears}
+              onChange={(color) => handlePartColorChange('ears', color)}
+            />
+          </div>
 
-  {/* Основные цвета */}
-  <div className="part-group">
-    <ColorPicker
-      title="Основной цвет"
-      color={character.colors.main}
-      onChange={(color) => {
-        handleColorChange('main', color);
-        // Автоматическое применение ко всем частям
-        const newPartColors = {};
-        Object.keys(PARTS_STRUCTURE).forEach(part => {
-          newPartColors[part] = color;
-        });
-        setCharacter(prev => ({
-          ...prev,
-          partColors: newPartColors
-        }));
-      }}
-    />
-    <ColorPicker
-      title="Белки глаз"
-      color={character.colors.eyesWhite}
-      onChange={(color) => handleColorChange('eyesWhite', color)}
-    />
-  </div>
+          {/* Глаза */}
+          <div className="part-group">
+            <PartSelector
+              title="Глаза"
+              part="eyes"
+              options={PARTS_STRUCTURE.eyes.types}
+              current={character.eyes.type}
+              onChange={handlePartChange}
+              showSubtypes={character.eyes.type === 'обычные'}
+              subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
+              currentSubtype={character.eyes.subtype}
+              onSubtypeChange={handleSubtypeChange}
+            />
+            <ColorPicker
+              title="Цвет"
+              color={character.partColors.eyes}
+              onChange={(color) => handlePartColorChange('eyes', color)}
+            />
+          </div>
 
-  <ExportButtons character={character} psdData={psdData} />
-</div>
+          {/* Щёки */}
+          <div className="part-group">
+              <PartSelector
+              title="Щёки"
+              part="cheeks"
+              options={PARTS_STRUCTURE.cheeks}
+              current={character.cheeks}
+              onChange={(part, value) => handlePartChange(part, value)}
+            />
+            {character.cheeks !== 'нет' && (
+              <ColorPicker
+                title="Цвет"
+                color={character.partColors.cheeks}
+                onChange={(color) => handlePartColorChange('cheeks', color)}
+              />
+              )}
+            </div>
+
+          {/* Грива */}
+          <div className="part-group">
+            <PartSelector
+              title="Грива"
+              part="mane"
+              options={PARTS_STRUCTURE.mane}
+              current={character.mane}
+              onChange={(part, value) => handlePartChange(part, value)}
+            />
+            <ColorPicker
+              title="Цвет"
+              color={character.partColors.mane}
+              onChange={(color) => handlePartColorChange('mane', color)}
+            />
+          </div>
+
+          {/* Тело */}
+          <div className="part-group">
+            <PartSelector
+              title="Тело"
+              part="body"
+              options={PARTS_STRUCTURE.body}
+              current={character.body}
+              onChange={(part, value) => handlePartChange(part, value)}
+            />
+            <ColorPicker
+              title="Цвет"
+              color={character.partColors.body}
+              onChange={(color) => handlePartColorChange('body', color)}
+            />
+          </div>
+
+          {/* Хвост */}
+          <div className="part-group">
+            <PartSelector
+              title="Хвост"
+              part="tail"
+              options={PARTS_STRUCTURE.tail}
+              current={character.tail}
+              onChange={(part, value) => handlePartChange(part, value)}
+            />
+            <ColorPicker
+              title="Цвет"
+              color={character.partColors.tail}
+              onChange={(color) => handlePartColorChange('tail', color)}
+            />
+          </div>
+
+          {/* Основные цвета */}
+          <div className="part-group">
+            <ColorPicker
+              title="Основной цвет"
+              color={character.colors.main}
+              onChange={(color) => {
+                handleColorChange('main', color);
+                setCharacter(prev => ({
+                  ...prev,
+                  partColors: {
+                    ears: color,
+                    cheeks: color,
+                    mane: color,
+                    body: color,
+                    tail: color,
+                    head: color
+                  }
+                }));
+              }}
+            />
+                
+            <ColorPicker
+              title="Белки глаз"
+              color={character.colors.eyesWhite}
+              onChange={(color) => handleColorChange('eyesWhite', color)}
+            />
+                
+          </div>
+
+          <ExportButtons character={character} psdData={psdData} />
+        </div>
       </div>
     </div>
   );
