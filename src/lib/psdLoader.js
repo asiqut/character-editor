@@ -3,13 +3,9 @@ import * as PSD from 'ag-psd';
 export async function loadPSD() {
   try {
     const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Failed to fetch PSD: ${response.status}`);
     
     const arrayBuffer = await response.arrayBuffer();
-    if (!arrayBuffer || arrayBuffer.byteLength === 0) {
-      throw new Error('Empty PSD file received');}
     const psd = PSD.readPsd(arrayBuffer, {
       parseLayerBlendingModes: true,
       preserveLayerPositions: true,
@@ -73,7 +69,7 @@ export async function loadPSD() {
     
     return processedData;
   } catch (error) {
-    console.error('PSD loading failed:', error);
+    console.error('Error loading PSD:', error);
     throw error;
   }
 }
