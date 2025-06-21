@@ -285,3 +285,9 @@ export const DEFAULT_CHARACTER = {
     head: '#f1ece4'
   }
 };
+
+// Добавим валидацию
+if (!CONFIG.parts) throw new Error('CONFIG.parts is required');
+if (!DEFAULT_CHARACTER) throw new Error('DEFAULT_CHARACTER is required');
+
+export { CONFIG as CHARACTER_CONFIG, DEFAULT_CHARACTER };
