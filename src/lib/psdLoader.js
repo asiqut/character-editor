@@ -3,14 +3,8 @@ import { CHARACTER_CONFIG } from './characterConfig';
 
 export async function loadPSD() {
   try {
-    // Убедимся, что путь к PSD корректен
-    const psdPath = `${window.publicPath || ''}/assets/model_kinwoods.psd`;
-    console.log('Loading PSD from:', psdPath);
-
-    const response = await fetch(psdPath);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch PSD: ${response.status} ${response.statusText}`);
-    }
+    const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
+    if (!response.ok) throw new Error(`PSD load failed: ${response.status}`);
     
     const arrayBuffer = await response.arrayBuffer();
     const psd = PSD.readPsd(arrayBuffer, {
@@ -18,15 +12,17 @@ export async function loadPSD() {
       preserveLayerPositions: true,
       skipLayerImageData: false
     });
+
+    console.log('Raw PSD structure:', psd); // Добавлено логирование
     
-    if (!psd?.children) {
-      throw new Error('Invalid PSD structure: no children layers found');
-    }
+    if (!psd?.children) throw new Error('Invalid PSD structure');
     
-    return processPSDStructure(psd);
+    const processed = processPSDStructure(psd);
+    console.log('Processed PSD structure:', processed); // Добавлено логирование
+    return processed;
   } catch (error) {
-    console.error('Error loading PSD:', error);
-    throw error; // Перебрасываем ошибку для обработки в компоненте
+    console.error('PSD loading failed:', error);
+    throw error;
   }
 }
 
