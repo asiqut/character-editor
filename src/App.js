@@ -32,7 +32,79 @@ function App() {
     load();
   }, []);
 
-  // ... (оставьте все обработчики без изменений)
+  // Обработчик изменения части
+  const handlePartChange = (part, value) => {
+    setCharacter(prev => {
+      const newChar = { ...prev };
+      
+      if (part === 'eyes') {
+        newChar.eyes = {
+          type: value,
+          subtype: value === 'обычные' ? 'с ресницами' : null
+        };
+      } else {
+        newChar[part] = value;
+      }
+      
+      return newChar;
+    });
+  };
+
+  // Обработчик изменения подтипа глаз
+  const handleSubtypeChange = (subtype) => {
+    setCharacter(prev => ({
+      ...prev,
+      eyes: {
+        ...prev.eyes,
+        subtype
+      }
+    }));
+  };
+
+  // Обработчик изменения основного цвета
+  const handleMainColorChange = (color) => {
+    setCharacter(prev => {
+      const updatedPartColors = {};
+      
+      CHARACTER_CONFIG.colors.main.affects.forEach(part => {
+        updatedPartColors[part] = color;
+      });
+
+      return {
+        ...prev,
+        colors: {
+          ...prev.colors,
+          main: color
+        },
+        partColors: {
+          ...prev.partColors,
+          ...updatedPartColors
+        }
+      };
+    });
+  };
+
+  // Обработчик изменения цвета части
+  const handlePartColorChange = (part, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      partColors: {
+        ...prev.partColors,
+        [part]: color
+      }
+    }));
+  };
+
+  // Обработчик изменения цвета белков глаз
+  const handleEyesWhiteChange = (color) => {
+    setCharacter(prev => ({
+      ...prev,
+      colors: {
+        ...prev.colors,
+        eyesWhite: color
+      }
+    }));
+  };
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -51,6 +123,20 @@ function App() {
           {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
             if (!partConfig?.enabled) return null;
             
+            if (partKey === 'cheeks' && character.cheeks === 'нет') {
+              return (
+                <div key={partKey} className="part-group">
+                  <PartSelector
+                    title={partConfig.title}
+                    part={partKey}
+                    options={Object.keys(partConfig.variants)}
+                    current={character[partKey]}
+                    onChange={handlePartChange}
+                  />
+                </div>
+              );
+            }
+
             return (
               <div key={partKey} className="part-group">
                 <PartSelector
