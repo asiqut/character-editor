@@ -18,19 +18,20 @@ function App() {
     }));
   };
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await loadPSD();
-        setPsdData(data);
-      } catch (err) {
-        console.error('PSD load error:', err);
-      } finally {
-        setLoading(false);
-      }
+useEffect(() => {
+  async function load() {
+    try {
+      const data = await loadPSD();
+      console.log('PSD structure:', data); // Проверяем структуру
+      setPsdData(data);
+    } catch (err) {
+      console.error('PSD load error:', err);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }
+  load();
+}, []);
 
   if (loading) return <div>Загрузка...</div>;
   if (!psdData) return <div>Данные не загружены</div>;
