@@ -96,23 +96,25 @@ const handleColorChange = (colorType, color) => {
           <CharacterPreview psdData={psdData} character={character} />
         </div>
 
-              {/* Основные цвета */}
-          <div className="part-group">
-            <ColorPicker
-              title="Основной цвет"
-              color={character.colors.main}
-              onChange={(color) => {
-                handleColorChange('main', color);
-                setCharacter(prev => ({
-                  ...prev,
-                  partColors: {
-                    ears: color,
-                    cheeks: color,
-                    mane: color,
-                    body: color,
-                    tail: color,
-                    head: color
-                  }
+        {/* Основные цвета */}
+        <div className="part-group">
+          <ColorPicker
+             title="Основной цвет"
+             color={character.colors.main}
+             onChange={(color) => {
+               handleColorChange('main', color);
+               setCharacter(prev => ({
+                 ...prev,
+                 partColors: {
+                 ears: color,
+                 cheeks: color,
+                 mane: color,
+                 body: color,
+                 tail: color,
+                 head: color
+                }
+        </div>
+                    
         
         <div className="controls">
           {/* Уши */}
