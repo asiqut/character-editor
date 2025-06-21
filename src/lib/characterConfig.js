@@ -1,4 +1,3 @@
-// src/lib/characterConfig.js
 export const CHARACTER_CONFIG = {
   parts: {
     // УШИ
