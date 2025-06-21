@@ -214,6 +214,10 @@ const handleColorChange = (colorType, color) => {
               onChange={(color) => handlePartColorChange('tail', color)}
             />
           </div>
+                }));
+              }}
+            />
+          </div>
 
         {/* Основные цвета */}
         <div className="part-group">
@@ -233,10 +237,6 @@ const handleColorChange = (colorType, color) => {
                  head: color
                 }
         </div>
-                }));
-              }}
-            />
-          </div>
 
           <ExportButtons character={character} psdData={psdData} />
         </div>
