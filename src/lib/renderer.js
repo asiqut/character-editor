@@ -1,23 +1,24 @@
 import { CHARACTER_CONFIG } from './characterConfig';
 
 export function renderCharacter(canvas, psdData, character) {
-  if (!psdData || !character) return;
+  if (!psdData || !character) {
+    console.error('Missing data for rendering:', { psdData, character });
+    return;
+  }
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Порядок рендеринга частей (снизу вверх)
   const renderOrder = [
-    'tail',    // Хвост (нижний слой)
-    'body',    // Тело
-    'mane',    // Грива
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (верхний слой)
+    'tail',
+    'body',
+    'mane',
+    'head',
+    'cheeks',
+    'eyes',
+    'ears'
   ];
 
-  // Рендерим части в правильном порядке
   renderOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(part, ctx, psdData, character);
@@ -27,11 +28,10 @@ export function renderCharacter(canvas, psdData, character) {
 function renderPart(partName, ctx, psdData, character) {
   const partConfig = CHARACTER_CONFIG.parts[partName];
   if (!partConfig) {
-    console.warn(`Unknown part: ${partName}`);
+    console.warn(`Missing config for part: ${partName}`);
     return;
   }
 
-  // Получаем текущий вариант части
   let variant;
   if (partConfig.isSingleVariant) {
     variant = partConfig;
@@ -42,15 +42,17 @@ function renderPart(partName, ctx, psdData, character) {
     variant = partConfig.variants[variantName];
   }
 
-  if (!variant || !variant.layers) {
-    console.warn(`No layers for ${partName}/${variantName}`);
+  if (!variant) {
+    console.warn(`Missing variant for ${partName}`);
     return;
   }
 
-  // Рендерим слои варианта
   variant.layers.forEach(layerPath => {
     const layer = findLayerInPSD(layerPath, psdData);
-    if (!layer?.canvas) return;
+    if (!layer?.canvas) {
+      console.warn(`Missing layer: ${layerPath}`);
+      return;
+    }
 
     ctx.save();
     ctx.translate(layer.left, layer.top);
@@ -59,7 +61,6 @@ function renderPart(partName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
 
-    // Обработка разных типов слоев
     if (layerPath.includes('[белок красить]')) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite);
     } 
@@ -109,18 +110,15 @@ function renderPart(partName, ctx, psdData, character) {
   }
 }
 
-// Поиск слоя в PSD данных по пути
+// Остальные вспомогательные функции остаются без изменений
 function findLayerInPSD(layerPath, psdData) {
   if (!layerPath || !psdData) return null;
-  
   const parts = layerPath.split('/');
   let current = psdData;
-
   for (const part of parts) {
     if (!current[part]) return null;
     current = current[part];
   }
-
   return current;
 }
 
@@ -134,15 +132,10 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCanvas.height = Math.max(layer.canvas.height, clipLayer.canvas.height);
   const tempCtx = tempCanvas.getContext('2d');
   
-  tempCtx.drawImage(clipLayer.canvas, 
-    clipLayer.left - layer.left, 
-    clipLayer.top - layer.top
-  );
-  
+  tempCtx.drawImage(clipLayer.canvas, clipLayer.left - layer.left, clipLayer.top - layer.top);
   tempCtx.globalCompositeOperation = 'source-in';
   tempCtx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
   tempCtx.drawImage(layer.canvas, 0, 0);
-  
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
@@ -156,7 +149,6 @@ function renderColorLayer(ctx, layer, color) {
   tempCtx.globalCompositeOperation = 'source-atop';
   tempCtx.fillStyle = color;
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
