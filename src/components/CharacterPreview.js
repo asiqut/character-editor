@@ -7,35 +7,39 @@ function CharacterPreview({ psdData, character }) {
   useEffect(() => {
     if (!psdData || !canvasRef.current) return;
     
+    const renderLayer = (ctx, layer) => {
+      if (!layer.canvas) return;
+      
+      ctx.save();
+      ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
+      ctx.translate(layer.left, layer.top);
+      
+      if (layer.blendMode) {
+        // Конвертируем режимы наложения Photoshop в Canvas
+        const blendModes = {
+          'multiply': 'multiply',
+          'overlay': 'overlay',
+          'normal': 'source-over'
+        };
+        ctx.globalCompositeOperation = blendModes[layer.blendMode.toLowerCase()] || 'source-over';
+      }
+      
+      ctx.drawImage(layer.canvas, 0, 0);
+      ctx.restore();
+    };
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Временная отрисовка выбранного варианта
-    ctx.fillStyle = '#f0f0f0';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = '#333';
-    ctx.font = '16px Arial';
-    ctx.fillText(`Выбран: ${character.ears}`, 20, 30);
-    
-    // Простая визуализация "ушей"
-    if (character.ears === 'торчком обычные') {
-      ctx.fillStyle = '#a58a67';
-      // Левый ear
-      ctx.beginPath();
-      ctx.moveTo(100, 50);
-      ctx.lineTo(80, 80);
-      ctx.lineTo(100, 70);
-      ctx.fill();
-      // Правый ear
-      ctx.beginPath();
-      ctx.moveTo(200, 50);
-      ctx.lineTo(220, 80);
-      ctx.lineTo(200, 70);
-      ctx.fill();
+
+    // Рендерим выбранный вариант ушей
+    const earVariant = psdData['Уши']?.[character.ears];
+    if (earVariant && earVariant.children) {
+      earVariant.children.forEach(layer => {
+        renderLayer(ctx, layer);
+      });
     }
-    
+
   }, [psdData, character]);
 
   return (
