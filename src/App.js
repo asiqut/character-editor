@@ -106,7 +106,16 @@ function App() {
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
-
+  
+  if (!CHARACTER_CONFIG || !CHARACTER_CONFIG.parts) {
+  return (
+    <div className="error">
+      <h2>Ошибка конфигурации</h2>
+      <p>Не удалось загрузить конфигурацию персонажа. Проверьте файл characterConfig.js</p>
+    </div>
+  );
+  }
+  
   return (
     <div className="character-editor">
       <h1>Редактор персонажа Kinwoods</h1>
