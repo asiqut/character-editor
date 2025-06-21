@@ -95,9 +95,7 @@ const handleColorChange = (colorType, color) => {
         <div className="preview-area">
           <CharacterPreview psdData={psdData} character={character} />
         </div>
-                    
-        
-        <div className="controls">
+
           {/* Уши */}
           <div className="part-group">
             <PartSelector
