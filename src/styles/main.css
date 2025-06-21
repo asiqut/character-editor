@@ -192,8 +192,6 @@ body {
 }
 
 .part-selector.eyes .subtypes {
-  margin-top: 15px;
-  padding-top: 15px;
   max-height: 100px;
   overflow-y: auto;
 }
@@ -283,11 +281,6 @@ body {
 .part-selector.eyes .options {
   display: flex;
   flex-direction: column;
-}
-
-.part-selector.eyes .subtypes {
-  max-height: 100px;
-  overflow-y: auto;
 }
 
 /* Хвост */
