@@ -3,9 +3,13 @@ import { CHARACTER_CONFIG } from './characterConfig';
 
 export async function loadPSD() {
   try {
-    // Добавим проверку конфига перед загрузкой PSD
-    if (!CHARACTER_CONFIG?.parts) {
-      throw new Error('Character configuration is not loaded');
+    // Убедимся, что путь к PSD корректен
+    const psdPath = `${window.publicPath || ''}/assets/model_kinwoods.psd`;
+    console.log('Loading PSD from:', psdPath);
+
+    const response = await fetch(psdPath);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PSD: ${response.status} ${response.statusText}`);
     }
     
     const arrayBuffer = await response.arrayBuffer();
@@ -15,45 +19,46 @@ export async function loadPSD() {
       skipLayerImageData: false
     });
     
-    if (!psd || !psd.children) throw new Error('Invalid PSD structure');
+    if (!psd?.children) {
+      throw new Error('Invalid PSD structure: no children layers found');
+    }
     
     return processPSDStructure(psd);
   } catch (error) {
-    console.error('PSD loading failed:', error);
-    throw error;
+    console.error('Error loading PSD:', error);
+    throw error; // Перебрасываем ошибку для обработки в компоненте
   }
 }
 
 function processPSDStructure(psd) {
   const processedData = {};
-  const groupOrder = [];
+  
+  // Добавим проверку на существование CHARACTER_CONFIG
+  if (!CHARACTER_CONFIG?.parts) {
+    throw new Error('Character configuration not loaded');
+  }
 
-  psd.children.forEach(group => {
-    if (!group.name || !group.children) return;
+  psd.children?.forEach(group => {
+    if (!group?.name || !group?.children) return;
     
-    // Определяем имя группы в нашей структуре
     const groupInfo = Object.entries(CHARACTER_CONFIG.parts).find(
       ([_, config]) => config.title === group.name
     );
     
     if (!groupInfo) return;
     
-    const [partName, partConfig] = groupInfo;
+    const [partName] = groupInfo;
     processedData[partName] = {};
-    groupOrder.push(partName);
 
-    // Обработка головы (особый случай)
-    if (partConfig.isSingleVariant) {
+    if (CHARACTER_CONFIG.parts[partName]?.isSingleVariant) {
       processedData[partName] = group.children.map(processLayer);
       return;
     }
 
-    // Обработка вариантов частей
-    group.children.forEach(variantGroup => {
-      if (!variantGroup.name || !variantGroup.children) return;
+    group.children?.forEach(variantGroup => {
+      if (!variantGroup?.name || !variantGroup?.children) return;
       
-      // Находим соответствующий вариант в конфигурации
-      const variant = Object.entries(partConfig.variants).find(
+      const variant = Object.entries(CHARACTER_CONFIG.parts[partName].variants || {}).find(
         ([_, v]) => v.label === variantGroup.name
       );
       
@@ -64,9 +69,6 @@ function processPSDStructure(psd) {
     });
   });
 
-  // Сохраняем порядок групп для правильного рендеринга
-  processedData._order = groupOrder;
-  
   return processedData;
 }
 
