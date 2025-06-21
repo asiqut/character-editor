@@ -113,10 +113,13 @@ function App() {
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
 
-  return (
-    <div className="character-editor">
-      <h1>Редактор персонажа Kinwoods</h1>
-      
+return (
+  <div className="character-editor">
+    <h1>Редактор персонажа Kinwoods</h1>
+    
+    {!CHARACTER_CONFIG?.parts ? (
+      <div className="error">Ошибка загрузки конфигурации</div>
+    ) : (
       <div className="editor-container">
         <div className="preview-area">
           <CharacterPreview psdData={psdData} character={character} />
@@ -124,7 +127,7 @@ function App() {
         
         <div className="controls">
           {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
-            if (!partConfig?.enabled) return null;
+            if (!partConfig || typeof partConfig !== 'object') return null;
             
             if (partKey === 'cheeks' && character.cheeks === 'нет') {
               return (
