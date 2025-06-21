@@ -285,8 +285,14 @@ const DEFAULT_CHARACTER = {
   }
 };
 
-if (!CHARACTER_CONFIG.parts || typeof CHARACTER_CONFIG.parts !== 'object') {
-  throw new Error('CHARACTER_CONFIG.parts must be a non-empty object');
+// Добавим явную проверку структуры
+function validateConfig(config) {
+  if (!config.parts || typeof config.parts !== 'object') {
+    throw new Error('Invalid CHARACTER_CONFIG: parts must be defined');
+  }
+  // Дополнительные проверки по необходимости
 }
+
+validateConfig(CHARACTER_CONFIG);
 
 export { CHARACTER_CONFIG, DEFAULT_CHARACTER };
