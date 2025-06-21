@@ -15,7 +15,7 @@ function ColorPicker({ title, color, onChange }) {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (pickerRef.current && !pickerRef.current.contains(event.target) {
+      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
         if (swatchRef.current && !swatchRef.current.contains(event.target)) {
           setShowPicker(false);
         }
