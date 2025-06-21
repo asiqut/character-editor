@@ -1,5 +1,5 @@
 import * as PSD from 'ag-psd';
-import { renderCharacter } from './renderer'; // Добавьте этот импорт
+import { renderCharacter } from './renderer';
 import { CHARACTER_CONFIG } from './characterConfig';
 
 export const exportPNG = (character, psdData) => {
@@ -7,7 +7,6 @@ export const exportPNG = (character, psdData) => {
   canvas.width = 315;
   canvas.height = 315;
   
-  // Используем ту же функцию рендеринга, что и в превью
   renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
@@ -20,103 +19,87 @@ export const exportPSD = (originalPsd, character) => {
   console.log('Starting PSD export:', { originalPsd, character });
   
   try {
+    const groupOrder = [
+      'Уши',
+      'Глаза',
+      'Щёки', 
+      'Голова',
+      'Грудь Шея Грива',
+      'Тело',
+      'Хвосты'
+    ];
+
+    const partToGroupName = {
+      'ears': 'Уши',
+      'eyes': 'Глаза',
+      'cheeks': 'Щёки',
+      'head': 'Голова',
+      'mane': 'Грудь Шея Грива',
+      'body': 'Тело',
+      'tail': 'Хвосты'
+    };
+
     const newPsd = {
       width: 315,
       height: 315,
       children: []
     };
-    
-  const groupOrder = [
-    'Уши',
-    'Глаза',
-    'Щёки', 
-    'Голова',
-    'Грудь Шея Грива',
-    'Тело',
-    'Хвосты'
-  ];
 
-  // Соответствие между ключами частей и именами групп PSD
-  const partToGroupName = {
-    'ears': 'Уши',
-    'eyes': 'Глаза',
-    'cheeks': 'Щёки',
-    'head': 'Голова',
-    'mane': 'Грудь Шея Грива',
-    'body': 'Тело',
-    'tail': 'Хвосты'
-  };
+    groupOrder.forEach(groupName => {
+      const partName = Object.keys(partToGroupName).find(
+        key => partToGroupName[key] === groupName
+      );
+      
+      if (!partName) return;
 
-  // Создаем новый PSD
-  const newPsd = {
-    width: 315,
-    height: 315,
-    children: []
-  };
+      const partConfig = CHARACTER_CONFIG.parts[partName];
+      if (!partConfig || !partConfig.enabled) return;
 
-  // Создаем группы в правильном порядке
-  groupOrder.forEach(groupName => {
-    const partName = Object.keys(partToGroupName).find(
-      key => partToGroupName[key] === groupName
-    );
-    
-    if (!partName) return;
+      if (partName === 'cheeks' && character.cheeks === 'нет') return;
 
-    const partConfig = CHARACTER_CONFIG.parts[partName];
-    if (!partConfig || !partConfig.enabled) return;
+      let variant;
+      if (partConfig.isSingleVariant) {
+        variant = partConfig;
+      } else {
+        const variantName = partName === 'eyes' 
+          ? character.eyes.type 
+          : character[partName];
+        variant = partConfig.variants[variantName];
+      }
 
-    // Пропускаем щёки если они отключены
-    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+      if (!variant) return;
 
-    // Получаем вариант для текущей части
-    let variant;
-    if (partConfig.isSingleVariant) {
-      variant = partConfig;
-    } else {
-      const variantName = partName === 'eyes' 
-        ? character.eyes.type 
-        : character[partName];
-      variant = partConfig.variants[variantName];
-    }
+      const layers = variant.layers.map(layerPath => {
+        const layer = findLayerInPSD(layerPath, originalPsd);
+        if (!layer) return null;
+        return applyColorToLayer(layer, partName, character);
+      }).filter(Boolean);
 
-    if (!variant) return;
+      if (partName === 'eyes' && character.eyes?.type === 'обычные' && character.eyes?.subtype) {
+        const subtypeLayerPath = `Глаза/обычные/${character.eyes.subtype}`;
+        const subtypeLayer = findLayerInPSD(subtypeLayerPath, originalPsd);
+        if (subtypeLayer) {
+          layers.push({
+            name: subtypeLayer.name,
+            canvas: subtypeLayer.canvas,
+            left: subtypeLayer.left,
+            top: subtypeLayer.top,
+            opacity: subtypeLayer.opacity,
+            blendMode: subtypeLayer.blendMode,
+            clipping: subtypeLayer.clipping,
+            hidden: false
+          });
+        }
+      }
 
-    // Получаем слои для этой части
-    const layers = variant.layers.map(layerPath => {
-      const layer = findLayerInPSD(layerPath, originalPsd);
-      if (!layer) return null;
-
-      return applyColorToLayer(layer, partName, character);
-    }).filter(Boolean);
-
-    // Добавляем подтип для глаз
-    if (partName === 'eyes' && character.eyes?.type === 'обычные' && character.eyes?.subtype) {
-      const subtypeLayerPath = `Глаза/обычные/${character.eyes.subtype}`;
-      const subtypeLayer = findLayerInPSD(subtypeLayerPath, originalPsd);
-      if (subtypeLayer) {
-        layers.push({
-          name: subtypeLayer.name,
-          canvas: subtypeLayer.canvas,
-          left: subtypeLayer.left,
-          top: subtypeLayer.top,
-          opacity: subtypeLayer.opacity,
-          blendMode: subtypeLayer.blendMode,
-          clipping: subtypeLayer.clipping,
-          hidden: false
+      if (layers.length > 0) {
+        newPsd.children.unshift({
+          name: groupName,
+          children: layers
         });
       }
-    }
+    });
 
-    // Добавляем группу в PSD
-    if (layers.length > 0) {
-      newPsd.children.unshift({
-        name: groupName,
-        children: layers
-      });
-    }
-  });
-
-  // Экспортируем PSD
     const psdBytes = PSD.writePsd(newPsd);
     console.log('PSD bytes generated:', psdBytes.length);
     
@@ -135,8 +118,6 @@ export const exportPSD = (originalPsd, character) => {
     throw error;
   }
 };
-
-// Вспомогательные функции
 
 function findLayerInPSD(layerPath, psdData) {
   if (!layerPath || !psdData) return null;
@@ -160,7 +141,6 @@ function applyColorToLayer(layer, partName, character) {
   tempCanvas.height = layer.canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
   
-  // Определяем цвет
   let color;
   if (layer.name.includes('[белок красить]')) {
     color = character.colors?.eyesWhite || '#ffffff';
@@ -169,16 +149,14 @@ function applyColorToLayer(layer, partName, character) {
     color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
   } 
   else {
-    return { ...layer, hidden: false }; // Не меняем слои без покраски
+    return { ...layer, hidden: false };
   }
   
-  // Применяем цвет
   tempCtx.drawImage(layer.canvas, 0, 0);
   tempCtx.globalCompositeOperation = 'source-atop';
   tempCtx.fillStyle = color;
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
   
-  // Возвращаем обновленный слой
   return {
     name: layer.name,
     canvas: tempCanvas,
