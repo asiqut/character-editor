@@ -14,6 +14,14 @@ if (!CHARACTER_CONFIG || !CHARACTER_CONFIG.parts) {
 }
 
 function App() {
+  if (!CHARACTER_CONFIG?.parts) {
+  return (
+    <div className="error">
+      <h2>Configuration Error</h2>
+      <p>Character configuration failed to load</p>
+    </div>
+  );
+}
   const [psdData, setPsdData] = useState(null);
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
@@ -124,8 +132,8 @@ function App() {
         </div>
         
         <div className="controls">
-          {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
-            if (!partConfig?.enabled) return null;
+        {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
+          if (!partConfig || !partConfig.enabled) return null;
             
             if (partKey === 'cheeks' && character.cheeks === 'нет') {
               return (
