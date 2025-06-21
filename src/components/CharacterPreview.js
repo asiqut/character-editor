@@ -1,5 +1,5 @@
+// src/components/CharacterPreview.js
 import React, { useEffect, useRef } from 'react';
-import { renderCharacter } from '../lib/renderer';
 
 function CharacterPreview({ psdData, character }) {
   const canvasRef = useRef(null);
@@ -7,47 +7,26 @@ function CharacterPreview({ psdData, character }) {
   useEffect(() => {
     if (!psdData || !canvasRef.current) return;
     
-    console.log('Rendering character:', { psdData, character });
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    try {
-      const canvas = canvasRef.current;
-      canvas.width = 630;
-      canvas.height = 630;
-      
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      renderCharacter(canvas, psdData, character);
-    } catch (error) {
-      console.error('Rendering error:', error);
-    }
+    // Временная отрисовка - позже заменим на полноценный рендеринг
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#333';
+    ctx.font = '16px Arial';
+    ctx.fillText('Preview will be here', 10, 30);
+    
   }, [psdData, character]);
 
   return (
-    <div style={{
-      width: '315px',
-      height: '315px',
-      position: 'relative',
-      border: '1px solid #ddd',
-      overflow: 'hidden'
-    }}>
+    <div style={{ width: '315px', height: '315px', border: '1px solid #ddd' }}>
       <canvas 
         ref={canvasRef}
         width={315}
         height={315}
-        style={{ display: 'block' }}
       />
-      {!psdData && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#999'
-        }}>
-          Загрузка персонажа...
-        </div>
-      )}
     </div>
   );
 }
