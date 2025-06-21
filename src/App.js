@@ -118,8 +118,8 @@ function App() {
         
         <div className="controls">
           {/* Рендерим части персонажа на основе конфигурации */}
-          {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
-            if (!partConfig.enabled) return null;
+          {Object.entries(CHARACTER_CONFIG?.parts || {}).map(([partKey, partConfig]) => {
+            if (!partConfig || !partConfig.enabled) return null;
             
             // Пропускаем щёки, если они отключены
             if (partKey === 'cheeks' && character.cheeks === 'нет') {
