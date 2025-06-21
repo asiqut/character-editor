@@ -43,4 +43,10 @@ function CharacterPreview({ psdData, character }) {
       <canvas 
         ref={canvasRef}
         width={315}
-        height={
+        height={315}
+      />
+    </div>
+  );
+}
+
+export default CharacterPreview;
