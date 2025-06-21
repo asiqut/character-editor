@@ -285,4 +285,14 @@ const DEFAULT_CHARACTER = {
   }
 };
 
+if (!CHARACTER_CONFIG.parts) {
+  throw new Error('CHARACTER_CONFIG.parts is required');
+}
+
+if (!DEFAULT_CHARACTER) {
+  throw new Error('DEFAULT_CHARACTER is required');
+}
+
+export { CHARACTER_CONFIG, DEFAULT_CHARACTER };
+
 export { CHARACTER_CONFIG, DEFAULT_CHARACTER };
