@@ -110,15 +110,33 @@ function renderPart(partName, ctx, psdData, character) {
   }
 }
 
-// Остальные вспомогательные функции остаются без изменений
 function findLayerInPSD(layerPath, psdData) {
-  if (!layerPath || !psdData) return null;
+  if (!layerPath || !psdData) {
+    console.warn('Invalid parameters:', { layerPath, psdData });
+    return null;
+  }
+  
   const parts = layerPath.split('/');
   let current = psdData;
+
+  console.log('Searching for layer:', layerPath);
+  
   for (const part of parts) {
-    if (!current[part]) return null;
+    if (!current[part]) {
+      console.warn('Missing part in path:', { 
+        part, 
+        current: Object.keys(current),
+        fullPath: layerPath 
+      });
+      return null;
+    }
     current = current[part];
   }
+
+  if (!current.canvas) {
+    console.warn('Found layer but missing canvas:', current);
+  }
+
   return current;
 }
 
@@ -162,34 +180,4 @@ function convertBlendMode(psdBlendMode) {
     'lighten': 'lighten'
   };
   return modes[psdBlendMode.toLowerCase()] || 'source-over';
-}
-
-function findLayerInPSD(layerPath, psdData) {
-  if (!layerPath || !psdData) {
-    console.warn('Invalid parameters:', { layerPath, psdData });
-    return null;
-  }
-  
-  const parts = layerPath.split('/');
-  let current = psdData;
-
-  console.log('Searching for layer:', layerPath); // Добавлено
-  
-  for (const part of parts) {
-    if (!current[part]) {
-      console.warn('Missing part in path:', { 
-        part, 
-        current: Object.keys(current),
-        fullPath: layerPath 
-      });
-      return null;
-    }
-    current = current[part];
-  }
-
-  if (!current.canvas) {
-    console.warn('Found layer but missing canvas:', current);
-  }
-
-  return current;
 }
