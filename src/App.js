@@ -175,6 +175,11 @@ const handleColorChange = (colorType, color) => {
               color={character.partColors.mane}
               onChange={(color) => handlePartColorChange('mane', color)}
             />
+            <ColorPicker
+              title="Белки глаз"
+              color={character.colors.eyesWhite}
+              onChange={(color) => handleColorChange('eyesWhite', color)}
+            />
           </div>
 
           {/* Тело */}
@@ -229,13 +234,6 @@ const handleColorChange = (colorType, color) => {
                 }));
               }}
             />
-                
-            <ColorPicker
-              title="Белки глаз"
-              color={character.colors.eyesWhite}
-              onChange={(color) => handleColorChange('eyesWhite', color)}
-            />
-                
           </div>
 
           <ExportButtons character={character} psdData={psdData} />
