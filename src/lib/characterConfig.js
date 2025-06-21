@@ -1,4 +1,4 @@
-export const CHARACTER_CONFIG = {
+const CHARACTER_CONFIG = {
   parts: {
     // УШИ
     ears: {
@@ -249,7 +249,6 @@ export const CHARACTER_CONFIG = {
       }
     }
   },
-
   colors: {
     main: {
       default: '#f1ece4',
@@ -262,7 +261,7 @@ export const CHARACTER_CONFIG = {
   }
 };
 
-export const DEFAULT_CHARACTER = {
+const DEFAULT_CHARACTER = {
   ears: 'торчком обычные',
   eyes: {
     type: 'обычные',
@@ -286,8 +285,4 @@ export const DEFAULT_CHARACTER = {
   }
 };
 
-// Добавим валидацию
-if (!CONFIG.parts) throw new Error('CONFIG.parts is required');
-if (!DEFAULT_CHARACTER) throw new Error('DEFAULT_CHARACTER is required');
-
-export { CONFIG as CHARACTER_CONFIG, DEFAULT_CHARACTER };
+export { CHARACTER_CONFIG, DEFAULT_CHARACTER };
