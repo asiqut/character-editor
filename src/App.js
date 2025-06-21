@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
-import { CHARACTER_CONFIG, DEFAULT_CHARACTER } from './lib/characterConfig';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
 import ExportButtons from './components/ExportButtons';
 import './styles/main.css';
+// В начале файла после импортов
+import { CHARACTER_CONFIG, DEFAULT_CHARACTER } from './lib/characterConfig';
+
+// Добавим проверку сразу после импортов
+if (!CHARACTER_CONFIG?.parts) {
+  console.error('Invalid CHARACTER_CONFIG:', CHARACTER_CONFIG);
+  throw new Error('CHARACTER_CONFIG is not properly configured');
+}
 
 function App() {
   const [psdData, setPsdData] = useState(null);
@@ -116,10 +123,12 @@ function App() {
   );
   }
   
-  return (
-    <div className="character-editor">
-      <h1>Редактор персонажа Kinwoods</h1>
-      
+return (
+  <div className="character-editor">
+    <h1>Редактор персонажа Kinwoods</h1>
+    {!CHARACTER_CONFIG?.parts ? (
+      <div className="error">Ошибка загрузки конфигурации</div>
+    ) : (
       <div className="editor-container">
         <div className="preview-area">
           <CharacterPreview psdData={psdData} character={character} />
