@@ -12,7 +12,7 @@ function PartSelector({ title, options, current, onChange }) {
             className={option === current ? 'active' : ''}
             onClick={() => onChange(option)}
           >
-            {option}
+            {option.replace(/_/g, ' ')}
           </button>
         ))}
       </div>
