@@ -1,11 +1,13 @@
 import * as PSD from 'ag-psd';
+import { renderCharacter } from './renderer'; // Добавьте этот импорт
 import { CHARACTER_CONFIG } from './characterConfig';
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 315; // Фиксированный размер из PSD
+  canvas.width = 315;
   canvas.height = 315;
   
+  // Используем ту же функцию рендеринга, что и в превью
   renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
