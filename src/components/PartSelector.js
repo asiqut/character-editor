@@ -1,59 +1,21 @@
+// src/components/PartSelector.js
 import React from 'react';
-import { CHARACTER_CONFIG } from '../lib/characterConfig';
 
-function PartSelector({
-  title,
-  part,
-  options,
-  current,
-  onChange,
-  showSubtypes = false,
-  subtypes = null,
-  currentSubtype = null,
-  onSubtypeChange
-}) {
-  // Функция для обработки выбора варианта
-  const handleOptionSelect = (option) => {
-    onChange(part, option);
-  };
-
-  // Функция для обработки выбора подтипа
-  const handleSubtypeSelect = (subtype) => {
-    onSubtypeChange(subtype);
-  };
-
+function PartSelector({ title, options, current, onChange }) {
   return (
-    <div className={`part-selector ${part}`}>
+    <div className="part-selector">
       <h3>{title}</h3>
-      
-      {/* Основные варианты */}
       <div className="options">
-        {options.map(option => (
+        {Object.keys(options).map(option => (
           <button
             key={option}
             className={option === current ? 'active' : ''}
-            onClick={() => handleOptionSelect(option)}
+            onClick={() => onChange(option)}
           >
-            {CHARACTER_CONFIG.parts[part]?.variants[option]?.label || option}
+            {option}
           </button>
         ))}
       </div>
-      
-      {/* Подтипы (для глаз) */}
-      {showSubtypes && subtypes && (
-        <div className="subtypes">
-          <h4>Варианты:</h4>
-          {subtypes.map(subtype => (
-            <button
-              key={subtype}
-              className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => handleSubtypeSelect(subtype)}
-            >
-              {subtype}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
