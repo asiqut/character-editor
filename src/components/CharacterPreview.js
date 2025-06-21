@@ -32,6 +32,9 @@ function CharacterPreview({ psdData, character }) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    console.log('Available ear variants:', psdData['Уши']);
+    console.log('Selected variant layers:', psdData['Уши']?.[character.ears]);
+    
     // Рендерим выбранный вариант ушей
     const earVariant = psdData['Уши']?.[character.ears];
     if (earVariant && earVariant.children) {
