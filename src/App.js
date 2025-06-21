@@ -8,6 +8,22 @@ import ExportButtons from './components/ExportButtons';
 import './styles/main.css';
 
 function App() {
+  useEffect(() => {
+  async function load() {
+    try {
+      console.log('Starting PSD load...');
+      const data = await loadPSD();
+      console.log('PSD loaded successfully:', data);
+      setPsdData(data);
+    } catch (err) {
+      console.error('PSD load error:', err);
+      setError(`Ошибка загрузки PSD: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+  load();
+}, []);
   const [psdData, setPsdData] = useState(null);
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
