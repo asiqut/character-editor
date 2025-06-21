@@ -8,22 +8,6 @@ import ExportButtons from './components/ExportButtons';
 import './styles/main.css';
 
 function App() {
-  useEffect(() => {
-  async function load() {
-    try {
-      console.log('Starting PSD load...');
-      const data = await loadPSD();
-      console.log('PSD loaded successfully:', data);
-      setPsdData(data);
-    } catch (err) {
-      console.error('PSD load error:', err);
-      setError(`Ошибка загрузки PSD: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  }
-  load();
-}, []);
   const [psdData, setPsdData] = useState(null);
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
@@ -32,15 +16,26 @@ function App() {
   useEffect(() => {
     async function load() {
       try {
+        console.log('Starting PSD load...');
         const data = await loadPSD();
+        console.log('PSD loaded successfully:', data);
         setPsdData(data);
       } catch (err) {
-        setError(err.message);
+        console.error('PSD load error:', err);
+        setError(`Ошибка загрузки PSD: ${err.message}`);
       } finally {
         setLoading(false);
       }
     }
     load();
+  }, []);
+
+  // Проверяем загрузку конфига
+  useEffect(() => {
+    console.log('CHARACTER_CONFIG loaded:', !!CHARACTER_CONFIG);
+    if (CHARACTER_CONFIG && CHARACTER_CONFIG.parts) {
+      console.log('Parts available:', Object.keys(CHARACTER_CONFIG.parts));
+    }
   }, []);
 
   const handlePartChange = (part, value) => {
@@ -91,7 +86,12 @@ function App() {
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
-  if (!CHARACTER_CONFIG?.parts) return <div className="error"><h2>Ошибка конфигурации</h2><p>Не удалось загрузить настройки персонажа</p></div>;
+  
+  // Более безопасная проверка конфигурации
+  if (!CHARACTER_CONFIG?.parts) {
+    console.error('CHARACTER_CONFIG.parts is missing:', CHARACTER_CONFIG);
+    return <div className="error"><h2>Ошибка конфигурации</h2><p>Не удалось загрузить настройки персонажа</p></div>;
+  }
 
   const renderPartGroup = (partKey, partConfig) => {
     if (!partConfig || !partConfig.enabled) return null;
