@@ -17,7 +17,15 @@ export const exportPNG = (character, psdData) => {
 };
 
 export const exportPSD = (originalPsd, character) => {
-  // Порядок групп в PSD (сверху вниз)
+  console.log('Starting PSD export:', { originalPsd, character });
+  
+  try {
+    const newPsd = {
+      width: 315,
+      height: 315,
+      children: []
+    };
+    
   const groupOrder = [
     'Уши',
     'Глаза',
@@ -109,16 +117,23 @@ export const exportPSD = (originalPsd, character) => {
   });
 
   // Экспортируем PSD
-  const psdBytes = PSD.writePsd(newPsd);
-  const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `character_${Date.now()}.psd`;
-  a.click();
-  
-  URL.revokeObjectURL(url);
+    const psdBytes = PSD.writePsd(newPsd);
+    console.log('PSD bytes generated:', psdBytes.length);
+    
+    const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `character_${Date.now()}.psd`;
+    a.click();
+    
+    URL.revokeObjectURL(url);
+    console.log('PSD export completed');
+  } catch (error) {
+    console.error('PSD export error:', error);
+    throw error;
+  }
 };
 
 // Вспомогательные функции
