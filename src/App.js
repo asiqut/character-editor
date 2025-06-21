@@ -151,6 +151,16 @@ const handleColorChange = (colorType, color) => {
               )}
             </div>
 
+            {/* Голова */}
+            <div className="part-group">
+              <h2>Голова</h2>
+              <ColorPicker
+                title="Цвет"
+                color={character.partColors.head}
+                onChange={(color) => handlePartColorChange('head', color)}
+              />
+            </div>
+
           {/* Грива */}
           <div className="part-group">
             <PartSelector
