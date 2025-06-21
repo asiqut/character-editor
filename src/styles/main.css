@@ -51,10 +51,13 @@ body {
   border-radius: 8px;
 }
 
+/* Добавим в существующие стили для part-group */
 .part-group h2 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  color: #555;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }
 
 .part-selector {
