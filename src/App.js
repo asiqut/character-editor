@@ -131,6 +131,11 @@ const handleColorChange = (colorType, color) => {
               color={character.partColors.eyes}
               onChange={(color) => handlePartColorChange('eyes', color)}
             />
+            <ColorPicker
+              title="Белки глаз"
+              color={character.colors.eyesWhite}
+              onChange={(color) => handleColorChange('eyesWhite', color)}
+            />
           </div>
 
           {/* Щёки */}
@@ -174,11 +179,6 @@ const handleColorChange = (colorType, color) => {
               title="Цвет"
               color={character.partColors.mane}
               onChange={(color) => handlePartColorChange('mane', color)}
-            />
-            <ColorPicker
-              title="Белки глаз"
-              color={character.colors.eyesWhite}
-              onChange={(color) => handleColorChange('eyesWhite', color)}
             />
           </div>
 
