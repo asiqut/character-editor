@@ -219,24 +219,27 @@ const handleColorChange = (colorType, color) => {
             />
           </div>
 
-        {/* Основные цвета */}
-        <div className="part-group">
-          <ColorPicker
-             title="Основной цвет"
-             color={character.colors.main}
-             onChange={(color) => {
-               handleColorChange('main', color);
-               setCharacter(prev => ({
-                 ...prev,
-                 partColors: {
-                 ears: color,
-                 cheeks: color,
-                 mane: color,
-                 body: color,
-                 tail: color,
-                 head: color
-                }
-        </div>
+          {/* Основные цвета */}
+          <div className="part-group">
+            <ColorPicker
+              title="Основной цвет"
+              color={character.colors.main}
+              onChange={(color) => {
+                handleColorChange('main', color);
+                setCharacter(prev => ({
+                  ...prev,
+                  partColors: {
+                    ears: color,
+                    cheeks: color,
+                    mane: color,
+                    body: color,
+                    tail: color,
+                    head: color
+                  }
+                }));
+              }}
+            />
+          </div>
 
           <ExportButtons character={character} psdData={psdData} />
         </div>
