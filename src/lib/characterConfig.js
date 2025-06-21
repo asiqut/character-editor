@@ -285,16 +285,8 @@ const DEFAULT_CHARACTER = {
   }
 };
 
-if (!CHARACTER_CONFIG.parts) {
-  throw new Error('CHARACTER_CONFIG.parts is required');
+if (!CHARACTER_CONFIG.parts || typeof CHARACTER_CONFIG.parts !== 'object') {
+  throw new Error('CHARACTER_CONFIG.parts must be a non-empty object');
 }
 
-if (!DEFAULT_CHARACTER) {
-  throw new Error('DEFAULT_CHARACTER is required');
-}
-
-if (!CONFIG.parts || typeof CONFIG.parts !== 'object') {
-  throw new Error('CONFIG.parts must be a non-empty object');
-}
-
-export { CONFIG as CHARACTER_CONFIG, DEFAULT_CHARACTER };
+export { CHARACTER_CONFIG, DEFAULT_CHARACTER };
