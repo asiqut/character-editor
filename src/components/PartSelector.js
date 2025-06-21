@@ -1,4 +1,5 @@
 import React from 'react';
+import { CHARACTER_CONFIG } from '../lib/characterConfig';
 
 function PartSelector({
   title,
@@ -33,7 +34,7 @@ function PartSelector({
             className={option === current ? 'active' : ''}
             onClick={() => handleOptionSelect(option)}
           >
-            {CHARACTER_CONFIG.parts[part].variants[option]?.label || option}
+            {CHARACTER_CONFIG.parts[part]?.variants[option]?.label || option}
           </button>
         ))}
       </div>
