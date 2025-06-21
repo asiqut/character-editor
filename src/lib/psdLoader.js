@@ -65,6 +65,8 @@ function processPSDStructure(psd) {
     });
   });
 
+console.log('PSD full structure:', JSON.stringify(psd, null, 2));
+  
   return processedData;
 }
 
