@@ -293,4 +293,8 @@ if (!DEFAULT_CHARACTER) {
   throw new Error('DEFAULT_CHARACTER is required');
 }
 
-export { CHARACTER_CONFIG, DEFAULT_CHARACTER };
+if (!CONFIG.parts || typeof CONFIG.parts !== 'object') {
+  throw new Error('CONFIG.parts must be a non-empty object');
+}
+
+export { CONFIG as CHARACTER_CONFIG, DEFAULT_CHARACTER };
