@@ -3,8 +3,10 @@ import { CHARACTER_CONFIG } from './characterConfig';
 
 export async function loadPSD() {
   try {
-    const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
-    if (!response.ok) throw new Error(`Failed to fetch PSD: ${response.status}`);
+    // Добавим проверку конфига перед загрузкой PSD
+    if (!CHARACTER_CONFIG?.parts) {
+      throw new Error('Character configuration is not loaded');
+    }
     
     const arrayBuffer = await response.arrayBuffer();
     const psd = PSD.readPsd(arrayBuffer, {
@@ -17,7 +19,7 @@ export async function loadPSD() {
     
     return processPSDStructure(psd);
   } catch (error) {
-    console.error('Error loading PSD:', error);
+    console.error('PSD loading failed:', error);
     throw error;
   }
 }
