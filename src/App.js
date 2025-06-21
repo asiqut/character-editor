@@ -21,11 +21,20 @@ function App() {
 useEffect(() => {
   async function load() {
     try {
+      console.log('Starting PSD load...');
       const data = await loadPSD();
-      console.log('PSD structure:', data); // Проверяем структуру
+      console.log('PSD loaded successfully:', data);
+      
+      // Проверяем наличие необходимых данных
+      if (!data['Уши']) {
+        console.error('Missing "Уши" group in PSD');
+        throw new Error('PSD structure is missing required parts');
+      }
+      
       setPsdData(data);
     } catch (err) {
-      console.error('PSD load error:', err);
+      console.error('Full PSD load error:', err);
+      setError(`Ошибка загрузки: ${err.message}`);
     } finally {
       setLoading(false);
     }
