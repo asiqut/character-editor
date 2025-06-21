@@ -33,7 +33,6 @@ function App() {
     load();
   }, []);
 
-  // Обработчик изменения части
   const handlePartChange = (part, value) => {
     setCharacter(prev => {
       const newChar = { ...prev };
@@ -51,7 +50,6 @@ function App() {
     });
   };
 
-  // Обработчик изменения подтипа глаз
   const handleSubtypeChange = (subtype) => {
     setCharacter(prev => ({
       ...prev,
@@ -62,7 +60,6 @@ function App() {
     }));
   };
 
-  // Обработчик изменения основного цвета
   const handleMainColorChange = (color) => {
     setCharacter(prev => {
       const updatedPartColors = {};
@@ -85,7 +82,6 @@ function App() {
     });
   };
 
-  // Обработчик изменения цвета части
   const handlePartColorChange = (part, color) => {
     setCharacter(prev => ({
       ...prev,
@@ -96,7 +92,6 @@ function App() {
     }));
   };
 
-  // Обработчик изменения цвета белков глаз
   const handleEyesWhiteChange = (color) => {
     setCharacter(prev => ({
       ...prev,
@@ -129,8 +124,6 @@ function App() {
         </div>
         
         <div className="controls">
-          {CHARACTER_CONFIG.parts && Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
-            if (!partConfig || typeof partConfig !== 'object') return null;
           {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
             if (!partConfig?.enabled) return null;
             
@@ -192,7 +185,6 @@ function App() {
           </div>
 
           <ExportButtons character={character} psdData={psdData} />
-          })}
         </div>
       </div>
     </div>
