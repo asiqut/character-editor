@@ -7,9 +7,10 @@ import ColorPicker from './components/ColorPicker';
 import ExportButtons from './components/ExportButtons';
 import './styles/main.css';
 
-// Проверка конфигурации
-if (!CHARACTER_CONFIG?.parts) {
-  throw new Error('Invalid CHARACTER_CONFIG - missing parts');
+// Проверка при импорте
+if (!CHARACTER_CONFIG || !CHARACTER_CONFIG.parts) {
+  console.error('Invalid CHARACTER_CONFIG:', CHARACTER_CONFIG);
+  throw new Error('CHARACTER_CONFIG is not properly configured');
 }
 
 function App() {
@@ -109,6 +110,14 @@ function App() {
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
+  if (!CHARACTER_CONFIG?.parts) {
+    return (
+      <div className="error">
+        <h2>Ошибка конфигурации</h2>
+        <p>Не удалось загрузить настройки персонажа</p>
+      </div>
+    );
+  }
 
   return (
     <div className="character-editor">
@@ -120,6 +129,8 @@ function App() {
         </div>
         
         <div className="controls">
+          {CHARACTER_CONFIG.parts && Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
+            if (!partConfig || typeof partConfig !== 'object') return null;
           {Object.entries(CHARACTER_CONFIG.parts).map(([partKey, partConfig]) => {
             if (!partConfig?.enabled) return null;
             
@@ -181,6 +192,7 @@ function App() {
           </div>
 
           <ExportButtons character={character} psdData={psdData} />
+          })}
         </div>
       </div>
     </div>
