@@ -1,11 +1,13 @@
+import { CHARACTER_CONFIG } from './characterConfig';
+
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Без масштабирования и смещения - точь-в-точь как в PSD
-  const partsOrder = [
+  // Порядок рендеринга частей (снизу вверх)
+  const renderOrder = [
     'tail',    // Хвост (нижний слой)
     'body',    // Тело
     'mane',    // Грива
@@ -15,69 +17,65 @@ export function renderCharacter(canvas, psdData, character) {
     'ears'     // Уши (верхний слой)
   ];
 
-  partsOrder.forEach(part => {
+  // Рендерим части в правильном порядке
+  renderOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(part, ctx, psdData, character);
   });
 }
 
-function renderPart(currentPartName, ctx, psdData, character) {
-  const partGroup = psdData[currentPartName];
-  if (!partGroup) {
-    console.warn(`Missing part group: ${currentPartName}`);
+function renderPart(partName, ctx, psdData, character) {
+  const partConfig = CHARACTER_CONFIG.parts[partName];
+  if (!partConfig) {
+    console.warn(`Unknown part: ${partName}`);
     return;
   }
 
-  let variantName;
-  let variantLayers;
-  
-  if (currentPartName === 'head') {
-    variantLayers = Array.isArray(partGroup) ? partGroup : [];
-  } 
-  else {
-    switch (currentPartName) {
-      case 'ears': variantName = character.ears || 'торчком обычные'; break;
-      case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
-      case 'mane': variantName = character.mane || 'обычная'; break;
-      case 'body': variantName = character.body || 'v1'; break;
-      case 'tail': variantName = character.tail || 'обычный'; break;
-      case 'cheeks': variantName = 'пушистые'; break;
-      default: variantName = 'default';
-    }
-    variantLayers = partGroup[variantName] || [];
+  // Получаем текущий вариант части
+  let variant;
+  if (partConfig.isSingleVariant) {
+    variant = partConfig;
+  } else {
+    const variantName = partName === 'eyes' 
+      ? character.eyes.type 
+      : character[partName];
+    variant = partConfig.variants[variantName];
   }
 
-  // Обработка цвета для глаз
-  variantLayers.forEach(layer => {
-    if (!layer.canvas) return;
-    
+  if (!variant || !variant.layers) {
+    console.warn(`No layers for ${partName}/${variantName}`);
+    return;
+  }
+
+  // Рендерим слои варианта
+  variant.layers.forEach(layerPath => {
+    const layer = findLayerInPSD(layerPath, psdData);
+    if (!layer?.canvas) return;
+
     ctx.save();
     ctx.translate(layer.left, layer.top);
     
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
-    
-    // Особый обработчик для белков глаз
-    if (layer.name.includes('[белок красить]')) {
-      const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
-      renderColorLayer(ctx, layer, eyeWhiteColor);
-    }
-    // Обычные слои для покраски
-    else if (layer.name.includes('[красить]')) {
-      const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
-      renderColorLayer(ctx, layer, partColor);
-    }
-    // Слои с клиппингом
+
+    // Обработка разных типов слоев
+    if (layerPath.includes('[белок красить]')) {
+      renderColorLayer(ctx, layer, character.colors.eyesWhite);
+    } 
+    else if (layerPath.includes('[красить]')) {
+      const color = character.partColors[partName] || character.colors.main;
+      renderColorLayer(ctx, layer, color);
+    } 
     else if (shouldClipLayer(layer.name)) {
-      const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+      const colorLayer = variant.layers.find(l => l.includes('[красить]'));
       if (colorLayer) {
-        renderClippedLayer(ctx, layer, colorLayer);
+        const clipLayer = findLayerInPSD(colorLayer, psdData);
+        if (clipLayer) renderClippedLayer(ctx, layer, clipLayer);
       } else {
         ctx.drawImage(layer.canvas, 0, 0);
       }
-    }
-    // Обычные слои
+    } 
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
@@ -86,18 +84,19 @@ function renderPart(currentPartName, ctx, psdData, character) {
   });
 
   // Обработка подтипов глаз
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
+  if (partName === 'eyes' && character.eyes?.type === 'обычные' && character.eyes?.subtype) {
+    const subtypeLayerPath = `Глаза/обычные/${character.eyes.subtype}`;
+    const subtypeLayer = findLayerInPSD(subtypeLayerPath, psdData);
     
     if (subtypeLayer?.canvas) {
       ctx.save();
       ctx.translate(subtypeLayer.left, subtypeLayer.top);
       
       if (shouldClipLayer(subtypeLayer.name)) {
-        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-        if (colorLayer) {
-          renderClippedLayer(ctx, subtypeLayer, colorLayer);
+        const colorLayerPath = variant.layers.find(l => l.includes('[красить]'));
+        if (colorLayerPath) {
+          const colorLayer = findLayerInPSD(colorLayerPath, psdData);
+          if (colorLayer) renderClippedLayer(ctx, subtypeLayer, colorLayer);
         } else {
           ctx.drawImage(subtypeLayer.canvas, 0, 0);
         }
@@ -108,6 +107,21 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.restore();
     }
   }
+}
+
+// Поиск слоя в PSD данных по пути
+function findLayerInPSD(layerPath, psdData) {
+  if (!layerPath || !psdData) return null;
+  
+  const parts = layerPath.split('/');
+  let current = psdData;
+
+  for (const part of parts) {
+    if (!current[part]) return null;
+    current = current[part];
+  }
+
+  return current;
 }
 
 function shouldClipLayer(layerName) {
@@ -126,12 +140,9 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   );
   
   tempCtx.globalCompositeOperation = 'source-in';
-
-  if (layer.opacity !== undefined && layer.opacity < 1) {
-  tempCtx.globalAlpha = layer.opacity;
-  }
-  
+  tempCtx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
   tempCtx.drawImage(layer.canvas, 0, 0);
+  
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
@@ -145,6 +156,7 @@ function renderColorLayer(ctx, layer, color) {
   tempCtx.globalCompositeOperation = 'source-atop';
   tempCtx.fillStyle = color;
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
