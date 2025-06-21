@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
 import { PARTS, COLORS, DEFAULT_CHARACTER } from './lib/config';
+import CharacterPreview from './components/CharacterPreview';
 import './styles/main.css';
 
 function App() {
@@ -29,8 +30,14 @@ function App() {
   return (
     <div className="character-editor">
       <h1>Редактор персонажа Kinwoods</h1>
-      <div>Минимальная рабочая версия</div>
-      <pre>{JSON.stringify(PARTS, null, 2)}</pre>
+      <div className="editor-container">
+        <div className="preview-area">
+          <CharacterPreview psdData={psdData} character={character} />
+        </div>
+        <div className="controls">
+          <pre>{JSON.stringify(PARTS, null, 2)}</pre>
+        </div>
+      </div>
     </div>
   );
 }
