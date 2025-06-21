@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
 import { CHARACTER_CONFIG, DEFAULT_CHARACTER } from './lib/characterConfig';
@@ -8,9 +7,17 @@ import ColorPicker from './components/ColorPicker';
 import ExportButtons from './components/ExportButtons';
 import './styles/main.css';
 
-// Проверка конфигурации перед использованием
 if (!CHARACTER_CONFIG || !CHARACTER_CONFIG.parts) {
   throw new Error('Invalid CHARACTER_CONFIG - missing parts');
+}
+
+if (!CHARACTER_CONFIG || typeof CHARACTER_CONFIG !== 'object') {
+  throw new Error('CHARACTER_CONFIG is not properly initialized');
+}
+
+if (!CHARACTER_CONFIG.parts || typeof CHARACTER_CONFIG.parts !== 'object') {
+  console.error('Invalid CHARACTER_CONFIG.parts:', CHARACTER_CONFIG.parts);
+  throw new Error('CHARACTER_CONFIG.parts must be an object');
 }
 
 function App() {
