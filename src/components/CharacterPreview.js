@@ -1,5 +1,6 @@
 // src/components/CharacterPreview.js
 import React, { useEffect, useRef } from 'react';
+import { CHARACTER_CONFIG } from '../lib/characterConfig';
 
 const blendModeMap = {
   'normal': 'source-over',
@@ -11,7 +12,7 @@ const blendModeMap = {
 };
 
 function renderLayer(ctx, layer, clipContext = null) {
-  if (!layer.canvas || layer.hidden) return;
+  if (!layer?.canvas || layer.hidden) return;
 
   const targetCtx = clipContext || ctx;
   
@@ -23,20 +24,19 @@ function renderLayer(ctx, layer, clipContext = null) {
     targetCtx.globalCompositeOperation = blendModeMap[layer.blendMode.toLowerCase()] || 'source-over';
   }
 
-  // Обработка обтравочных масок
   if (layer.clipTo) {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = layer.canvas.width;
     tempCanvas.height = layer.canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
     
-    // Рендерим в временный canvas
     renderLayer(tempCtx, layer);
     
-    // Применяем маску
     targetCtx.save();
     targetCtx.globalCompositeOperation = 'destination-in';
-    targetCtx.drawImage(clipContext.canvas, 0, 0);
+    if (clipContext) {
+      targetCtx.drawImage(clipContext.canvas, 0, 0);
+    }
     targetCtx.restore();
     
     targetCtx.drawImage(tempCanvas, 0, 0);
@@ -45,6 +45,17 @@ function renderLayer(ctx, layer, clipContext = null) {
   }
 
   targetCtx.restore();
+}
+
+function findSubtypeLayer(psdData, eyes) {
+  if (!psdData['Глаза'] || !eyes?.subtype) return null;
+  
+  const eyeGroup = psdData['Глаза'][eyes.type];
+  if (!eyeGroup) return null;
+
+  return eyeGroup.layers?.find(l => 
+    l.name.toLowerCase().includes(eyes.subtype.toLowerCase())
+  );
 }
 
 function CharacterPreview({ psdData, character }) {
@@ -58,14 +69,35 @@ function CharacterPreview({ psdData, character }) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     try {
-      // Рендерим части в правильном порядке
-      const renderParts = [
-        'tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'
+      // Проверяем наличие CHARACTER_CONFIG
+      if (!CHARACTER_CONFIG?.parts) {
+        throw new Error('Character configuration not loaded');
+      }
+
+      // Используем порядок рендеринга из конфига
+      const renderOrder = [
+        'tail',
+        'body',
+        'mane',
+        'head',
+        'cheeks',
+        'eyes',
+        'ears'
       ];
 
-      renderParts.forEach(part => {
-        const partData = psdData[CHARACTER_CONFIG.parts[part].title]?.[character[part]];
-        if (!partData || part === 'cheeks' && character.cheeks === 'нет') return;
+      renderOrder.forEach(part => {
+        const partConfig = CHARACTER_CONFIG.parts[part];
+        if (!partConfig || !partConfig.enabled) return;
+        if (part === 'cheeks' && character.cheeks === 'нет') return;
+
+        const partName = partConfig.title;
+        const variant = character[part];
+        
+        const partData = psdData[partName]?.[variant];
+        if (!partData) {
+          console.warn(`Missing data for ${partName}/${variant}`);
+          return;
+        }
 
         partData.layers?.forEach(layer => {
           renderLayer(ctx, layer);
@@ -91,7 +123,8 @@ function CharacterPreview({ psdData, character }) {
       width: '315px', 
       height: '315px',
       border: '1px solid #ddd',
-      backgroundColor: '#fff'
+      backgroundColor: '#fff',
+      position: 'relative'
     }}>
       <canvas
         ref={canvasRef}
@@ -99,19 +132,18 @@ function CharacterPreview({ psdData, character }) {
         height={315}
         style={{ display: 'block' }}
       />
+      {!psdData && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          color: '#999'
+        }}>
+          Загрузка персонажа...
+        </div>
+      )}
     </div>
-  );
-}
-
-// Вспомогательная функция для поиска подтипов глаз
-function findSubtypeLayer(psdData, eyes) {
-  if (!psdData['Глаза'] || !eyes.subtype) return null;
-  
-  const eyeGroup = psdData['Глаза'][eyes.type];
-  if (!eyeGroup) return null;
-
-  return eyeGroup.layers?.find(l => 
-    l.name.toLowerCase().includes(eyes.subtype.toLowerCase())
   );
 }
 
