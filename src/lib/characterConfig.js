@@ -1,5 +1,5 @@
-const CHARACTER_CONFIG = {
-  parts: {
+// src/lib/characterConfig.js
+export const PARTS = {
     // УШИ
     ears: {
       title: "Уши",
@@ -245,11 +245,13 @@ const CHARACTER_CONFIG = {
             'Хвосты/пышный/[красить]'
           ],
           colorable: '[красить]'
-        }
+        ]
       }
     }
-  },
-  colors: {
+  }
+};
+
+export const COLORS = {
     main: {
       default: '#f1ece4',
       affects: ['ears', 'cheeks', 'head', 'mane', 'body', 'tail']
@@ -270,7 +272,7 @@ const CHARACTER_CONFIG = {
   ]
 };
 
-const DEFAULT_CHARACTER = {
+export const DEFAULT_CHARACTER = {
   ears: 'торчком обычные',
   eyes: {
     type: 'обычные',
