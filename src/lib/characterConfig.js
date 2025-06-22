@@ -283,6 +283,15 @@ const DEFAULT_CHARACTER = {
     tail: '#f1ece4',
     head: '#f1ece4'
   }
+      renderOrder: [
+    'tail',
+    'body',
+    'mane',
+    'head',
+    'cheeks',
+    'eyes',
+    'ears'
+  ]
 };
 
 // Добавим явную проверку структуры
