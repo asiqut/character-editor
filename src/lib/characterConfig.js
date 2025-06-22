@@ -282,7 +282,7 @@ const DEFAULT_CHARACTER = {
     body: '#f1ece4',
     tail: '#f1ece4',
     head: '#f1ece4'
-  }
+  },
   renderOrder: [
     'tail',
     'body',
