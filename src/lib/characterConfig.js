@@ -260,8 +260,9 @@ export const COLORS = {
       default: '#ffffff',
       layerMarker: '[белок красить]'
     }
-  },
-  renderOrder: [
+  };
+
+export const renderOrder = [
     'tail',
     'body',
     'mane',
@@ -269,8 +270,7 @@ export const COLORS = {
     'cheeks',
     'eyes',
     'ears'
-  ]
-};
+  ];
 
 export const DEFAULT_CHARACTER = {
   ears: 'торчком обычные',
