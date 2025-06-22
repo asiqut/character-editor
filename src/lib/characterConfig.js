@@ -283,7 +283,7 @@ const DEFAULT_CHARACTER = {
     tail: '#f1ece4',
     head: '#f1ece4'
   }
-      renderOrder: [
+  renderOrder: [
     'tail',
     'body',
     'mane',
@@ -294,12 +294,38 @@ const DEFAULT_CHARACTER = {
   ]
 };
 
-// Добавим явную проверку структуры
+const DEFAULT_CHARACTER = {
+  ears: 'торчком обычные',
+  eyes: {
+    type: 'обычные',
+    subtype: 'с ресницами'
+  },
+  cheeks: 'пушистые',
+  mane: 'обычная',
+  body: 'v1',
+  tail: 'обычный',
+  colors: {
+    main: '#f1ece4',
+    eyesWhite: '#ffffff'
+  },
+  partColors: {
+    ears: '#f1ece4',
+    cheeks: '#f1ece4',
+    mane: '#f1ece4',
+    body: '#f1ece4',
+    tail: '#f1ece4',
+    head: '#f1ece4'
+  }
+};
+
+// Проверка конфигурации
 function validateConfig(config) {
   if (!config.parts || typeof config.parts !== 'object') {
     throw new Error('Invalid CHARACTER_CONFIG: parts must be defined');
   }
-  // Дополнительные проверки по необходимости
+  if (!Array.isArray(config.renderOrder)) {
+    throw new Error('Invalid CHARACTER_CONFIG: renderOrder must be an array');
+  }
 }
 
 validateConfig(CHARACTER_CONFIG);
