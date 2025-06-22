@@ -1,4 +1,4 @@
-const CHARACTER_CONFIG = {
+export const CHARACTER_CONFIG = {
   parts: {
     // УШИ
     ears: {
