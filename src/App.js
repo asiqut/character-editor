@@ -1,11 +1,10 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
-import { PARTS, COLORS, DEFAULT_CHARACTER } from './lib/config';
+import { CHARACTER_CONFIG, DEFAULT_CHARACTER } from './lib/characterConfig'; 
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
 import './styles/main.css';
-import { CHARACTER_CONFIG, DEFAULT_CHARACTER } from './lib/characterConfig';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
