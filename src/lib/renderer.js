@@ -86,7 +86,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
   });
 
   // Обработка подтипов глаз
-if (currentPartName === 'eyes' && variantName === 'обычные') {
+  if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
     
@@ -107,6 +107,7 @@ if (currentPartName === 'eyes' && variantName === 'обычные') {
         
         ctx.restore();
     }
+  }
 }
 
 function shouldClipLayer(layerName) {
