@@ -35,13 +35,13 @@ function PartSelector({
       {showSubtypes && (
         <div className="subtypes">
           <h4>Варианты:</h4>
-          {subtypes.map(subtype => (
+          {Object.entries(subtypes).map(([subtypeKey, subtypeData]) => (
             <button
-              key={subtype}
-              className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => onSubtypeChange(part, subtype)}
+              key={subtypeKey}
+              className={subtypeKey === currentSubtype ? 'active' : ''}
+              onClick={() => onSubtypeChange(part, subtypeKey)}
             >
-              {subtype}
+              {subtypeKey}
             </button>
           ))}
         </div>
