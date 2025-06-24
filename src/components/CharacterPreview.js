@@ -16,7 +16,6 @@ function CharacterPreview({ psdData, character }) {
         ref={canvasRef} 
         width={315}
         height={315}
-        style={{ display: 'block', width: '100%', height: '100%' }}
       />
     </div>
   );
