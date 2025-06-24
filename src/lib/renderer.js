@@ -1,3 +1,4 @@
+import { PARTS_STRUCTURE } from './psdStructure';
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
