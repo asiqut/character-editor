@@ -50,9 +50,19 @@ function renderPart(currentPartName, ctx, psdData, character) {
     }
   }
 
-  // Рендерим слои варианта
+  // Рендерим основные слои варианта
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
+    
+    // Пропускаем слои подтипов - они будут обработаны отдельно
+    if (currentPartName === 'eyes' && variantName === 'обычные') {
+      const subtypeLayerNames = Object.values(partConfig.variants['обычные'].subtypes)
+        .flatMap(st => st.layers);
+      
+      if (subtypeLayerNames.includes(layer.name)) {
+        return; // Пропускаем слой подтипа
+      }
+    }
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
@@ -88,33 +98,35 @@ function renderPart(currentPartName, ctx, psdData, character) {
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype;
     if (subtype) {
-      // Находим слой подтипа в основном списке слоев
-      const subtypeLayer = variantLayers.find(l => l.name === `Глаза/обычные/${subtype}`);
+      const subtypeLayers = partConfig.variants['обычные'].subtypes[subtype]?.layers || [];
       
-      if (subtypeLayer?.canvas) {
-        ctx.save();
-        ctx.translate(subtypeLayer.left, subtypeLayer.top);
+      subtypeLayers.forEach(layerName => {
+        const subtypeLayer = variantLayers.find(l => l.name === layerName);
         
-        if (shouldClipLayer(subtypeLayer.name)) {
-          const colorLayer = variantLayers.find(l => 
-            l.name.includes('[красить]') || l.name.includes('[белок красить]')
-          );
-          if (colorLayer) {
-            renderClippedLayer(ctx, subtypeLayer, colorLayer);
+        if (subtypeLayer?.canvas) {
+          ctx.save();
+          ctx.translate(subtypeLayer.left, subtypeLayer.top);
+          
+          if (shouldClipLayer(subtypeLayer.name)) {
+            const colorLayer = variantLayers.find(l => 
+              l.name.includes('[красить]') || l.name.includes('[белок красить]')
+            );
+            if (colorLayer) {
+              renderClippedLayer(ctx, subtypeLayer, colorLayer);
+            } else {
+              ctx.drawImage(subtypeLayer.canvas, 0, 0);
+            }
           } else {
             ctx.drawImage(subtypeLayer.canvas, 0, 0);
           }
-        } else {
-          ctx.drawImage(subtypeLayer.canvas, 0, 0);
+          
+          ctx.restore();
         }
-        
-        ctx.restore();
-      }
+      });
     }
   }
 }
 
-// Остальные функции без изменений
 function shouldClipLayer(layerName) {
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
 }
@@ -133,7 +145,7 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCtx.globalCompositeOperation = 'source-in';
 
   if (layer.opacity !== undefined && layer.opacity < 1) {
-  tempCtx.globalAlpha = layer.opacity;
+    tempCtx.globalAlpha = layer.opacity;
   }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
