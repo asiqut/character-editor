@@ -1,4 +1,4 @@
-import { getLayersForPart, resolveLayerPath } from './layerResolver';
+import { getLayersForPart } from './layerResolver';
 import { RENDER_ORDER } from './defaultConfig';
 
 export function renderCharacter(canvas, psdData, character) {
@@ -29,17 +29,17 @@ function renderPart(part, ctx, psdData, character) {
     default: variant = 'default';
   }
 
-  // Получаем слои из КОНФИГУРАЦИИ
+  // Получаем слои из конфигурации
   const layerNames = getLayersForPart(part, variant, subtype);
   
   // Рендерим каждый слой в правильном порядке
   layerNames.forEach(layerName => {
-    // Получаем полный путь к слою
-    const fullPath = resolveLayerPath(part, variant, layerName);
-    
-    // Находим слой в PSD данных
-    const layer = findLayerByPath(psdData, fullPath);
-    if (!layer || !layer.canvas) return;
+    // Находим слой в PSD данных по имени
+    const layer = findLayerByName(psdData, layerName);
+    if (!layer || !layer.canvas) {
+      console.warn(`Missing layer: ${layerName}`);
+      return;
+    }
     
     ctx.save();
     ctx.translate(layer.left, layer.top);
@@ -62,8 +62,7 @@ function renderPart(part, ctx, psdData, character) {
       );
       
       if (baseLayerName) {
-        const basePath = resolveLayerPath(part, variant, baseLayerName);
-        const baseLayer = findLayerByPath(psdData, basePath);
+        const baseLayer = findLayerByName(psdData, baseLayerName);
         if (baseLayer) renderClippedLayer(ctx, layer, baseLayer);
         else ctx.drawImage(layer.canvas, 0, 0);
       } else {
@@ -77,15 +76,16 @@ function renderPart(part, ctx, psdData, character) {
   });
 }
 
-// Вспомогательная функция для поиска слоя по пути
-function findLayerByPath(psdData, fullPath) {
+// Вспомогательная функция для поиска слоя по имени
+function findLayerByName(psdData, layerName) {
+  // Ищем во всех группах
   for (const part in psdData) {
     if (part === 'head') {
-      const layer = psdData[part].find(l => `${l.name}` === fullPath);
+      const layer = psdData[part].find(l => l.name.includes(layerName));
       if (layer) return layer;
     } else {
       for (const variant in psdData[part]) {
-        const layer = psdData[part][variant].find(l => `${l.name}` === fullPath);
+        const layer = psdData[part][variant].find(l => l.name.includes(layerName));
         if (layer) return layer;
       }
     }
@@ -141,5 +141,5 @@ function convertBlendMode(psdBlendMode) {
     'darken': 'darken',
     'lighten': 'lighten'
   };
-  return modes[psdBlendMode.toLowerCase()] || 'source-over';
+  return modes[psdBlendMode?.toLowerCase()] || 'source-over';
 }
