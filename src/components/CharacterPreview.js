@@ -7,8 +7,8 @@ function CharacterPreview({ psdData, character }) {
   useEffect(() => {
     if (psdData && canvasRef.current) {
       // Для превью используем увеличенный размер
-      canvasRef.current.width = 630;
-      canvasRef.current.height = 630;
+      canvasRef.current.width = 315;
+      canvasRef.current.height = 315;
       renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
