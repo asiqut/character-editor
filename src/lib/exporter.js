@@ -1,84 +1,50 @@
 import * as PSD from 'ag-psd';
-import { renderCharacter } from './renderer';
-import { PARTS, RENDER_ORDER } from './defaultConfig';
+import { getLayersForPart, resolveLayerPath } from './layerResolver';
+import { RENDER_ORDER } from './defaultConfig';
 
-export const exportPNG = (character, psdData) => {
-  const canvas = document.createElement('canvas');
-  canvas.width = 315;
-  canvas.height = 315;
-  renderCharacter(canvas, psdData, character);
-
-  const link = document.createElement('a');
-  link.download = `character_${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-};
-
-export const exportPSD = (originalPsd, character) => {
+export const exportPNG = (character, psdData) => {export const exportPSD = (psdData, character) => {
   const newPsd = {
     width: 315,
     height: 315,
     children: []
   };
 
-  // Обратный порядок для PSD (верхние слои идут первыми)
+  // Обратный порядок для PSD
   const reverseOrder = [...RENDER_ORDER].reverse();
 
-  reverseOrder.forEach(partName => {
-    // Пропускаем щёки если они отключены
-    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+  reverseOrder.forEach(part => {
+    if (part === 'cheeks' && character.cheeks === 'нет') return;
     
-    const partConfig = PARTS[partName];
-    if (!partConfig) return;
-
-    let variantName;
-    switch (partName) {
-      case 'ears': variantName = character.ears; break;
-      case 'eyes': variantName = character.eyes?.type; break;
-      case 'cheeks': variantName = character.cheeks; break;
-      case 'mane': variantName = character.mane; break;
-      case 'body': variantName = character.body; break;
-      case 'tail': variantName = character.tail; break;
-      default: variantName = 'default';
+    // Получаем вариант и подтип
+    let variant, subtype;
+    switch (part) {
+      case 'ears': variant = character.ears; break;
+      case 'eyes': 
+        variant = character.eyes?.type;
+        subtype = character.eyes?.subtype;
+        break;
+      case 'cheeks': variant = character.cheeks; break;
+      case 'mane': variant = character.mane; break;
+      case 'body': variant = character.body; break;
+      case 'tail': variant = character.tail; break;
+      default: variant = 'default';
     }
 
-    // Получаем слои для этой части
-    let layers = [];
-    if (partConfig.isSingleVariant) {
-      layers = Array.isArray(originalPsd[partName]) ? originalPsd[partName] : [];
-    } else {
-      layers = originalPsd[partName]?.[variantName] || [];
-    }
-
-    // Для глаз обычных исключаем слои подтипов
-    if (partName === 'eyes' && variantName === 'обычные') {
-      const subtypeLayers = Object.values(PARTS.eyes.variants['обычные'].subtypes)
-        .flatMap(st => st.layers);
+    // Получаем слои из КОНФИГУРАЦИИ
+    const layerNames = getLayersForPart(part, variant, subtype);
+    
+    const groupLayers = layerNames.map(layerName => {
+      const fullPath = resolveLayerPath(part, variant, layerName);
+      const layer = findLayerByPath(psdData, fullPath);
+      if (!layer) return null;
       
-      layers = layers.filter(layer => !subtypeLayers.includes(layer.name));
-    }
+      return applyColorToLayer(layer, part, character);
+    }).filter(Boolean);
 
-    // Применяем цвета к слоям
-    const coloredLayers = layers.map(layer => {
-      return applyColorToLayer(layer, partName, character);
-    });
-
-    // Добавляем подтипы для глаз
-    if (partName === 'eyes' && variantName === 'обычные') {
-      const subtype = character.eyes?.subtype;
-      if (subtype) {
-        const subtypeLayer = layers.find(l => l.name.includes(subtype));
-        if (subtypeLayer) {
-          coloredLayers.push(applyColorToLayer(subtypeLayer, partName, character));
-        }
-      }
-    }
-
-    // Добавляем группу в PSD
-    if (coloredLayers.length > 0) {
+    if (groupLayers.length > 0) {
       newPsd.children.push({
-        name: getGroupName(partName),
-        children: coloredLayers.map(layer => ({
+        name: getGroupName(part),
+        children: groupLayers.map(layer => ({
           name: layer.name,
           canvas: layer.canvas,
           left: layer.left,
