@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { loadPSD } from './lib/psdLoader';
-import { PARTS, DEFAULT_CHARACTER } from './lib/defaultConfig'; // Измененный импорт
+import { DEFAULT_CHARACTER, PARTS_STRUCTURE } from './lib/defaultConfig';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
@@ -63,15 +63,15 @@ function App() {
     }));
   };
 
-  const handleColorChange = (colorType, color) => {
-    setCharacter(prev => ({
-      ...prev,
-      colors: {
-        ...prev.colors,
-        [colorType]: color
-      }
-    }));
-  };
+const handleColorChange = (colorType, color) => {
+  setCharacter(prev => ({
+    ...prev,
+    colors: {
+      ...prev.colors,
+      [colorType]: color
+    }
+  }));
+};
 
   const handlePartColorChange = (part, color) => {
     setCharacter(prev => ({
@@ -89,7 +89,7 @@ function App() {
 
   return (
     <div className="character-editor">
-      <h1>Редактор персонажа KINWOODS</h1>
+      <h1>Редактор персонажа</h1>
       
       <div className="editor-container">
         <div className="preview-area">
@@ -100,9 +100,9 @@ function App() {
           {/* Уши */}
           <div className="part-group">
             <PartSelector
-              title={PARTS.ears.title}
+              title="Уши"
               part="ears"
-              variants={PARTS.ears.variants}
+              options={PARTS_STRUCTURE.ears}
               current={character.ears}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -116,14 +116,13 @@ function App() {
           {/* Глаза */}
           <div className="part-group">
             <PartSelector
-              title={PARTS.eyes.title}
+              title="Глаза"
               part="eyes"
-              variants={PARTS.eyes.variants}
+              options={PARTS_STRUCTURE.eyes.types}
               current={character.eyes.type}
               onChange={handlePartChange}
               showSubtypes={character.eyes.type === 'обычные'}
-              subtypes={PARTS.eyes.variants['обычные'].subtypes ? 
-                Object.keys(PARTS.eyes.variants['обычные'].subtypes) : []}
+              subtypes={PARTS_STRUCTURE.eyes.subtypes['обычные']}
               currentSubtype={character.eyes.subtype}
               onSubtypeChange={handleSubtypeChange}
             />
@@ -141,10 +140,10 @@ function App() {
 
           {/* Щёки */}
           <div className="part-group">
-            <PartSelector
-              title={PARTS.cheeks.title}
+              <PartSelector
+              title="Щёки"
               part="cheeks"
-              variants={PARTS.cheeks.variants}
+              options={PARTS_STRUCTURE.cheeks}
               current={character.cheeks}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -154,25 +153,25 @@ function App() {
                 color={character.partColors.cheeks}
                 onChange={(color) => handlePartColorChange('cheeks', color)}
               />
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Голова */}
-          <div className="part-group">
-            <h2>{PARTS.head.title}</h2>
-            <ColorPicker
-              title="Цвет"
-              color={character.partColors.head}
-              onChange={(color) => handlePartColorChange('head', color)}
-            />
-          </div>
+            {/* Голова */}
+            <div className="part-group">
+              <h2>Голова</h2>
+              <ColorPicker
+                title="Цвет"
+                color={character.partColors.head}
+                onChange={(color) => handlePartColorChange('head', color)}
+              />
+            </div>
 
           {/* Грива */}
           <div className="part-group">
             <PartSelector
-              title={PARTS.mane.title}
+              title="Грива"
               part="mane"
-              variants={PARTS.mane.variants}
+              options={PARTS_STRUCTURE.mane}
               current={character.mane}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -186,9 +185,9 @@ function App() {
           {/* Тело */}
           <div className="part-group">
             <PartSelector
-              title={PARTS.body.title}
+              title="Тело"
               part="body"
-              variants={PARTS.body.variants}
+              options={PARTS_STRUCTURE.body}
               current={character.body}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -202,9 +201,9 @@ function App() {
           {/* Хвост */}
           <div className="part-group">
             <PartSelector
-              title={PARTS.tail.title}
+              title="Хвост"
               part="tail"
-              variants={PARTS.tail.variants}
+              options={PARTS_STRUCTURE.tail}
               current={character.tail}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -235,6 +234,7 @@ function App() {
                 }));
               }}
             />
+                
           </div>
 
           <ExportButtons character={character} psdData={psdData} />
