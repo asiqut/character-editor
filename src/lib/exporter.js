@@ -124,17 +124,23 @@ const applyColorToLayer = (layer, partName, character) => {
 
     // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
-      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
-      if (subtypeLayer) {
-        groupLayers.push({
-          name: subtypeLayer.name,
-          canvas: subtypeLayer.canvas,
-          left: subtypeLayer.left,
-          top: subtypeLayer.top,
-          opacity: subtypeLayer.opacity,
-          blendMode: subtypeLayer.blendMode,
-          clipping: subtypeLayer.clipping,
-          hidden: false
+      const subtype = character.eyes?.subtype;
+      if (subtype) {
+        const subtypePaths = LAYER_CONFIG.eyes.subtypes[subtype] || [];
+        subtypePaths.forEach(path => {
+          const layer = originalPsd.flatLayers[path];
+          if (layer) {
+            groupLayers.push({
+              name: layer.name,
+              canvas: layer.canvas,
+              left: layer.left,
+              top: layer.top,
+              opacity: layer.opacity,
+              blendMode: layer.blendMode,
+              clipping: layer.clipping,
+              hidden: false
+            });
+          }
         });
       }
     }
