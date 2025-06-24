@@ -15,7 +15,7 @@ export const exportPNG = (character, psdData) => {
   link.click();
 };
 
-export const exportPSD = (psdData, character) => {
+export const exportPSD = (originalPsd, character) => {
   // Правильный порядок групп (сверху вниз)
   const groupOrder = [
     'Уши',
@@ -80,66 +80,70 @@ const applyColorToLayer = (layer, partName, character) => {
 
   // Создаем группы в правильном порядке
   groupOrder.forEach(groupName => {
-    const partConfig = PARTS_STRUCTURE[groupName];
-    if (!partConfig) return;
+    const partName = Object.keys(partToGroupName).find(
+      key => partToGroupName[key] === groupName
+    );
     
+    if (!partName) return;
+
     // Пропускаем щёки если они отключены
-    if (groupName === 'cheeks' && character.cheeks === 'нет') return;
-    
-    // Определяем вариант
+    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+
+    // Получаем вариант для текущей части
     let variantName;
-    switch(groupName) {
-      case 'eyes': variantName = character.eyes.type; break;
-      case 'cheeks': variantName = character.cheeks; break;
-      case 'mane': variantName = character.mane; break;
-      case 'body': variantName = character.body; break;
-      case 'tail': variantName = character.tail; break;
-      case 'ears': variantName = character.ears; break;
-      default: variantName = 'default';
-    }
-    
-    // Получаем слои для варианта
-    const layers = [];
-    if (partConfig.isSingleVariant) {
-      partConfig.layers.forEach(layerPath => {
-        const layer = findLayerByPath(psdData, layerPath);
-        if (layer) layers.push(layer);
-      });
+    if (partName === 'head') {
+      variantName = 'default';
+    } else if (partName === 'eyes') {
+      variantName = character.eyes.type;
     } else {
-      const variant = partConfig.variants[variantName];
-      if (variant) {
-        variant.layers.forEach(layerPath => {
-          const layer = findLayerByPath(psdData, layerPath);
-          if (layer) layers.push(layer);
+      variantName = character[partName];
+    }
+
+    // Получаем слои для этой части
+    let layers = [];
+    if (partName === 'head') {
+      layers = originalPsd[partName] || [];
+    } else {
+      layers = originalPsd[partName]?.[variantName] || [];
+    }
+
+    // Копируем слои с сохранением всех свойств и применяем цвета
+    const groupLayers = layers.map(layer => {
+      const coloredLayer = applyColorToLayer(layer, partName, character);
+      return {
+        name: layer.name,
+        canvas: coloredLayer.canvas,
+        left: layer.left,
+        top: layer.top,
+        opacity: layer.opacity,
+        blendMode: layer.blendMode,
+        clipping: layer.clipping,
+        hidden: false
+      };
+    });
+
+    // Добавляем подтип для глаз
+    if (partName === 'eyes' && variantName === 'обычные') {
+      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
+      if (subtypeLayer) {
+        groupLayers.push({
+          name: subtypeLayer.name,
+          canvas: subtypeLayer.canvas,
+          left: subtypeLayer.left,
+          top: subtypeLayer.top,
+          opacity: subtypeLayer.opacity,
+          blendMode: subtypeLayer.blendMode,
+          clipping: subtypeLayer.clipping,
+          hidden: false
         });
       }
     }
-    
-    // Обработка подтипов для глаз
-    if (groupName === 'eyes' && variantName === 'обычные') {
-      const subtype = character.eyes.subtype;
-      const subtypeLayerPath = partConfig.variants.обычные.subtypes[subtype][0];
-      const subtypeLayer = findLayerByPath(psdData, subtypeLayerPath);
-      
-      if (subtypeLayer) {
-        layers.push(subtypeLayer);
-      }
-    }
-    
+
     // Добавляем группу в PSD
-    if (layers.length > 0) {
+    if (groupLayers.length > 0) {
       newPsd.children.unshift({
         name: groupName,
-        children: layers.map(layer => ({
-          name: layer.name,
-          canvas: applyColorToLayer(layer, groupName, character).canvas,
-          left: layer.left,
-          top: layer.top,
-          opacity: layer.opacity,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping,
-          hidden: false
-        }))
+        children: groupLayers
       });
     }
   });
@@ -156,16 +160,3 @@ const applyColorToLayer = (layer, partName, character) => {
   
   URL.revokeObjectURL(url);
 };
-
-// Добавляем вспомогательную функцию
-function findLayerByPath(psdData, path) {
-  const parts = path.split('/');
-  let current = psdData;
-  
-  for (const part of parts) {
-    if (!current[part]) return null;
-    current = current[part];
-  }
-  
-  return current;
-}
