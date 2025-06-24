@@ -50,6 +50,14 @@ export const exportPSD = (originalPsd, character) => {
       layers = originalPsd[partName]?.[variantName] || [];
     }
 
+    // Для глаз обычных исключаем слои подтипов
+    if (partName === 'eyes' && variantName === 'обычные') {
+      const subtypeLayers = Object.values(PARTS.eyes.variants['обычные'].subtypes)
+        .flatMap(st => st.layers);
+      
+      layers = layers.filter(layer => !subtypeLayers.includes(layer.name));
+    }
+
     // Применяем цвета к слоям
     const coloredLayers = layers.map(layer => {
       return applyColorToLayer(layer, partName, character);
