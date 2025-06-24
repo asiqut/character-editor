@@ -1,7 +1,6 @@
 import * as PSD from 'ag-psd';
-import { getLayersForPart, resolveLayerPath } from './layerResolver';
+import { getLayersForPart } from './layerResolver';
 import { RENDER_ORDER } from './defaultConfig';
-import { renderCharacter } from './renderer'; // Добавлен импорт renderCharacter
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
