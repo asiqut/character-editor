@@ -2,38 +2,38 @@ import React from 'react';
 
 function PartSelector({
   title,
-  part,
   options,
   current,
   onChange,
-  showSubtypes = false,
-  subtypes = [],
+  subtypes,
   currentSubtype,
   onSubtypeChange
 }) {
   return (
-    <div className={`part-selector ${part}`}>
+    <div className="part-selector">
       <h3>{title}</h3>
+      
+      {/* Основные варианты */}
       <div className="options">
         {options.map(option => (
           <button
             key={option}
             className={option === current ? 'active' : ''}
-            onClick={() => onChange(part, option)}
+            onClick={() => onChange(option)}
           >
             {option}
           </button>
         ))}
       </div>
       
-      {showSubtypes && (
+      {/* Подтипы (если есть) */}
+      {subtypes && (
         <div className="subtypes">
-          <h4>Варианты:</h4>
           {subtypes.map(subtype => (
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
-              onClick={() => onSubtypeChange(part, subtype)}
+              onClick={() => onSubtypeChange(subtype)}
             >
               {subtype}
             </button>
