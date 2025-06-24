@@ -1,8 +1,21 @@
 import * as PSD from 'ag-psd';
 import { getLayersForPart, resolveLayerPath } from './layerResolver';
 import { RENDER_ORDER } from './defaultConfig';
+import { renderCharacter } from './renderer'; // Добавлен импорт renderCharacter
 
-export const exportPNG = (character, psdData) => {export const exportPSD = (psdData, character) => {
+export const exportPNG = (character, psdData) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 315;
+  canvas.height = 315;
+  renderCharacter(canvas, psdData, character);
+
+  const link = document.createElement('a');
+  link.download = `character_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+};
+
+export const exportPSD = (psdData, character) => {
   const newPsd = {
     width: 315,
     height: 315,
@@ -70,6 +83,22 @@ export const exportPNG = (character, psdData) => {export const exportPSD = (psdD
   
   URL.revokeObjectURL(url);
 };
+
+// Вспомогательные функции
+function findLayerByPath(psdData, fullPath) {
+  for (const part in psdData) {
+    if (part === 'head') {
+      const layer = psdData[part].find(l => `${l.name}` === fullPath);
+      if (layer) return layer;
+    } else {
+      for (const variant in psdData[part]) {
+        const layer = psdData[part][variant].find(l => `${l.name}` === fullPath);
+        if (layer) return layer;
+      }
+    }
+  }
+  return null;
+}
 
 // Преобразует имя части в имя группы PSD
 function getGroupName(partName) {
