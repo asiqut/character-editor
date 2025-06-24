@@ -85,28 +85,27 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.restore();
   });
 
-  // Обработка подтипов глаз
+  // Обработка глаз с подтипами
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
+    const subtypePaths = LAYER_CONFIG.eyes.subtypes[subtype] || [];
     
-    if (subtypeLayer?.canvas) {
-      ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      
-      if (shouldClipLayer(subtypeLayer.name)) {
-        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-        if (colorLayer) {
-          renderClippedLayer(ctx, subtypeLayer, colorLayer);
+    subtypePaths.forEach(path => {
+      const layer = psdData.flatLayers[path];
+      if (layer?.canvas) {
+        ctx.save();
+        ctx.translate(layer.left, layer.top);
+        
+        if (shouldClipLayer(layer.name)) {
+          const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+          if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
         } else {
-          ctx.drawImage(subtypeLayer.canvas, 0, 0);
+          ctx.drawImage(layer.canvas, 0, 0);
         }
-      } else {
-        ctx.drawImage(subtypeLayer.canvas, 0, 0);
+        
+        ctx.restore();
       }
-      
-      ctx.restore();
-    }
+    });
   }
 }
 
