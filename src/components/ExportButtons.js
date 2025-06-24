@@ -1,4 +1,4 @@
-// Отображает кнопки экспорта, подключает их функционал к exporter
+// Отвечает за кнопки экспорта, подключает их функционал к exporter
 import React from 'react';
 import { exportPNG, exportPSD } from '../lib/exporter';
 
