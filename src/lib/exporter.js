@@ -1,7 +1,7 @@
 import * as PSD from 'ag-psd';
 import { renderCharacter } from './renderer';
 
-export const exportPSD = (psdData, character) => {
+export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
   canvas.width = 315; // Точный размер PSD
   canvas.height = 315;
@@ -15,7 +15,7 @@ export const exportPSD = (psdData, character) => {
   link.click();
 };
 
-export const exportPSD = (originalPsd, character) => {
+export const exportPSD = (psdData, character) => {
   // Правильный порядок групп (сверху вниз)
   const groupOrder = [
     'Уши',
