@@ -25,10 +25,3 @@ export function getLayersForPart(part, variant, subtype = null) {
   
   return layers;
 }
-
-export function resolveLayerPath(part, variant, layerName) {
-  if (PARTS[part].isSingleVariant) {
-    return `${PARTS[part].title}/${layerName}`;
-  }
-  return `${PARTS[part].title}/${variant}/${layerName}`;
-}
