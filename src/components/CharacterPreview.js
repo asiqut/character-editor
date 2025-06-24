@@ -1,3 +1,4 @@
+// Создаёт и управляет canvas, выводит на него картинку с рендера - показывает изменения в реальном времени
 import React, { useEffect, useRef } from 'react';
 import { renderCharacter } from '../lib/renderer';
 
