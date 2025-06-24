@@ -1,11 +1,12 @@
 import * as PSD from 'ag-psd';
-import { getLayersForPart } from './layerResolver';
-import { RENDER_ORDER } from './defaultConfig';
+import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 315;
+  canvas.width = 315; // Точный размер PSD
   canvas.height = 315;
+  
+  // Рендерим без каких-либо трансформаций
   renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
@@ -14,58 +15,135 @@ export const exportPNG = (character, psdData) => {
   link.click();
 };
 
-export const exportPSD = (psdData, character) => {
+export const exportPSD = (originalPsd, character) => {
+  // Правильный порядок групп (сверху вниз)
+  const groupOrder = [
+    'Уши',
+    'Глаза',
+    'Щёки', 
+    'Голова',
+    'Грудь Шея Грива',
+    'Тело',
+    'Хвосты'
+  ];
+
+  // Создаем новый PSD
   const newPsd = {
     width: 315,
     height: 315,
     children: []
   };
 
-  // Обратный порядок для PSD
-  const reverseOrder = [...RENDER_ORDER].reverse();
+  // Соответствие между английскими и русскими названиями
+  const partToGroupName = {
+    'ears': 'Уши',
+    'eyes': 'Глаза',
+    'cheeks': 'Щёки',
+    'head': 'Голова',
+    'mane': 'Грудь Шея Грива',
+    'body': 'Тело',
+    'tail': 'Хвосты'
+  };
 
-  reverseOrder.forEach(part => {
-    if (part === 'cheeks' && character.cheeks === 'нет') return;
+  // Функция для применения цвета к слою
+const applyColorToLayer = (layer, partName, character) => {
+  if (!layer.canvas) return layer;
+  
+  // Создаем временный canvas
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = layer.canvas.width;
+  tempCanvas.height = layer.canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Определяем цвет
+  let color;
+  if (layer.name.includes('[белок красить]')) {
+    color = character.colors?.eyesWhite || '#ffffff';
+  } else if (layer.name.includes('[красить]')) {
+    color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+  } else {
+    return layer; // Не меняем слои без покраски
+  }
+  
+  // Применяем цвет
+  tempCtx.drawImage(layer.canvas, 0, 0);
+  tempCtx.globalCompositeOperation = 'source-atop';
+  tempCtx.fillStyle = color;
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+  // Возвращаем обновленный слой
+  return {
+    ...layer,
+    canvas: tempCanvas
+  };
+};
+
+  // Создаем группы в правильном порядке
+  groupOrder.forEach(groupName => {
+    const partName = Object.keys(partToGroupName).find(
+      key => partToGroupName[key] === groupName
+    );
     
-    // Получаем вариант и подтип
-    let variant, subtype;
-    switch (part) {
-      case 'ears': variant = character.ears; break;
-      case 'eyes': 
-        variant = character.eyes?.type;
-        subtype = character.eyes?.subtype;
-        break;
-      case 'cheeks': variant = character.cheeks; break;
-      case 'mane': variant = character.mane; break;
-      case 'body': variant = character.body; break;
-      case 'tail': variant = character.tail; break;
-      default: variant = 'default';
+    if (!partName) return;
+
+    // Пропускаем щёки если они отключены
+    if (partName === 'cheeks' && character.cheeks === 'нет') return;
+
+    // Получаем вариант для текущей части
+    let variantName;
+    if (partName === 'head') {
+      variantName = 'default';
+    } else if (partName === 'eyes') {
+      variantName = character.eyes.type;
+    } else {
+      variantName = character[partName];
     }
 
-    // Получаем слои из КОНФИГУРАЦИИ
-    const layerNames = getLayersForPart(part, variant, subtype);
-    
-    const groupLayers = layerNames.map(layerName => {
-      const fullPath = resolveLayerPath(part, variant, layerName);
-      const layer = findLayerByPath(psdData, fullPath);
-      if (!layer) return null;
-      
-      return applyColorToLayer(layer, part, character);
-    }).filter(Boolean);
+    // Получаем слои для этой части
+    let layers = [];
+    if (partName === 'head') {
+      layers = originalPsd[partName] || [];
+    } else {
+      layers = originalPsd[partName]?.[variantName] || [];
+    }
 
-    if (groupLayers.length > 0) {
-      newPsd.children.push({
-        name: getGroupName(part),
-        children: groupLayers.map(layer => ({
-          name: layer.name,
-          canvas: layer.canvas,
-          left: layer.left,
-          top: layer.top,
-          opacity: layer.opacity,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping,
+    // Копируем слои с сохранением всех свойств и применяем цвета
+    const groupLayers = layers.map(layer => {
+      const coloredLayer = applyColorToLayer(layer, partName, character);
+      return {
+        name: layer.name,
+        canvas: coloredLayer.canvas,
+        left: layer.left,
+        top: layer.top,
+        opacity: layer.opacity,
+        blendMode: layer.blendMode,
+        clipping: layer.clipping,
+        hidden: false
+      };
+    });
+
+    // Добавляем подтип для глаз
+    if (partName === 'eyes' && variantName === 'обычные') {
+      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
+      if (subtypeLayer) {
+        groupLayers.push({
+          name: subtypeLayer.name,
+          canvas: subtypeLayer.canvas,
+          left: subtypeLayer.left,
+          top: subtypeLayer.top,
+          opacity: subtypeLayer.opacity,
+          blendMode: subtypeLayer.blendMode,
+          clipping: subtypeLayer.clipping,
           hidden: false
-        }))
+        });
+      }
+    }
+
+    // Добавляем группу в PSD
+    if (groupLayers.length > 0) {
+      newPsd.children.unshift({
+        name: groupName,
+        children: groupLayers
       });
     }
   });
@@ -82,65 +160,3 @@ export const exportPSD = (psdData, character) => {
   
   URL.revokeObjectURL(url);
 };
-
-// Вспомогательные функции
-function findLayerByPath(psdData, fullPath) {
-  for (const part in psdData) {
-    if (part === 'head') {
-      const layer = psdData[part].find(l => `${l.name}` === fullPath);
-      if (layer) return layer;
-    } else {
-      for (const variant in psdData[part]) {
-        const layer = psdData[part][variant].find(l => `${l.name}` === fullPath);
-        if (layer) return layer;
-      }
-    }
-  }
-  return null;
-}
-
-// Преобразует имя части в имя группы PSD
-function getGroupName(partName) {
-  const groupNames = {
-    'ears': 'Уши',
-    'eyes': 'Глаза',
-    'cheeks': 'Щёки',
-    'head': 'Голова',
-    'mane': 'Грудь Шея Грива',
-    'body': 'Тело',
-    'tail': 'Хвосты'
-  };
-  return groupNames[partName] || partName;
-}
-
-// Применяет цвет к слою
-function applyColorToLayer(layer, partName, character) {
-  if (!layer.canvas) return layer;
-  
-  let color = null;
-  
-  // Определяем цвет в зависимости от маркера слоя
-  if (layer.name.includes('[белок красить]')) {
-    color = character.colors?.eyesWhite || '#ffffff';
-  } else if (layer.name.includes('[красить]')) {
-    color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
-  }
-  
-  // Если цвет не нужно применять, возвращаем оригинальный слой
-  if (!color) return layer;
-  
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = layer.canvas.width;
-  tempCanvas.height = layer.canvas.height;
-  const tempCtx = tempCanvas.getContext('2d');
-  
-  tempCtx.drawImage(layer.canvas, 0, 0);
-  tempCtx.globalCompositeOperation = 'source-atop';
-  tempCtx.fillStyle = color;
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
-  return {
-    ...layer,
-    canvas: tempCanvas
-  };
-}
