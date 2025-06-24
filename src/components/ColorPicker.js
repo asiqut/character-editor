@@ -1,3 +1,4 @@
+// Отвечает за цветовые пикеры, окно цветовых пикеров, строку HEX кода 
 import React, { useState, useRef, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
 
