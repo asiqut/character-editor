@@ -102,7 +102,7 @@ function App() {
             <PartSelector
               title={PARTS.ears.title}
               part="ears"
-              options={Object.keys(PARTS.ears.variants)}
+              variants={PARTS.ears.variants}
               current={character.ears}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -118,7 +118,7 @@ function App() {
             <PartSelector
               title={PARTS.eyes.title}
               part="eyes"
-              options={Object.keys(PARTS.eyes.variants)}
+              variants={PARTS.eyes.variants}
               current={character.eyes.type}
               onChange={handlePartChange}
               showSubtypes={character.eyes.type === 'обычные'}
@@ -144,7 +144,7 @@ function App() {
             <PartSelector
               title={PARTS.cheeks.title}
               part="cheeks"
-              options={Object.keys(PARTS.cheeks.variants)}
+              variants={PARTS.cheeks.variants}
               current={character.cheeks}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -172,7 +172,7 @@ function App() {
             <PartSelector
               title={PARTS.mane.title}
               part="mane"
-              options={Object.keys(PARTS.mane.variants)}
+              variants={PARTS.mane.variants}
               current={character.mane}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -188,7 +188,7 @@ function App() {
             <PartSelector
               title={PARTS.body.title}
               part="body"
-              options={Object.keys(PARTS.body.variants)}
+              variants={PARTS.body.variants}
               current={character.body}
               onChange={(part, value) => handlePartChange(part, value)}
             />
@@ -204,7 +204,7 @@ function App() {
             <PartSelector
               title={PARTS.tail.title}
               part="tail"
-              options={Object.keys(PARTS.tail.variants)}
+              variants={PARTS.tail.variants}
               current={character.tail}
               onChange={(part, value) => handlePartChange(part, value)}
             />
