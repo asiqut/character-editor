@@ -17,97 +17,91 @@ export function renderCharacter(canvas, psdData, character) {
 
   partsOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(part, ctx, psdData, character);
+    
+    // Получаем структуру части из конфига
+    const partConfig = PARTS_STRUCTURE[part];
+    if (!partConfig) return;
+    
+    // Определяем вариант
+    let variantName;
+    switch(part) {
+      case 'eyes': variantName = character.eyes.type; break;
+      case 'cheeks': variantName = character.cheeks; break;
+      case 'mane': variantName = character.mane; break;
+      case 'body': variantName = character.body; break;
+      case 'tail': variantName = character.tail; break;
+      case 'ears': variantName = character.ears; break;
+      default: variantName = 'default';
+    }
+    
+    // Получаем слои для варианта
+    let layers = [];
+    if (partConfig.isSingleVariant) {
+      layers = partConfig.layers;
+    } else {
+      const variant = partConfig.variants[variantName];
+      if (variant) layers = variant.layers;
+    }
+    
+    // Рендерим каждый слой
+    layers.forEach(layerPath => {
+      const layer = findLayerByPath(psdData, layerPath);
+      if (!layer) return;
+      
+      renderLayer(ctx, layer, character, part);
+    });
+    
+    // Обработка подтипов для глаз
+    if (part === 'eyes' && variantName === 'обычные') {
+      const subtype = character.eyes.subtype;
+      const subtypeLayerPath = partConfig.variants.обычные.subtypes[subtype][0];
+      const subtypeLayer = findLayerByPath(psdData, subtypeLayerPath);
+      
+      if (subtypeLayer) {
+        renderLayer(ctx, subtypeLayer, character, part);
+      }
+    }
   });
 }
 
-function renderPart(currentPartName, ctx, psdData, character) {
-  const partGroup = psdData[currentPartName];
-  if (!partGroup) {
-    console.warn(`Missing part group: ${currentPartName}`);
-    return;
-  }
-
-  let variantName;
-  let variantLayers;
+// Вспомогательная функция для поиска слоя по пути
+function findLayerByPath(psdData, path) {
+  const parts = path.split('/');
+  let current = psdData;
   
-  if (currentPartName === 'head') {
-    variantLayers = Array.isArray(partGroup) ? partGroup : [];
-  } 
-  else {
-    switch (currentPartName) {
-      case 'ears': variantName = character.ears || 'торчком обычные'; break;
-      case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
-      case 'mane': variantName = character.mane || 'обычная'; break;
-      case 'body': variantName = character.body || 'v1'; break;
-      case 'tail': variantName = character.tail || 'обычный'; break;
-      case 'cheeks': variantName = 'пушистые'; break;
-      default: variantName = 'default';
-    }
-    variantLayers = partGroup[variantName] || [];
+  for (const part of parts) {
+    if (!current[part]) return null;
+    current = current[part];
   }
+  
+  return current;
+}
 
-  // Обработка цвета для глаз
-  variantLayers.forEach(layer => {
-    if (!layer.canvas) return;
-    
-    ctx.save();
-    ctx.translate(layer.left, layer.top);
-    
-    if (layer.blendMode) {
-      ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-    }
-    
-    // Особый обработчик для белков глаз
-    if (layer.name.includes('[белок красить]')) {
-      const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
-      renderColorLayer(ctx, layer, eyeWhiteColor);
-    }
-    // Обычные слои для покраски
-    else if (layer.name.includes('[красить]')) {
-      const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
-      renderColorLayer(ctx, layer, partColor);
-    }
-    // Слои с клиппингом
-    else if (shouldClipLayer(layer.name)) {
-      const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-      if (colorLayer) {
-        renderClippedLayer(ctx, layer, colorLayer);
-      } else {
-        ctx.drawImage(layer.canvas, 0, 0);
-      }
-    }
-    // Обычные слои
-    else {
-      ctx.drawImage(layer.canvas, 0, 0);
-    }
-    
-    ctx.restore();
-  });
-
-  // Обработка подтипов глаз
-  if (currentPartName === 'eyes' && variantName === 'обычные') {
-    const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypeLayer = variantLayers.find(l => l.name === subtype);
-    
-    if (subtypeLayer?.canvas) {
-        ctx.save();
-        ctx.translate(subtypeLayer.left, subtypeLayer.top);
-        
-        if (shouldClipLayer(subtypeLayer.name)) {
-            const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-            if (colorLayer) {
-                renderClippedLayer(ctx, subtypeLayer, colorLayer);
-            } else {
-                ctx.drawImage(subtypeLayer.canvas, 0, 0);
-            }
-        } else {
-            ctx.drawImage(subtypeLayer.canvas, 0, 0);
-        }
-        
-        ctx.restore();
-    }
+// Универсальная функция рендеринга слоя
+function renderLayer(ctx, layer, character, part) {
+  ctx.save();
+  ctx.translate(layer.left, layer.top);
+  
+  if (layer.blendMode) {
+    ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
   }
+  
+  // Определяем цвет для слоя
+  let color = null;
+  if (layer.name.includes('[красить]')) {
+    color = character.partColors?.[part] || character.colors?.main || '#f1ece4';
+  } else if (layer.name.includes('[белок красить]')) {
+    color = character.colors?.eyesWhite || '#ffffff';
+  }
+  
+  // Рендерим слой с цветом если нужно
+  if (color) {
+    renderColorLayer(ctx, layer, color);
+  } else {
+    ctx.drawImage(layer.canvas, 0, 0);
+  }
+  
+  ctx.restore();
 }
 
 function shouldClipLayer(layerName) {
