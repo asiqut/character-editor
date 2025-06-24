@@ -3,7 +3,7 @@ import React from 'react';
 function PartSelector({
   title,
   part,
-  options,
+  variants, // Теперь принимаем объект вариантов
   current,
   onChange,
   showSubtypes = false,
@@ -11,19 +11,25 @@ function PartSelector({
   currentSubtype,
   onSubtypeChange
 }) {
+  // Преобразуем варианты в массив для отображения
+  const variantKeys = Object.keys(variants);
+  
   return (
     <div className={`part-selector ${part}`}>
       <h3>{title}</h3>
       <div className="options">
-        {options.map(option => (
-          <button
-            key={option}
-            className={option === current ? 'active' : ''}
-            onClick={() => onChange(part, option)}
-          >
-            {option}
-          </button>
-        ))}
+        {variantKeys.map(variantKey => {
+          const variant = variants[variantKey];
+          return (
+            <button
+              key={variantKey}
+              className={variantKey === current ? 'active' : ''}
+              onClick={() => onChange(part, variantKey)}
+            >
+              {variant.label || variantKey}
+            </button>
+          );
+        })}
       </div>
       
       {showSubtypes && (
