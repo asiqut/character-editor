@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/character-editor/static/css/main.cf673af1.css",
-    "main.js": "/character-editor/static/js/main.a94b6d61.js",
+    "main.js": "/character-editor/static/js/main.a9b5e8d0.js",
     "index.html": "/character-editor/index.html",
     "main.cf673af1.css.map": "/character-editor/static/css/main.cf673af1.css.map",
-    "main.a94b6d61.js.map": "/character-editor/static/js/main.a94b6d61.js.map"
+    "main.a9b5e8d0.js.map": "/character-editor/static/js/main.a9b5e8d0.js.map"
   },
   "entrypoints": [
     "static/css/main.cf673af1.css",
-    "static/js/main.a94b6d61.js"
+    "static/js/main.a9b5e8d0.js"
   ]
 }
