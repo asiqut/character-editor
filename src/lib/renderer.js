@@ -1,5 +1,5 @@
 import { renderCharacter } from './renderer';
-import { LAYER_CONFIG } from './defaultConfig';
+import { LAYER_CONFIG, RENDER_ORDER } from './defaultConfig';
 
 export function renderCharacter(canvas, psdData, character, flatLayers) {
   if (!psdData || !character) return;
@@ -7,18 +7,8 @@ export function renderCharacter(canvas, psdData, character, flatLayers) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Без масштабирования и смещения - точь-в-точь как в PSD
-  const partsOrder = [
-    'tail',    // Хвост (нижний слой)
-    'body',    // Тело
-    'mane',    // Грива
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (верхний слой)
-  ];
-
-  partsOrder.forEach(part => {
+  // Используем порядок из конфига
+  RENDER_ORDER.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(part, ctx, psdData, character, flatLayers);
   });
