@@ -2,15 +2,11 @@
 import React from 'react';
 import { exportPNG, exportPSD } from '../lib/exporter';
 
-function ExportButtons({ character, psdData, flatLayers }) {
+function ExportButtons({ character, psdData }) {
   return (
     <div className="export-buttons">
-      <button onClick={() => psdData && flatLayers && exportPNG(character, psdData, flatLayers)}>
-        Export PNG
-      </button>
-      <button onClick={() => psdData && flatLayers && exportPSD(psdData, character, flatLayers)}>
-        Export PSD
-      </button>
+      <button onClick={() => psdData && exportPNG(character, psdData)}>Export PNG</button>
+      <button onClick={() => psdData && exportPSD(psdData, character)}>Export PSD</button>
     </div>
   );
 }

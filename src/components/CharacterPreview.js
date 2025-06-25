@@ -2,14 +2,14 @@
 import React, { useEffect, useRef } from 'react';
 import { renderCharacter } from '../lib/renderer';
 
-function CharacterPreview({ psdData, character, flatLayers }) {
+function CharacterPreview({ psdData, character }) {
   const canvasRef = useRef(null);
   
   useEffect(() => {
-    if (psdData && flatLayers && canvasRef.current) {
-      renderCharacter(canvasRef.current, psdData, character, flatLayers);
+    if (psdData && canvasRef.current) {
+      renderCharacter(canvasRef.current, psdData, character);
     }
-  }, [psdData, character, flatLayers]);
+  }, [psdData, character]);
   
   return (
     <div style={{ width: '315px', height: '315px', border: '1px solid #ddd' }}>
