@@ -28,17 +28,8 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = Array.isArray(partGroup) ? partGroup : [];
   } 
   else {
-    switch (currentPartName) {
-      case 'ears': variantName = character.ears || 'торчком обычные'; break;
-      case 'eyes': variantName = character.eyes?.type || 'обычные'; break;
-      case 'mane': variantName = character.mane || 'обычная'; break;
-      case 'body': variantName = character.body || 'v1'; break;
-      case 'tail': variantName = character.tail || 'обычный'; break;
-      case 'cheeks': variantName = 'пушистые'; break;
-      default: variantName = 'default';
-    }
-    variantLayers = partGroup[variantName] || [];
-  }
+    const variantName = character[currentPartName] || 
+    PSD_CONFIG.groups[currentPartName].defaultVariant;
 
   // Обработка цвета для глаз
   variantLayers.forEach(layer => {
