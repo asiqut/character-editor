@@ -6,7 +6,6 @@ export function renderCharacter(canvas, psdData, character) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Без масштабирования и смещения - точь-в-точь как в PSD
   const partsOrder = PSD_CONFIG.renderOrder;
 
   partsOrder.forEach(part => {
