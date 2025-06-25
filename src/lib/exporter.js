@@ -1,5 +1,5 @@
 import * as PSD from 'ag-psd';
-import { renderCharacter } from './renderer';
+import { LAYER_CONFIG } from './defaultConfig';
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
