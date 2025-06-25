@@ -19,18 +19,32 @@ export async function loadPSD() {
     const groupOrder = [];
     
     // Функция для добавления слоя в flatLayers
-    const addLayerToFlat = (groupName, variantName, layer) => {
-      const path = `${groupName}/${variantName}/${layer.name}`;
-      flatLayers[path] = {
-        name: layer.name,
-        canvas: layer.canvas,
-        left: layer.left || 0,
-        top: layer.top || 0,
-        blendMode: layer.blendMode,
-        clipping: layer.clipping,
-        opacity: layer.opacity !== undefined ? layer.opacity : 1
-      };
+  const addLayerToFlat = (groupName, variantName, layer) => {
+    // Используем русские названия групп для соответствия LAYER_CONFIG
+    const groupMap = {
+      'mane': 'Грудь Шея Грива',
+      'ears': 'Уши',
+      'eyes': 'Глаза',
+      'cheeks': 'Щёки',
+      'head': 'Голова',
+      'body': 'Тело',
+      'tail': 'Хвосты'
     };
+  
+    const russianGroupName = groupMap[groupName] || groupName;
+    const path = `${russianGroupName}/${variantName}/${layer.name}`;
+    
+    flatLayers[path] = {
+      name: layer.name,
+      canvas: layer.canvas,
+      left: layer.left || 0,
+      top: layer.top || 0,
+      blendMode: layer.blendMode,
+      clipping: layer.clipping,
+      opacity: layer.opacity !== undefined ? layer.opacity : 1
+    };
+  };
+
 
     psd.children.forEach(group => {
       if (!group.name || !group.children) return;
