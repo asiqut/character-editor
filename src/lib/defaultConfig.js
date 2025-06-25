@@ -190,3 +190,13 @@ export const COLOR_TARGETS = {
     'Хвосты/*/[красить]'
   ]
 };
+
+export const RENDER_ORDER = [
+  'tail',    // Хвост (нижний слой)
+  'body',    // Тело
+  'mane',    // Грива
+  'head',    // Голова
+  'cheeks',  // Щёки
+  'eyes',    // Глаза
+  'ears'     // Уши (верхний слой)
+];
