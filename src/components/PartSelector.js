@@ -3,16 +3,24 @@ import React from 'react';
 import { PSD_CONFIG } from '../lib/defaultConfig';
 
 function PartSelector({
-  title,
   part,
-  options,
   current,
   onChange,
-  showSubtypes = false,
-  subtypes = [],
   currentSubtype,
-  onSubtypeChange
+  onSubtypeChange,
+  character
 }) {
+  const { 
+    interface_title: title, 
+    variants 
+  } = PSD_CONFIG.groups[part] || {};
+  
+  const options = Object.keys(variants);
+  const showSubtypes = part === 'eyes' && variants[current]?.subtypes;
+  const subtypes = showSubtypes 
+    ? Object.keys(variants[current].subtypes) 
+    : [];
+
   return (
     <div className={`part-selector ${part}`}>
       <h3>{title}</h3>
