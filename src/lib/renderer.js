@@ -1,4 +1,4 @@
-import { PSD_CONFIG } from '../lib/defaultConfig';
+const partsOrder = PSD_CONFIG.renderOrder;
 
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
@@ -7,15 +7,7 @@ export function renderCharacter(canvas, psdData, character) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Без масштабирования и смещения - точь-в-точь как в PSD
-  const partsOrder = [
-    'tail',    // Хвост (нижний слой)
-    'body',    // Тело
-    'mane',    // Грива
-    'head',    // Голова
-    'cheeks',  // Щёки
-    'eyes',    // Глаза
-    'ears'     // Уши (верхний слой)
-  ];
+  const partsOrder = PSD_CONFIG.renderOrder;
 
   partsOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
