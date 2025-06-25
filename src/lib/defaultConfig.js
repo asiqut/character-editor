@@ -58,12 +58,56 @@ export const PSD_CONFIG = {
   }
 };
 
-// Загрузка PSD (теперь внутри конфига)
-export async function loadPSD() {
-  const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
-  const arrayBuffer = await response.arrayBuffer();
-  return PSD.readPsd(arrayBuffer, {
-    parseLayerBlendingModes: true,
-    preserveLayerPositions: true
-  });
+export async function loadAndProcessPSD() {
+  try {
+    // 1. Загрузка PSD
+    const response = await fetch(`${window.publicPath || ''}/assets/model_kinwoods.psd`);
+    const arrayBuffer = await response.arrayBuffer();
+    const psd = PSD.readPsd(arrayBuffer, {
+      parseLayerBlendingModes: true,
+      preserveLayerPositions: true
+    });
+
+    // 2. Преобразование структуры
+    const processedData = {};
+    for (const [groupName, groupConfig] of Object.entries(PSD_CONFIG.groups)) {
+      const psdGroup = psd.children?.find(g => g.name === groupName);
+      if (!psdGroup) continue;
+
+      processedData[groupConfig.code] = {};
+      
+      if (groupConfig.isSingleVariant) {
+        // Обработка головы (единственный вариант)
+        processedData[groupConfig.code] = psdGroup.children?.map(layer => ({
+          name: layer.name,
+          canvas: layer.canvas,
+          // ... другие свойства
+        })) || [];
+      } else {
+        // Обработка вариантов
+        for (const variantName of Object.keys(groupConfig.variants)) {
+          const psdVariant = psdGroup.children?.find(v => v.name === variantName);
+          if (psdVariant) {
+            processedData[groupConfig.code][variantName] = psdVariant.children?.map(layer => ({
+              name: layer.name,
+              canvas: layer.canvas,
+              left: layer.left,
+              top: layer.top,
+              blendMode: layer.blendMode,
+              opacity: layer.opacity ?? 1
+            })) || [];
+          }
+        }
+      }
+    }
+
+    return processedData;
+  } catch (error) {
+    console.error('PSD processing failed:', error);
+    throw error;
+  }
 }
+
+// Экспорт констант для интерфейса
+export const DEFAULT_CHARACTER = { /* ... */ };
+export const UI_CONFIG = { /* ... */ };
