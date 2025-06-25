@@ -1,6 +1,7 @@
 // Отвечает за цветовые пикеры, окно цветовых пикеров, строку HEX кода 
 import React, { useState, useEffect, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
+import { PSD_CONFIG } from '../lib/defaultConfig';
 
 function ColorPicker({ title, color, onChange }) {
   const [showPicker, setShowPicker] = useState(false);
