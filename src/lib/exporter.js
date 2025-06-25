@@ -36,15 +36,10 @@ export const exportPSD = (originalPsd, character) => {
   };
 
   // Соответствие между английскими и русскими названиями
-  const partToGroupName = {
-    'ears': 'Уши',
-    'eyes': 'Глаза',
-    'cheeks': 'Щёки',
-    'head': 'Голова',
-    'mane': 'Грудь Шея Грива',
-    'body': 'Тело',
-    'tail': 'Хвосты'
-  };
+  const partToGroupName = {};
+  Object.entries(PSD_CONFIG.groups).forEach(([name, config]) => {
+    partToGroupName[config.code] = name;
+  });
 
   // Функция для применения цвета к слою
 const applyColorToLayer = (layer, partName, character) => {
