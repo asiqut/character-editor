@@ -136,4 +136,3 @@ export const DEFAULT_CHARACTER = {
     head: '#f1ece4'
   }
 };
-};
