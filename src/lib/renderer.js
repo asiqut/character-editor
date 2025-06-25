@@ -1,3 +1,5 @@
+import { LAYER_CONFIG } from './defaultConfig';
+
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
