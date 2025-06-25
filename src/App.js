@@ -93,7 +93,11 @@ const handleColorChange = (colorType, color) => {
       
       <div className="editor-container">
         <div className="preview-area">
-          <CharacterPreview psdData={psdData} character={character} />
+          <CharacterPreview 
+          psdData={psdData} 
+          character={character} 
+          flatLayers={psdData?.flatLayers} 
+          />
         </div>
         
         <div className="controls">
@@ -237,7 +241,11 @@ const handleColorChange = (colorType, color) => {
                 
           </div>
 
-          <ExportButtons character={character} psdData={psdData} />
+          <ExportButtons 
+          character={character} 
+          psdData={psdData} 
+          flatLayers={psdData?.flatLayers} 
+          />
         </div>
       </div>
     </div>
