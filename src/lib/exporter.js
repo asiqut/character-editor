@@ -18,15 +18,7 @@ export const exportPNG = (character, psdData) => {
 
 export const exportPSD = (originalPsd, character) => {
   // Правильный порядок групп (сверху вниз)
-  const groupOrder = [
-    'Уши',
-    'Глаза',
-    'Щёки', 
-    'Голова',
-    'Грудь Шея Грива',
-    'Тело',
-    'Хвосты'
-  ];
+  const groupOrder = Object.keys(PSD_CONFIG.groups);
 
   // Создаем новый PSD
   const newPsd = {
