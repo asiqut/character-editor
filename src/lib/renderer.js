@@ -1,4 +1,3 @@
-import { renderCharacter } from './renderer';
 import { LAYER_CONFIG, RENDER_ORDER } from './defaultConfig';
 
 export function renderCharacter(canvas, psdData, character, flatLayers) {
