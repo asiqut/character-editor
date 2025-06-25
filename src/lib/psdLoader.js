@@ -15,8 +15,23 @@ export async function loadPSD() {
     if (!psd || !psd.children) throw new Error('Invalid PSD structure');
     
     const processedData = {};
-    const groupOrder = []; // Сохраняем порядок групп
+    const flatLayers = {};
+    const groupOrder = [];
     
+    // Функция для добавления слоя в flatLayers
+    const addLayerToFlat = (groupName, variantName, layer) => {
+      const path = `${groupName}/${variantName}/${layer.name}`;
+      flatLayers[path] = {
+        name: layer.name,
+        canvas: layer.canvas,
+        left: layer.left || 0,
+        top: layer.top || 0,
+        blendMode: layer.blendMode,
+        clipping: layer.clipping,
+        opacity: layer.opacity !== undefined ? layer.opacity : 1
+      };
+    };
+
     psd.children.forEach(group => {
       if (!group.name || !group.children) return;
       
@@ -27,45 +42,50 @@ export async function loadPSD() {
         case 'Глаза': groupName = 'eyes'; break;
         case 'Щёки': groupName = 'cheeks'; break;
         case 'Голова': 
-      groupName = 'head';
-      processedData[groupName] = group.children.map(layer => ({
-        name: layer.name,
-        canvas: layer.canvas,
-        left: layer.left || 0,
-        top: layer.top || 0,
-        blendMode: layer.blendMode,
-        clipping: layer.clipping,
-        opacity: layer.opacity !== undefined ? layer.opacity : 1
-      }));
-      return;
+          groupName = 'head';
+          processedData[groupName] = group.children.map(layer => {
+            addLayerToFlat(groupName, 'default', layer);
+            return {
+              name: layer.name,
+              canvas: layer.canvas,
+              left: layer.left || 0,
+              top: layer.top || 0,
+              blendMode: layer.blendMode,
+              clipping: layer.clipping,
+              opacity: layer.opacity !== undefined ? layer.opacity : 1
+            };
+          });
+          return;
         case 'Тело': groupName = 'body'; break;
         case 'Хвосты': groupName = 'tail'; break;
         default: return;
       }
       
       processedData[groupName] = {};
-      groupOrder.push(groupName); // Сохраняем порядок
+      groupOrder.push(groupName);
       
       group.children.forEach(variant => {
         if (!variant.name || !variant.children) return;
         
-        // Для головы используем 'default' вместо имени папки
-        const variantName = groupName === 'head' ? 'default' : variant.name;
-        
-        processedData[groupName][variantName] = variant.children.map(layer => ({
-          name: layer.name,
-          canvas: layer.canvas,
-          left: layer.left || 0,
-          top: layer.top || 0,
-          blendMode: layer.blendMode,
-          clipping: layer.clipping,
-          opacity: layer.opacity !== undefined ? layer.opacity : 1
-        }));
+        const variantName = variant.name;
+        processedData[groupName][variantName] = variant.children.map(layer => {
+          addLayerToFlat(groupName, variantName, layer);
+          return {
+            name: layer.name,
+            canvas: layer.canvas,
+            left: layer.left || 0,
+            top: layer.top || 0,
+            blendMode: layer.blendMode,
+            clipping: layer.clipping,
+            opacity: layer.opacity !== undefined ? layer.opacity : 1
+          };
+        });
       });
     });
     
-    // Сохраняем порядок групп для правильного рендеринга
-    processedData._order = groupOrder; 
+    // Сохраняем дополнительные данные
+    processedData._order = groupOrder;
+    processedData.flatLayers = flatLayers;
     
     return processedData;
   } catch (error) {
