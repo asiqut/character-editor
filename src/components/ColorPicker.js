@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { PSD_CONFIG } from '../lib/defaultConfig';
 
+const COLOR_REGEX = /^#[0-9A-F]{6}$/i;
+
 function ColorPicker({ title, color, onChange }) {
   const [showPicker, setShowPicker] = useState(false);
   const [currentColor, setCurrentColor] = useState(color);
