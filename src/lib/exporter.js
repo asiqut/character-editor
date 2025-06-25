@@ -34,9 +34,34 @@ export const exportPSD = (originalPsd, character) => {
   });
 
   // Функция для применения цвета к слою: используем colorTargets для определения слоев покраски
-const applyColorToLayer = (layer, partName, character) => {
-  const colorTargets = PSD_CONFIG.colorTargets;
-};
+  const applyColorToLayer = (layer, partName, character) => {
+    if (!layer.canvas) return layer;
+  
+    // Определяем цвет на основе colorTargets
+    let color;
+    if (layer.name.includes('[белок красить]')) {
+      color = character.colors?.eyesWhite || '#ffffff';
+    } else if (layer.name.includes('[красить]')) {
+      color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
+    } else {
+      return layer;
+    }
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = layer.canvas.width;
+    tempCanvas.height = layer.canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+  
+    tempCtx.drawImage(layer.canvas, 0, 0);
+    tempCtx.globalCompositeOperation = 'source-atop';
+    tempCtx.fillStyle = color;
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  
+    return {
+      ...layer,
+      canvas: tempCanvas
+    };
+  };
   
   // Применяем цвет
   tempCtx.drawImage(layer.canvas, 0, 0);
