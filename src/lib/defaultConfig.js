@@ -3,6 +3,8 @@ import * as PSD from 'ag-psd';
 export const PSD_CONFIG = {
   // Основные настройки
   dimensions: { width: 315, height: 315 },
+
+  renderOrder: ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'],
   
   // Иерархия групп (соответствует структуре PSD)
   groups: {
