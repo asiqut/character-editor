@@ -1,6 +1,6 @@
 import { LAYER_CONFIG } from './defaultConfig';
 
-export function renderCharacter(canvas, psdData, character) {
+export function renderCharacter(canvas, psdData, character, flatLayers) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
@@ -19,7 +19,7 @@ export function renderCharacter(canvas, psdData, character) {
 
   partsOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(part, ctx, psdData, character);
+    renderPart(part, ctx, psdData, character, flatLayers);
   });
 }
 
