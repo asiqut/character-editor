@@ -6,10 +6,10 @@ function CharacterPreview({ psdData, character }) {
   const canvasRef = useRef(null);
   
   useEffect(() => {
-    if (psdData && canvasRef.current) {
-      renderCharacter(canvasRef.current, psdData, character);
+    if (psdData && flatLayers && canvasRef.current) {
+      renderCharacter(canvasRef.current, psdData, character, flatLayers);
     }
-  }, [psdData, character]);
+  }, [psdData, character, flatLayers]);
   
   return (
     <div style={{ width: '315px', height: '315px', border: '1px solid #ddd' }}>
