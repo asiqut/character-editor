@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { renderCharacter } from '../lib/renderer';
 
-function CharacterPreview({ psdData, character }) {
+function CharacterPreview({ psdData, character, flatLayers }) {
   const canvasRef = useRef(null);
   
   useEffect(() => {
