@@ -42,7 +42,9 @@ function ColorPicker({ title, color, onChange }) {
     const value = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
     setHexInput(value);
     
-    if (/^#[0-9A-F]{6}$/i.test(value)) {
+    // Проверяем по colorTargets
+    const isValidColor = /^#[0-9A-F]{6}$/i.test(value);
+    if (isValidColor) {
       setCurrentColor(value);
       onChange(value);
     }
