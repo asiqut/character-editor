@@ -1,45 +1,49 @@
-// Используется в App.js для выбора вариантов частей тела (например, уши, глаза, хвост). Он отображает: заголовок, набор кнопок для выбора варианта, подтипы, если они есть (например, для глаз: подтипы "с ресницами" или "без ресниц")
+// Используется в App.js для выбора вариантов частей тела (например, уши, глаза, хвост)
 import React from 'react';
 import { PSD_CONFIG } from '../lib/defaultConfig';
 
 function PartSelector({
-  part,
-  current,
+  part, // 'ears', 'eyes', 'tail' и т.д.
+  currentValue,
   onChange,
   currentSubtype,
-  onSubtypeChange,
-  character
+  onSubtypeChange 
 }) {
-  const { 
-    interface_title: title, 
-    variants 
-  } = PSD_CONFIG.groups[part] || {};
+  // Получаем конфигурацию для этой части тела
+  const partConfig = PSD_CONFIG.groups[part];
   
-  const options = Object.keys(variants);
-  const showSubtypes = part === 'eyes' && variants[current]?.subtypes;
-  const subtypes = showSubtypes 
-    ? Object.keys(variants[current].subtypes) 
-    : [];
+  // Формируем варианты выбора
+  const variants = partConfig.isSingleVariant 
+    ? [part] // Для головы (единственный вариант)
+    : Object.keys(partConfig.variants); // Все варианты
+
+  // Проверяем наличие подтипов (только для глаз)
+  const showSubtypes = part === 'eyes' && 
+                       currentValue === 'обычные' && 
+                       partConfig.variants.обычные.subtypes;
 
   return (
     <div className={`part-selector ${part}`}>
-      <h3>{title}</h3>
+      <h3>{partConfig.interface_title}</h3>
+      
+      {/* Основные варианты */}
       <div className="options">
-        {options.map(option => (
+        {variants.map(variant => (
           <button
-            key={option}
-            className={option === current ? 'active' : ''}
-            onClick={() => onChange(part, option)}
+            key={variant}
+            className={variant === currentValue ? 'active' : ''}
+            onClick={() => onChange(part, variant)}
           >
-            {option}
+            {variant}
           </button>
         ))}
       </div>
       
+      {/* Подтипы (только для обычных глаз) */}
       {showSubtypes && (
         <div className="subtypes">
           <h4>Варианты:</h4>
-          {subtypes.map(subtype => (
+          {Object.keys(partConfig.variants.обычные.subtypes).map(subtype => (
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
