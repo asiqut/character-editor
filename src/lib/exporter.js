@@ -15,7 +15,7 @@ export const exportPNG = (character, psdData) => {
   link.click();
 };
 
-export const exportPSD = (originalPsd, character) => {
+export const exportPSD = (originalPsd, character, flatLayers) => {
   // Правильный порядок групп (сверху вниз)
   const groupOrder = [
     'Уши',
@@ -128,9 +128,9 @@ const applyColorToLayer = (layer, partName, character) => {
       if (subtype) {
         const subtypePaths = LAYER_CONFIG.eyes.subtypes[subtype] || [];
         subtypePaths.forEach(path => {
-          const layer = originalPsd.flatLayers[path];
+          const layer = flatLayers[path];
           if (layer) {
-            groupLayers.push({
+          groupLayers.push({
               name: layer.name,
               canvas: layer.canvas,
               left: layer.left,
