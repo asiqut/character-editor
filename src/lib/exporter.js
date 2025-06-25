@@ -1,13 +1,13 @@
 import * as PSD from 'ag-psd';
 import { LAYER_CONFIG } from './defaultConfig';
 
-export const exportPNG = (character, psdData) => {
+export const exportPNG = (character, psdData, flatLayers) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 315; // Точный размер PSD
+  canvas.width = 315;
   canvas.height = 315;
   
-  // Рендерим без каких-либо трансформаций
-  renderCharacter(canvas, psdData, character);
+  // Передаем flatLayers в renderCharacter
+  renderCharacter(canvas, psdData, character, flatLayers);
 
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
