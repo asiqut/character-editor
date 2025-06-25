@@ -1,4 +1,5 @@
 import * as PSD from 'ag-psd';
+import { PSD_CONFIG } from './defaultConfig';
 import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
