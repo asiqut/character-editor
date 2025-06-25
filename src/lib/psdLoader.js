@@ -1,5 +1,5 @@
 import * as PSD from 'ag-psd';
-import { PARTS_STRUCTURE } from './defaultConfig.js';
+import { PSD_CONFIG } from './defaultConfig.js';
 
 export async function loadPSD() {
   try {
@@ -21,14 +21,14 @@ export async function loadPSD() {
 psd.children.forEach(group => {
   if (!group.name) return;
   
-  // Находим группу в PARTS_STRUCTURE по русскому названию
-  const groupConfig = Object.values(PARTS_STRUCTURE).find(
+  // Находим группу в PSD_CONFIG по русскому названию
+  const groupConfig = Object.values(PSD_CONFIG).find(
     g => g.title === group.name
   );
   if (!groupConfig) return;
 
-  const partName = Object.keys(PARTS_STRUCTURE).find(
-    key => PARTS_STRUCTURE[key].title === group.name
+  const partName = Object.keys(PSD_CONFIG).find(
+    key => PSD_CONFIG[key].title === group.name
   );
   processedData[partName] = {};
 
