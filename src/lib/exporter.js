@@ -39,8 +39,8 @@ export const exportPSD = (originalPsd, character) => {
   
     // Определяем цвет на основе colorTargets
     let color;
-    if (layer.name.includes('[белок красить]')) {
-      color = character.colors?.eyesWhite || '#ffffff';
+    if (layer.name.includes(PSD_CONFIG.colorTargets.eyesWhite.split('/').pop())) {
+      color = character.colors.eyesWhite;
     } else if (layer.name.includes('[красить]')) {
       color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
     } else {
