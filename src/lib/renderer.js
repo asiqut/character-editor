@@ -23,7 +23,7 @@ export function renderCharacter(canvas, psdData, character) {
   });
 }
 
-function renderPart(currentPartName, ctx, psdData, character) {
+function renderPart(currentPartName, ctx, psdData, character, flatLayers) {
   const partGroup = psdData[currentPartName];
   if (!partGroup) {
     console.warn(`Missing part group: ${currentPartName}`);
@@ -93,7 +93,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
     const subtypePaths = LAYER_CONFIG.eyes.subtypes[subtype] || [];
     
     subtypePaths.forEach(path => {
-      const layer = psdData.flatLayers[path];
+      const layer = flatLayers[path]; 
       if (layer?.canvas) {
         ctx.save();
         ctx.translate(layer.left, layer.top);
