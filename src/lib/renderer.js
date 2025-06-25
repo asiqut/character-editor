@@ -1,19 +1,27 @@
-import { LAYER_CONFIG, RENDER_ORDER } from './defaultConfig';
-
-export function renderCharacter(canvas, psdData, character, flatLayers) {
+export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Используем порядок из конфига
-  RENDER_ORDER.forEach(part => {
+  // Без масштабирования и смещения - точь-в-точь как в PSD
+  const partsOrder = [
+    'tail',    // Хвост (нижний слой)
+    'body',    // Тело
+    'mane',    // Грива
+    'head',    // Голова
+    'cheeks',  // Щёки
+    'eyes',    // Глаза
+    'ears'     // Уши (верхний слой)
+  ];
+
+  partsOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
-    renderPart(part, ctx, psdData, character, flatLayers);
+    renderPart(part, ctx, psdData, character);
   });
 }
 
-function renderPart(currentPartName, ctx, psdData, character, flatLayers) {
+function renderPart(currentPartName, ctx, psdData, character) {
   const partGroup = psdData[currentPartName];
   if (!partGroup) {
     console.warn(`Missing part group: ${currentPartName}`);
@@ -77,27 +85,28 @@ function renderPart(currentPartName, ctx, psdData, character, flatLayers) {
     ctx.restore();
   });
 
-  // Обработка глаз с подтипами
+  // Обработка подтипов глаз
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
-    const subtypePaths = LAYER_CONFIG.eyes.subtypes[subtype] || [];
+    const subtypeLayer = variantLayers.find(l => l.name === subtype);
     
-    subtypePaths.forEach(path => {
-      const layer = flatLayers[path]; 
-      if (layer?.canvas) {
-        ctx.save();
-        ctx.translate(layer.left, layer.top);
-        
-        if (shouldClipLayer(layer.name)) {
-          const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-          if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
+    if (subtypeLayer?.canvas) {
+      ctx.save();
+      ctx.translate(subtypeLayer.left, subtypeLayer.top);
+      
+      if (shouldClipLayer(subtypeLayer.name)) {
+        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+        if (colorLayer) {
+          renderClippedLayer(ctx, subtypeLayer, colorLayer);
         } else {
-          ctx.drawImage(layer.canvas, 0, 0);
+          ctx.drawImage(subtypeLayer.canvas, 0, 0);
         }
-        
-        ctx.restore();
+      } else {
+        ctx.drawImage(subtypeLayer.canvas, 0, 0);
       }
-    });
+      
+      ctx.restore();
+    }
   }
 }
 

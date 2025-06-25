@@ -1,13 +1,13 @@
 import * as PSD from 'ag-psd';
-import { LAYER_CONFIG } from './defaultConfig';
+import { renderCharacter } from './renderer';
 
-export const exportPNG = (character, psdData, flatLayers) => {
+export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 315;
+  canvas.width = 315; // Точный размер PSD
   canvas.height = 315;
   
-  // Передаем flatLayers в renderCharacter
-  renderCharacter(canvas, psdData, character, flatLayers);
+  // Рендерим без каких-либо трансформаций
+  renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
   link.download = `character_${Date.now()}.png`;
@@ -15,7 +15,7 @@ export const exportPNG = (character, psdData, flatLayers) => {
   link.click();
 };
 
-export const exportPSD = (originalPsd, character, flatLayers) => {
+export const exportPSD = (originalPsd, character) => {
   // Правильный порядок групп (сверху вниз)
   const groupOrder = [
     'Уши',
@@ -124,23 +124,17 @@ const applyColorToLayer = (layer, partName, character) => {
 
     // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
-      const subtype = character.eyes?.subtype;
-      if (subtype) {
-        const subtypePaths = LAYER_CONFIG.eyes.subtypes[subtype] || [];
-        subtypePaths.forEach(path => {
-          const layer = flatLayers[path];
-          if (layer) {
-          groupLayers.push({
-              name: layer.name,
-              canvas: layer.canvas,
-              left: layer.left,
-              top: layer.top,
-              opacity: layer.opacity,
-              blendMode: layer.blendMode,
-              clipping: layer.clipping,
-              hidden: false
-            });
-          }
+      const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
+      if (subtypeLayer) {
+        groupLayers.push({
+          name: subtypeLayer.name,
+          canvas: subtypeLayer.canvas,
+          left: subtypeLayer.left,
+          top: subtypeLayer.top,
+          opacity: subtypeLayer.opacity,
+          blendMode: subtypeLayer.blendMode,
+          clipping: subtypeLayer.clipping,
+          hidden: false
         });
       }
     }
