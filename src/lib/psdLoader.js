@@ -1,5 +1,5 @@
 import * as PSD from 'ag-psd';
-import { PARTS_STRUCTURE } from './psdStructure';
+import { PARTS_STRUCTURE } from './psdStructure.js';
 
 export async function loadPSD() {
   try {
