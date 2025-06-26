@@ -56,6 +56,12 @@ function renderPart(partCode, ctx, psdData, character) {
     return;
   }
 
+  const eyeColor = character.partColors.eyes;
+  if (!eyeColor) {
+    console.error('Eye color not defined!');
+    return;
+  }
+
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
