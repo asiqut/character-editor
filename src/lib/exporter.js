@@ -30,7 +30,7 @@ export const exportPSD = (originalPsd, character) => {
 
   const applyColorToLayer = (layer, partName, character) => {
     if (!layer.canvas) return layer;
-  
+
     let color;
     if (layer.name.includes(PSD_CONFIG.colorTargets.eyesWhite.split('/').pop())) {
       color = character.colors.eyesWhite;
@@ -44,12 +44,12 @@ export const exportPSD = (originalPsd, character) => {
     tempCanvas.width = layer.canvas.width;
     tempCanvas.height = layer.canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
-  
+
     tempCtx.drawImage(layer.canvas, 0, 0);
     tempCtx.globalCompositeOperation = 'source-atop';
     tempCtx.fillStyle = color;
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
+
     return {
       ...layer,
       canvas: tempCanvas
