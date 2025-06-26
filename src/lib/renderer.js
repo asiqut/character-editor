@@ -48,8 +48,12 @@ function renderPart(partCode, ctx, psdData, character) {
     renderEyes(ctx, variantLayers, character, variantName);
     return;
   }
-  
-  // Рендерим основные слои для других частей
+
+  // Для всех частей берем цвет из partColors или colors.main согласно конфигу
+  const partColor = PSD_CONFIG.colorTargets[partCode]?.excludeFromMain
+    ? character.partColors[partCode] ?? DEFAULT_CHARACTER.partColors[partCode]
+    : character.partColors[partCode] ?? character.colors.main ?? DEFAULT_CHARACTER.partColors[partCode];
+
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
@@ -63,7 +67,6 @@ function renderPart(partCode, ctx, psdData, character) {
     }
 
     if (layer.name.includes('[красить]')) {
-      const partColor = character.partColors?.[partCode] || character.colors?.main || '#f1ece4';
       renderColorLayer(ctx, layer, partColor);
     } else if (shouldClipLayer(layer.name)) {
       const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
