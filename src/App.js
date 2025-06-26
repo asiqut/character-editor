@@ -112,6 +112,7 @@ const renderPartGroup = (part) => {
 
   return (
     <div className="part-group" key={part}>
+    {!config.isSingleVariant && (
       <PartSelector
         part={part}
         config={config}
@@ -120,6 +121,7 @@ const renderPartGroup = (part) => {
         currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
         onSubtypeChange={handleSubtypeChange}
       />
+    )}     
       
       {(part !== 'cheeks' || character.cheeks !== 'нет') && (
         <ColorPicker
@@ -128,6 +130,8 @@ const renderPartGroup = (part) => {
           onChange={(color) => handlePartColorChange(part, color)}
         />
       )}
+
+      {config.isSingleVariant && <h3>{config.interface_title}</h3>}
 
       {part === 'eyes' && (
         <ColorPicker
