@@ -2,7 +2,7 @@
 import React from 'react';
 import { PSD_CONFIG } from '../lib/defaultConfig';
 
-function PartSelector({
+export default function PartSelector({
   part,
   config,
   currentValue,
