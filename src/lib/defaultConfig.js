@@ -5,6 +5,8 @@ export const PSD_CONFIG = {
   dimensions: { width: 315, height: 315 },
 
   renderOrder: ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'],
+
+  clippedLayers: ['свет', 'тень', 'свет2', 'блики'],
   
   // Иерархия групп (соответствует структуре PSD)
   groups: {
