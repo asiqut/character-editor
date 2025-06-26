@@ -19,7 +19,7 @@ function App() {
     Object.entries(PSD_CONFIG.groups).forEach(([groupName, config]) => {
       transformed[config.code] = {
         ...config,
-        interface_title: groupName
+        interface_title: config.interface_title
       };
     });
     setGroupsConfig(transformed);
