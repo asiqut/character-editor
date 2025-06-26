@@ -21,7 +21,7 @@ export default function PartSelector({
 
   return (
     <div className={`part-selector ${part}`}>
-      <h3>{config.interface_title}</h3>
+      <h3>Варианты</h3>
       
       <div className="options">
         {variants.map(variant => (
