@@ -103,8 +103,8 @@ function renderEyes(ctx, layers, character, variantName) {
     } 
     else if (layer.name.includes('[красить]')) {
       renderColorLayer(ctx, layer, 
-        character.partColors?.eyes || // Используем индивидуальный цвет глаз
-        '#f1ece4' // Fallback цвет
+        character.partColors?.eyes || 
+        DEFAULT_CHARACTER.partColors.eyes
       );
     }
     else if (shouldClipLayer(layer.name)) {
