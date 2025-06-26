@@ -46,23 +46,39 @@ export const PSD_CONFIG = {
   },
 
   colorTargets: {
-    ears: 'Уши/*/[красить]',
-    eyes: 'Глаза/*/[красить]',
-    eyesWhite: 'Глаза/обычные/[белок красить]',
-    cheeks: 'Щёки/*/[красить]',
-    mane: 'Грудь Шея Грива/*/[красить]',
-    body: 'Тело/*/[красить]',
-    tail: 'Хвосты/*/[красить]',
-    head: 'Голова/[красить]',
-    main: [
-      'Уши/*/[красить]',
-      'Щёки/*/[красить]',
-      'Голова/[красить]',
-      'Грудь Шея Грива/*/[красить]',
-      'Тело/*/[красить]',
-      'Хвосты/*/[красить]'
-    ]
-  }
+    ears: { 
+      interface_color_title: 'Цвет ушей', 
+      path: 'Уши/*/[красить]' 
+    },
+    eyes: { 
+      interface_color_title: 'Цвет глаз', 
+      path: 'Глаза/*/[красить]' 
+    },
+    eyesWhite: { 
+      interface_color_title: 'Белки глаз', 
+      path: 'Глаза/обычные/[белок красить]' 
+    },
+    cheeks: { 
+      interface_color_title: 'Цвет щёк', 
+      path: 'Щёки/*/[красить]' 
+    },
+    mane: { 
+      interface_color_title: 'Цвет гривы', 
+      path: 'Грудь Шея Грива/*/[красить]' 
+    },
+    body: { 
+      interface_color_title: 'Цвет тела', 
+      path: 'Тело/*/[красить]' 
+    },
+    tail: { 
+      interface_color_title: 'Цвет хвоста', 
+      path: 'Хвосты/*/[красить]' 
+    },
+    head: { 
+      interface_color_title: 'Цвет головы', 
+      path: 'Голова/[красить]' 
+    }
+  },
 };
 
 export async function loadAndProcessPSD() {
