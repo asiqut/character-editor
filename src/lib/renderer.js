@@ -50,9 +50,10 @@ function renderPart(partCode, ctx, psdData, character) {
   }
 
   // Для всех частей берем цвет из partColors или colors.main согласно конфигу
-  const partColor = PSD_CONFIG.colorTargets[partCode]?.excludeFromMain
-    ? character.partColors[partCode] ?? DEFAULT_CHARACTER.partColors[partCode]
-    : character.partColors[partCode] ?? character.colors.main ?? DEFAULT_CHARACTER.partColors[partCode];
+  const partColor = character.partColors[partCode] ?? 
+    (PSD_CONFIG.colorTargets.main.elements.includes(partCode) 
+      ? character.colors.main 
+      : DEFAULT_CHARACTER.partColors[partCode]);
 
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
