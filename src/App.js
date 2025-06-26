@@ -149,15 +149,22 @@ return (
           title={PSD_CONFIG.colorTargets.main.interface_color_title}
           color={character.colors.main}
           onChange={(color) => {
+            // Только обновляем основной цвет
             handleColorChange('main', color);
-            const newPartColors = {};
-            PSD_CONFIG.colorTargets.main.elements.forEach(part => {
-              newPartColors[part] = color;
+    
+            // Обновляем только те части, которые должны меняться с основным цветом
+            setCharacter(prev => {
+              const newPartColors = {...prev.partColors};
+      
+              PSD_CONFIG.colorTargets.main.elements.forEach(part => {
+                newPartColors[part] = color;
+              });
+      
+              return {
+                ...prev,
+                partColors: newPartColors
+              };
             });
-            setCharacter(prev => ({
-              ...prev,
-              partColors: newPartColors
-            }));
           }}
         />
         </div>
