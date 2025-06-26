@@ -40,22 +40,22 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value) => {
-    setCharacter(prev => {
-      const newChar = {...prev};
-      
-      if (part === 'eyes') {
-        newChar.eyes = {
-          type: value,
-          subtype: value === 'обычные' ? 'с ресницами' : null
-        };
-      } else {
-        newChar[part] = value;
-      }
-      
-      return newChar;
-    });
-  };
+const handlePartChange = (part, value) => {
+  setCharacter(prev => {
+    const newChar = {...prev};
+    
+    if (part === 'eyes') {
+      newChar.eyes = {
+        type: value, // value должен быть строкой ('обычные' или 'лисьи')
+        subtype: value === 'обычные' ? 'с ресницами' : null
+      };
+    } else {
+      newChar[part] = value;
+    }
+    
+    return newChar;
+  });
+};
 
   const handleSubtypeChange = (part, subtype) => {
     if (part !== 'eyes') return;
