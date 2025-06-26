@@ -89,40 +89,56 @@ const handlePartChange = (part, value) => {
     }));
   };
 
-  const renderPartGroup = (part) => {
-    const config = groupsConfig[part];
-    if (!config) {
-      console.error(`Missing config for part: ${part}`);
-      return null;
-    }
+const renderPartGroup = (part) => {
+  const config = groupsConfig[part];
+  if (!config) {
+    console.error(`Missing config for part: ${part}`);
+    return null;
+  }
 
+  // Специальная проверка для щёк
+  if (part === 'cheeks' && character.cheeks === 'нет') {
     return (
       <div className="part-group" key={part}>
         <PartSelector
           part={part}
           config={config}
-          currentValue={part === 'eyes' ? character.eyes.type : character[part]}
+          currentValue={character[part]}
           onChange={handlePartChange}
-          currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
-          onSubtypeChange={handleSubtypeChange}
         />
-        
+      </div>
+    );
+  }
+
+  return (
+    <div className="part-group" key={part}>
+      <PartSelector
+        part={part}
+        config={config}
+        currentValue={part === 'eyes' ? character.eyes.type : character[part]}
+        onChange={handlePartChange}
+        currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
+        onSubtypeChange={handleSubtypeChange}
+      />
+      
+      {part !== 'cheeks' && (
         <ColorPicker
           title={`${config.interface_title} цвет`}
           color={character.partColors[part]}
           onChange={(color) => handlePartColorChange(part, color)}
         />
+      )}
 
-        {part === 'eyes' && (
-          <ColorPicker
-            title="Белки глаз"
-            color={character.colors.eyesWhite}
-            onChange={(color) => handleColorChange('eyesWhite', color)}
-          />
-        )}
-      </div>
-    );
-  };
+      {part === 'eyes' && (
+        <ColorPicker
+          title="Белки глаз"
+          color={character.colors.eyesWhite}
+          onChange={(color) => handleColorChange('eyesWhite', color)}
+        />
+      )}
+    </div>
+  );
+};
 
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
