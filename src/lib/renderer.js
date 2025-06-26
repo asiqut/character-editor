@@ -102,7 +102,10 @@ function renderEyes(ctx, layers, character, variantName) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
     } 
     else if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer, character.partColors?.eyes || character.colors?.main || '#f1ece4');
+      renderColorLayer(ctx, layer, 
+        character.partColors?.eyes || // Используем индивидуальный цвет глаз
+        '#f1ece4' // Fallback цвет
+      );
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
