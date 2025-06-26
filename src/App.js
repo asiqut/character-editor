@@ -128,42 +128,42 @@ function App() {
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
 
-  return (
-    <div className="character-editor">
-      <h1>Редактор персонажа</h1>
+return (
+  <div className="character-editor">
+    <h1>Редактор персонажа</h1>
+    
+    <div className="editor-container">
+      <div className="preview-area">
+        <CharacterPreview psdData={psdData} character={character} />
+      </div>
       
-      <div className="editor-container">
-        <div className="preview-area">
-          <CharacterPreview psdData={psdData} character={character} />
-        </div>
-        
-        <div className="controls">
-          {PSD_CONFIG.renderOrder.map(part => (
-            part === 'cheeks' && character.cheeks === 'нет' ? null : renderPartGroup(part)
-          )}
+      <div className="controls">
+        {PSD_CONFIG.renderOrder.map(part => 
+          part === 'cheeks' && character.cheeks === 'нет' ? null : renderPartGroup(part)
+        )}
 
-          <div className="part-group">
-            <ColorPicker
-              title="Основной цвет"
-              color={character.colors.main}
-              onChange={(color) => {
-                handleColorChange('main', color);
-                const newPartColors = {};
-                Object.keys(groupsConfig).forEach(part => {
-                  newPartColors[part] = color;
-                });
-                setCharacter(prev => ({
-                  ...prev,
-                  partColors: newPartColors
-                }));
-              }}
-            />
-          </div>
-
-          <ExportButtons character={character} psdData={psdData} />
+        <div className="part-group">
+          <ColorPicker
+            title="Основной цвет"
+            color={character.colors.main}
+            onChange={(color) => {
+              handleColorChange('main', color);
+              const newPartColors = {};
+              Object.keys(groupsConfig).forEach(part => {
+                newPartColors[part] = color;
+              });
+              setCharacter(prev => ({
+                ...prev,
+                partColors: newPartColors
+              }));
+            }}
+          />
         </div>
+
+        <ExportButtons character={character} psdData={psdData} />
       </div>
     </div>
+  </div>
   );
 }
 
