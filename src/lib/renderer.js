@@ -42,8 +42,6 @@ function renderPart(partCode, ctx, psdData, character) {
     if (!layer.canvas) return;
     
     ctx.save();
-    
-    // Применяем координаты слоя
     if (typeof layer.left === 'number' && typeof layer.top === 'number') {
       ctx.translate(layer.left, layer.top);
     }
@@ -52,26 +50,37 @@ function renderPart(partCode, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
+    // Особый обработчик для белков глаз
     if (partCode === 'eyes' && layer.name.includes('[белок красить]')) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
-    } 
-    else if (layer.name.includes('[красить]')) {
-      const color = character.partColors?.[partCode] || character.colors?.main || '#f1ece4';
-      renderColorLayer(ctx, layer, color);
     }
-    else if (shouldClipLayer(layer.name)) {
-      const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-      if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
-      else ctx.drawImage(layer.canvas, 0, 0);
+    // Обычные слои для покраски глаз
+    else if (partCode === 'eyes' && layer.name.includes('[красить]')) {
+      const eyeColor = character.partColors?.eyes || character.colors?.main || '#f1ece4';
+      renderColorLayer(ctx, layer, eyeColor);
     }
-    else {
+    // Остальные слои глаз
+    else if (partCode === 'eyes') {
       ctx.drawImage(layer.canvas, 0, 0);
+    }
+    // Обработка других частей тела
+    else {
+      if (layer.name.includes('[красить]')) {
+        const partColor = character.partColors?.[partCode] || character.colors?.main || '#f1ece4';
+        renderColorLayer(ctx, layer, partColor);
+      } else if (shouldClipLayer(layer.name)) {
+        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
+        if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
+        else ctx.drawImage(layer.canvas, 0, 0);
+      } else {
+        ctx.drawImage(layer.canvas, 0, 0);
+      }
     }
     
     ctx.restore();
   });
 
-  // Обработка подтипов глаз
+  // Обработка подтипов глаз (ресницы)
   if (partCode === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
