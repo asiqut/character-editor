@@ -1,30 +1,56 @@
+/* Основные стили */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  min-height: 100vh;
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.4s, color 0.4s;
 }
 
+/* Темы */
+body.guardians {
+  --bg: linear-gradient(to bottom, #bed9b3, #90d1a8);
+  --text: #215444;
+  --panel-bg: rgba(255, 255, 255, 0.95);
+  --button-bg: linear-gradient(90deg, #6ea68b, #bed9b3);
+  --button-text: #1e3e30;
+  --button-shadow: 0 0 10px rgba(144, 209, 168, 0.4);
+}
+
+body.outcasts {
+  --bg: linear-gradient(to bottom, #1a0f0f, #3d1f1f);
+  --text: #f0e6dc;
+  --panel-bg: rgba(36, 20, 20, 0.90);
+  --button-bg: linear-gradient(45deg, #000000, #E74C3C);
+  --button-text: white;
+  --button-shadow: 0 0 10px rgba(172, 80, 60, 0.4);
+}
+
+/* Контейнер редактора */
 .character-editor {
   max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  height: 90vh;
+  margin: 40px auto;
+  background: var(--panel-bg);
+  border-radius: 18px;
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.12);
+  padding: 36px 32px;
+  transition: background 0.4s, color 0.4s;
 }
 
+.character-editor h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 22px;
+  color: var(--text);
+}
+
+/* Область редактирования */
 .editor-container {
   display: flex;
   gap: 30px;
   flex: 1;
-  min-height: 0; /* Для корректного скролла */
+  min-height: 0;
 }
 
 .preview-area {
@@ -34,6 +60,9 @@ body {
   justify-content: center;
   min-width: 315px;
   max-width: 315px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .controls {
@@ -44,148 +73,157 @@ body {
   padding-right: 10px;
 }
 
+/* Блоки выбора */
 .part-group {
-  margin-bottom: 15px;
-  border: 1px solid #eee;
-  padding: 12px;
-  border-radius: 8px;
+  margin-bottom: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* Добавим в существующие стили для part-group */
 .part-group h2 {
   margin: 0 0 15px 0;
-  font-size: 1.2rem;
-  color: #333;
-  border-bottom: 1px solid #eee;
+  font-size: 1.4rem;
+  color: var(--text);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding-bottom: 10px;
 }
 
-.part-selector {
-  margin-bottom: 8px;
-}
-
-.part-selector h3 {
-  margin: 0 0 5px 0;
-  font-size: 14px;
-}
-
-.color-picker {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.color-picker h3 {
-  margin: 0;
-  font-size: 14px;
-  min-width: 80px;
-}
-
-.color-swatch {
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-}
-
+/* Кнопки выбора */
 .options {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin: 12px 0;
 }
 
 .options button {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: var(--button-shadow);
 }
 
+.options button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.options button.active {
+  outline: 2px solid var(--text);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Цветовые пикеры */
+.color-picker {
+  margin-top: 15px;
+  position: relative;
+}
+
+.color-picker h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.color-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.05);
+}
+
+.color-value {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  font-family: monospace;
+  color: var(--text);
+}
+
+/* Кнопки экспорта */
 .export-buttons {
-  margin-top: 20px;
-  position: sticky;
-  bottom: 0;
-  background: white;
-  padding: 15px 0;
+  margin-top: 30px;
   display: flex;
-  gap: 10px;
+  gap: 15px;
 }
 
 .export-buttons button {
   flex: 1;
-}
-
-.export-buttons button {
-  padding: 10px 15px;
-  background: #4a89dc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 12px 24px;
+  font-size: 1.1rem;
   font-weight: bold;
-  transition: background 0.2s;
+  border: none;
+  border-radius: 10px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: var(--button-shadow);
 }
 
 .export-buttons button:hover {
-  background: #3b7dd8;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
-.export-buttons button:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
-}
-
-.export-error {
-  color: #ff4444;
-  font-size: 0.9em;
-  margin-top: 5px;
-}
-
-.error {
-  color: #d32f2f;
-  padding: 20px;
-  background: #ffebee;
-  border-radius: 4px;
-  margin: 20px;
+/* Переключатель тем */
+.theme-switch {
   text-align: center;
+  margin: 20px 0;
 }
 
-.color-value {
-  margin-top: 5px;
-  font-size: 0.8rem;
-  color: #666;
-  word-break: break-all;
+.theme-switch button {
+  margin: 0 10px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: var(--button-shadow);
 }
 
-.color-picker {
-  margin-top: 10px;
+.theme-switch button:hover {
+  transform: translateY(-2px);
 }
 
-.color-picker h3 {
-  font-size: 0.9rem;
-  margin-bottom: 5px;
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+  .editor-container {
+    flex-direction: column;
+  }
+  
+  .controls {
+    width: 100%;
+  }
+  
+  .preview-area {
+    min-height: 400px;
+  }
 }
 
-.hex-input {
-  margin-top: 10px;
-}
-
-.hex-input input {
-  width: 100%;
-  padding: 5px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-/* Уши */
+/* Специфичные стили для частей */
 .part-selector.ears .options {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
 
-/* Глаза */
 .part-selector.eyes .options {
   display: flex;
   flex-direction: column;
@@ -196,139 +234,16 @@ body {
   overflow-y: auto;
 }
 
-/* Хвост */
 .part-selector.tail button {
   min-width: 100px;
 }
 
-/* Адаптация для мобильных */
-@media (max-width: 768px) {
-  .editor-container {
-    flex-direction: column;
-  }
-  
-  .controls {
-    width: 100%;
-  }
-  
-  .preview-area {
-    min-height: 400px;
-  }
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
 }
 
-/* Добавляем в конец main.css */
-
-/* Стили для ColorPicker */
-.color-picker {
-  position: relative;
-  margin-top: 10px;
-}
-
-.color-swatch {
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 10px;
-}
-
-.color-picker-popup {
-  position: absolute;
-  z-index: 100;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  left: 0;
-}
-
-.color-picker-popup .react-colorful {
-  width: 200px;
-  height: 200px;
-}
-
-.hex-input {
-  margin-top: 10px;
-}
-
-.hex-input input {
-  width: 91.5%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: monospace;
-  text-align: center;
-}
-
-.color-value {
-  display: inline-block;
-  vertical-align: middle;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-/* Переносим стили из part-specific.css */
-/* Уши */
-.part-selector.ears .options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-/* Глаза */
-.part-selector.eyes .options {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Хвост */
-.part-selector.tail button {
-  min-width: 100px;
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 768px) {
-  .editor-container {
-    flex-direction: column;
-  }
-  
-  .controls {
-    width: 100%;
-  }
-  
-  .preview-area {
-    min-height: 400px;
-  }
-
-  /* Адаптация ColorPicker для мобильных */
-  .color-picker-popup {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 20px;
-    top: auto !important;
-  }
-}
-
-.subtype-options {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.subtype-options button {
-  padding: 4px 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-}
-
-.subtype-options button.active {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
+.fade-in {
+  animation: fadeIn 0.6s ease forwards;
 }
