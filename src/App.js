@@ -113,7 +113,7 @@ const renderPartGroup = (part) => {
 
       {(part !== 'cheeks' || character.cheeks !== 'нет') && (
         <ColorPicker
-          title={PSD_CONFIG.colorTargets[part]?.interface_color_title || `${config.interface_title} цвет`}
+          title={PSD_CONFIG.colorTargets[part]?.interface_color_title}
           color={character.partColors[part]}
           onChange={(color) => handlePartColorChange(part, color)}
         />
