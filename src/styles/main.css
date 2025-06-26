@@ -92,21 +92,22 @@ body {
   font-size: 14px;
   border: none;
   border-radius: 8px;
-  background: #f0f0f0;
-  color: #333;
+  background: var(--button-bg);
+  color: var(--button-text);
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid #ddd;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: var(--button-shadow);
+  border: 1px solid rgb(221, 221, 221);
 }
 
 .options button:hover {
-  background: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
 .options button.active {
-  background: #4a89dc;
-  color: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  outline: 2px solid var(--text);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Цветовые пикеры */
@@ -186,17 +187,20 @@ body {
   padding: 12px 24px;
   font-size: 1.1rem;
   font-weight: bold;
-  border: none;
+  border: 1px solid rgb(221, 221, 221);
   border-radius: 10px;
-  background: #4a89dc;
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-text);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: var(--button-shadow);
 }
 
 .export-buttons button:hover {
-  background: #3b7dd8;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
+
 
 /* Адаптация для мобильных */
 @media (max-width: 768px) {
