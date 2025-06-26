@@ -25,32 +25,35 @@ function renderPart(currentPartName, ctx, psdData, character) {
   let variantLayers;
   
   if (currentPartName === 'head') {
+    // Для головы берем все слои напрямую
     variantLayers = Array.isArray(partGroup) ? partGroup : [];
-  } 
-  else {
-    variantName = character[currentPartName] || 
-                 PSD_CONFIG.groups[currentPartName].defaultVariant;
+  } else {
+    variantName = character[currentPartName];
     variantLayers = partGroup[variantName] || [];
   }
 
+  // Рендерим основные слои части
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
     ctx.save();
-    ctx.translate(layer.left, layer.top);
+    ctx.translate(layer.left || 0, layer.top || 0);
     
     if (layer.blendMode) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
+    // Особый обработчик для белков глаз
     if (layer.name.includes('[белок красить]')) {
       const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
       renderColorLayer(ctx, layer, eyeWhiteColor);
-    }
+    } 
+    // Обычные слои для покраски
     else if (layer.name.includes('[красить]')) {
       const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
       renderColorLayer(ctx, layer, partColor);
     }
+    // Слои с клиппингом (тени, свет и т.д.)
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
       if (colorLayer) {
@@ -59,6 +62,7 @@ function renderPart(currentPartName, ctx, psdData, character) {
         ctx.drawImage(layer.canvas, 0, 0);
       }
     }
+    // Обычные слои
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
@@ -66,25 +70,15 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.restore();
   });
 
+  // Обработка подтипов глаз
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
     
     if (subtypeLayer?.canvas) {
       ctx.save();
-      ctx.translate(subtypeLayer.left, subtypeLayer.top);
-      
-      if (shouldClipLayer(subtypeLayer.name)) {
-        const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
-        if (colorLayer) {
-          renderClippedLayer(ctx, subtypeLayer, colorLayer);
-        } else {
-          ctx.drawImage(subtypeLayer.canvas, 0, 0);
-        }
-      } else {
-        ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      }
-      
+      ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
+      ctx.drawImage(subtypeLayer.canvas, 0, 0);
       ctx.restore();
     }
   }
