@@ -91,7 +91,7 @@ function renderPart(partCode, ctx, psdData, character) {
 function renderEyes(ctx, layers, character, variantName) {
   if (!layers || !layers.length) return;
 
-  // Проверяем наличие цвета глаз
+  // Проверяем наличие цвета глаз (исправлено: обращение через partColors)
   if (!character.partColors?.eyes) {
     console.error('Eye color not defined!');
     return;
@@ -111,7 +111,8 @@ function renderEyes(ctx, layers, character, variantName) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite);
     } 
     else if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer, eyeColor); // Используем вычисленный цвет глаз
+      // Исправлено: используем цвет глаз из состояния персонажа
+      renderColorLayer(ctx, layer, character.partColors.eyes);
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
