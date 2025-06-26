@@ -134,7 +134,7 @@ const renderPartGroup = (part) => {
 
 return (
   <div className="character-editor">
-    <h1>Редактор персонажа</h1>
+    <h1>Редактор персонажа KINWOODS</h1>
     
     <div className="editor-container">
       <div className="preview-area">
