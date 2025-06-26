@@ -76,16 +76,15 @@ const handleColorChange = (colorType, color) => {
       ...prev.colors,
       [colorType]: color
     },
-    // Для main цвета обновляем ТОЛЬКО указанные элементы
-    ...(colorType === 'main' && {
-      partColors: {
-        ...prev.partColors,
-        ...PSD_CONFIG.colorTargets.main.elements.reduce((acc, part) => ({
-          ...acc,
-          [part]: color
-        }), {})
-      }
-    })
+    partColors: {
+      ...prev.partColors,
+      ...(colorType === 'main' && 
+        Object.fromEntries(
+          PSD_CONFIG.colorTargets.main.elements
+            .filter(part => prev.partColors[part] === undefined) // Только не переопределенные вручную
+            .map(part => [part, color])
+      )
+    }
   }));
 };
 
