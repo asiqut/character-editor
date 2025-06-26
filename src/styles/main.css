@@ -90,9 +90,8 @@ body {
 }
 
 .options button {
-  flex: 1 1 120px; /* Гибкое распределение */
+  flex: 1;
   min-width: 120px;
-  max-width: 180px;
   padding: 8px 12px;
   font-size: 14px;
   border: 1px solid #ddd;
@@ -102,9 +101,6 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .options button:hover {
@@ -112,10 +108,10 @@ body {
 }
 
 .options button.active {
-  background: #4a89dc;
-  color: white;
-  border-color: #3b7dd8;
-  box-shadow: 0 2px 8px rgba(74, 137, 220, 0.3);
+  background: #f0f0f0;
+  color: #333;
+  border-color: #ccc;
+  box-shadow: 0 0 0 2px #aaa;
 }
 
 /* Удаляем все специфичные стили для частей */
