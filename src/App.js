@@ -147,21 +147,21 @@ return (
         {PSD_CONFIG.renderOrder.map(part => renderPartGroup(part))}
 
         <div className="part-group">
-          <ColorPicker
-            title="Основной цвет"
-            color={character.colors.main}
-            onChange={(color) => {
-              handleColorChange('main', color);
-              const newPartColors = {};
-              Object.keys(groupsConfig).forEach(part => {
-                newPartColors[part] = color;
-              });
-              setCharacter(prev => ({
-                ...prev,
-                partColors: newPartColors
-              }));
-            }}
-          />
+        <ColorPicker
+          title="Основной цвет"
+          color={character.colors.main}
+          onChange={(color) => {
+            handleColorChange('main', color);
+            const newPartColors = {};
+            Object.keys(groupsConfig).forEach(part => {
+              newPartColors[part] = color;
+            });
+            setCharacter(prev => ({
+              ...prev,
+              partColors: newPartColors
+            }));
+          }}
+        />
         </div>
 
         <ExportButtons character={character} psdData={psdData} />
