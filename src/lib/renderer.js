@@ -1,4 +1,4 @@
-import { PSD_CONFIG } from './defaultConfig';
+import { PSD_CONFIG, DEFAULT_CHARACTER } from './defaultConfig';
 
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
