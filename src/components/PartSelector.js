@@ -32,11 +32,11 @@ export default function PartSelector({
           </button>
         ))}
       </div>
-      
+
       {showSubtypes && (
-        <div className="subtypes">
-          <h4>Варианты:</h4>
-          <div className="subtype-options">
+        <>
+          <h3>Ресницы</h3>
+          <div className="options">
             {Object.keys(config.variants['обычные'].subtypes).map(subtype => (
               <button
                 key={subtype}
@@ -47,7 +47,7 @@ export default function PartSelector({
               </button>
             ))}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
