@@ -44,7 +44,7 @@ export const exportPSD = (originalPsd, character) => {
     tempCanvas.width = layer.canvas.width;
     tempCanvas.height = layer.canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
-
+  
     tempCtx.drawImage(layer.canvas, 0, 0);
     tempCtx.globalCompositeOperation = 'source-atop';
     tempCtx.fillStyle = color;
@@ -82,6 +82,11 @@ export const exportPSD = (originalPsd, character) => {
 
     const groupLayers = layers.map(layer => {
       const coloredLayer = applyColorToLayer(layer, partName, character);
+  
+      // Добавляем поддержку clipping mask
+      const shouldClip = PSD_CONFIG.clippedLayers.includes(layer.name);
+      const clipLayer = shouldClip ? layers.find(l => l.name.includes('[красить]')) : null;
+  
       return {
         name: layer.name,
         canvas: coloredLayer.canvas,
@@ -89,7 +94,7 @@ export const exportPSD = (originalPsd, character) => {
         top: layer.top,
         opacity: layer.opacity,
         blendMode: layer.blendMode,
-        clipping: layer.clipping,
+        clipping: shouldClip && clipLayer ? true : false, // Устанавливаем флаг clipping
         hidden: false
       };
     });
