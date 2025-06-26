@@ -76,7 +76,7 @@ const handleColorChange = (colorType, color) => {
     if (colorType === 'main') {
       const newPartColors = {...prev.partColors};
       PSD_CONFIG.colorTargets.main.elements.forEach(part => {
-        newPartColors[part] = color;
+        newPartColors[part] = color; // Красим только указанные элементы
       });
       return {...prev, colors: newColors, partColors: newPartColors};
     }
