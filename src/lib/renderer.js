@@ -13,9 +13,9 @@ export function renderCharacter(canvas, psdData, character) {
 }
 
 function renderPart(partCode, ctx, psdData, character) {
-  const partConfig = PSD_CONFIG.groups[Object.keys(PSD_CONFIG.groups).find(
-    key => PSD_CONFIG.groups[key].code === partCode
-  )];
+  const partConfig = Object.values(PSD_CONFIG.groups).find(
+    group => group.code === partCode
+  );
   
   if (!partConfig) {
     console.warn(`Missing config for part: ${partCode}`);
@@ -37,10 +37,22 @@ function renderPart(partCode, ctx, psdData, character) {
     }
   }
 
-    ctx.restore();
-  });
+  // Рендерим основные слои
+  variantLayers.forEach(layer => {
+    if (!layer.canvas) return;
     
-    if (partConfig.colorTargets?.eyesWhite && layer.name.includes('[белок красить]')) {
+    ctx.save();
+    
+    // Применяем координаты слоя
+    if (typeof layer.left === 'number' && typeof layer.top === 'number') {
+      ctx.translate(layer.left, layer.top);
+    }
+    
+    if (layer.blendMode) {
+      ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
+    }
+    
+    if (partCode === 'eyes' && layer.name.includes('[белок красить]')) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
     } 
     else if (layer.name.includes('[красить]')) {
@@ -66,7 +78,9 @@ function renderPart(partCode, ctx, psdData, character) {
     
     if (subtypeLayer?.canvas) {
       ctx.save();
-      ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
+      if (typeof subtypeLayer.left === 'number' && typeof subtypeLayer.top === 'number') {
+        ctx.translate(subtypeLayer.left, subtypeLayer.top);
+      }
       ctx.drawImage(subtypeLayer.canvas, 0, 0);
       ctx.restore();
     }
@@ -84,8 +98,8 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   const tempCtx = tempCanvas.getContext('2d');
   
   tempCtx.drawImage(clipLayer.canvas, 
-    clipLayer.left - layer.left, 
-    clipLayer.top - layer.top
+    (clipLayer.left || 0) - (layer.left || 0), 
+    (clipLayer.top || 0) - (layer.top || 0)
   );
   
   tempCtx.globalCompositeOperation = 'source-in';
