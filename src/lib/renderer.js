@@ -36,11 +36,11 @@ function renderPart(partCode, ctx, psdData, character) {
   } else {
     variantName = partCode === 'eyes' ? character.eyes?.type : character[partCode];
     
-    if (variantName && partData[variantName]) {
+    if (variantName && partData && partData[variantName]) {
       variantLayers = partData[variantName];
-      console.log(`Layers for ${partCode}/${variantName}:`, variantLayers);
     } else {
       console.warn(`No variant '${variantName}' found for ${partCode}`);
+      variantLayers = [];
     }
   }
 
