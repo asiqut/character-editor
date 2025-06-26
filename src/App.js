@@ -144,24 +144,21 @@ return (
       <div className="controls">
         {PSD_CONFIG.renderOrder.map(part => renderPartGroup(part))}
 
-      <div className="main-color-group">
-        <h2>{PSD_CONFIG.colorTargets.main.interface_color_title}</h2>
-        <ColorPicker
-          title="Цвет"
-          color={character.colors.main}
-          onChange={(color) => {
-            handleColorChange('main', color);
-            const newPartColors = {};
-            PSD_CONFIG.colorTargets.main.elements.forEach(part => {
-              newPartColors[part] = color;
-            });
-            setCharacter(prev => ({
-              ...prev,
-              partColors: newPartColors
-            }));
-          }}
-        />
-      </div>
+        <div className="part-group"> {/* Используем тот же класс, что и у других групп */}
+          <h2>{PSD_CONFIG.colorTargets.main.interface_color_title}</h2> {/* Заголовок из конфига */}
+          <ColorPicker
+            title="Цвет"
+            color={character.colors.main}
+            onChange={(color) => {
+              handleColorChange('main', color);
+              const newPartColors = {...character.partColors};
+              PSD_CONFIG.colorTargets.main.elements.forEach(part => {
+                newPartColors[part] = color;
+              });
+              setCharacter({...character, partColors: newPartColors});
+            }}
+          />
+        </div>
 
       <ExportButtons character={character} psdData={psdData} />
       </div>
