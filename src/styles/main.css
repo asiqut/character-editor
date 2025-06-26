@@ -1,132 +1,93 @@
-// ================= ОСНОВНЫЕ СТИЛИ ================= //
+/* Основные стили страницы */
 body {
   margin: 0;
-  overflow: hidden; // Отключаем скролл страницы
+  overflow: hidden; /* Отключаем прокрутку страницы */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif; // Системный стек шрифтов
-  -webkit-font-smoothing: antialiased; // Сглаживание для Chrome/Safari
-  -moz-osx-font-smoothing: grayscale; // Сглаживание для Firefox
-  background-color: #f5f5f5; // Светло-серый фон
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5; /* Фоновый цвет страницы */
 }
 
-// ================= КОНТЕЙНЕР РЕДАКТОРА ================= //
+/* Главный контейнер редактора */
 .character-editor {
-  max-width: 1200px; // Фиксированная максимальная ширина
-  margin: 20px auto; // Центрирование по горизонтали
+  max-width: 1200px; /* Максимальная ширина редактора */
+  margin: 20px auto; /* Центрирование по горизонтали */
   padding: 20px;
-  background: white; // Белый фон
-  border-radius: 8px; // Закругление углов
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); // Тень контейнера
-  display: flex;
-  flex-direction: column; // Вертикальное расположение
-  height: calc(100vh - 40px); // Высота по размеру окна
-  box-sizing: border-box; // Учет padding в размерах
+  background: white; /* Белый фон редактора */
+  border-radius: 8px; /* Закругленные углы */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Тень контейнера */
+  height: calc(100vh - 40px); /* Высота по размеру окна */
 }
 
-// Заголовок редактора
+/* Заголовок редактора */
 .character-editor h1 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 22px;
-  color: #333; // Темно-серый цвет
-  font-size: 1.8rem; // Размер шрифта
+  color: #333; /* Цвет текста */
 }
 
-// ================= ОБЛАСТЬ РЕДАКТИРОВАНИЯ ================= //
+/* Контейнер с областями предпросмотра и управления */
 .editor-container {
   display: flex;
-  gap: 30px; // Расстояние между блоками
-  flex: 1; // Растягиваем на доступное пространство
-  min-height: 0; // Фикс переполнения в Firefox
+  gap: 30px; /* Расстояние между областями */
 }
 
-// ================= ОБЛАСТЬ ПРЕДПРОСМОТРА ================= //
+/* Область предпросмотра персонажа */
 .preview-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 315px; // Минимальная ширина
-  max-width: 315px; // Фиксированная максимальная ширина
-  background: rgba(255, 255, 255, 0.1); // Полупрозрачный фон
-  border-radius: 12px; // Закругление углов
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08); // Легкая тень
+  width: 315px; /* Фиксированная ширина */
+  height: 315px; /* Фиксированная высота */
+  border: 1px solid #ddd; /* Граница области */
 }
 
-// ================= ПАНЕЛЬ УПРАВЛЕНИЯ ================= //
+/* Панель управления с элементами выбора */
 .controls {
-  width: 900px; // Фиксированная ширина
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto; // Вертикальный скролл
-  padding-right: 10px; // Отступ для скролла
-  height: 100%; // Высота родителя
-  position: relative; // Для позиционирования
+  width: 900px; /* Ширина панели управления */
+  overflow-y: auto; /* Вертикальная прокрутка при необходимости */
 }
 
-// ================= БЛОКИ ВЫБОРА ================= //
+/* Блок выбора вариантов части персонажа */
 .part-group {
-  margin-bottom: 25px; // Отступ снизу
-  background: rgba(255, 255, 255, 0.1); // Легкий фон
-  border-radius: 14px; // Закругление углов
-  padding: 20px; // Внутренние отступы
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); // Тень
-  border: 1px solid #ddd; // Граница
+  margin-bottom: 25px; /* Отступ между блоками */
+  background: rgba(255, 255, 255, 0.1); /* Фон блока */
+  border-radius: 14px; /* Закругленные углы */
+  padding: 20px; /* Внутренние отступы */
+  border: 1px solid #ddd; /* Граница блока */
 }
 
-// Заголовок блока
+/* Заголовок блока выбора */
 .part-group h2 {
-  margin: 0 0 15px 0; // Отступ снизу
-  font-size: 1.4rem; // Размер шрифта
-  color: #333; // Цвет текста
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); // Граница
-  padding-bottom: 10px; // Отступ от границы
+  margin: 0 0 15px 0; /* Отступ снизу */
+  font-size: 1.4rem; /* Размер шрифта */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Граница под заголовком */
+  padding-bottom: 10px; /* Отступ от границы */
 }
 
-// ================= КНОПКИ ВАРИАНТОВ ================= //
+/* Контейнер с кнопками выбора вариантов */
 .options {
   display: flex;
-  flex-wrap: wrap; // Перенос на новую строку
-  gap: 8px; // Расстояние между кнопками
-  margin: 12px 0; // Отступы сверху/снизу
+  flex-wrap: wrap; /* Перенос на новую строку */
+  gap: 8px; /* Расстояние между кнопками */
 }
 
-// Базовая кнопка
+/* Кнопки выбора вариантов */
 .options button {
   flex: 1;
-  min-width: 120px; // Минимальная ширина
-  padding: 8px 12px; // Внутренние отступы
-  font-size: 14px; // Размер шрифта
-  border: 1px solid #ddd; // Граница
-  border-radius: 8px; // Закругление
-  background: #f8f8f8; // Фон
-  color: #333; // Цвет текста
-  cursor: pointer; // Курсор-указатель
-  transition: all 0.2s; // Анимация изменений
-  text-align: center; // Выравнивание текста
+  min-width: 120px; /* Минимальная ширина кнопки */
+  padding: 8px 12px; /* Внутренние отступы */
+  border: 1px solid #ddd; /* Граница кнопки */
+  border-radius: 8px; /* Закругленные углы */
+  background: #f8f8f8; /* Фон кнопки */
+  cursor: pointer; /* Указатель при наведении */
 }
 
-// Состояния кнопки
-.options button:hover {
-  background: #eee; // Фон при наведении
-}
-.options button.active {
-  background: #f0f0f0; // Фон активной
-  color: #333;
-  border-color: #ccc;
-  box-shadow: 0 0 0 2px #aaa; // Выделение
-}
-
-// ================= ЦВЕТОВЫЕ ПИКЕРЫ ================= //
+/* Стили для цветового пикера */
 .color-picker {
-  position: relative; // Для позиционирования попапа
-  margin-top: 10px; // Отступ сверху
+  position: relative; /* Для позиционирования попапа */
 }
 
-// Поле выбора цвета
+/* Элемент выбора цвета */
 .color-swatch {
   width: 30px;
   height: 30px;
@@ -134,14 +95,42 @@ body {
   border: 1px solid #ddd;
   cursor: pointer;
   display: inline-block;
-  vertical-align: middle;
-  margin-right: 10px; // Отступ справа
 }
 
-// Окно выбора цвета
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+  .editor-container {
+    flex-direction: column; /* Вертикальное расположение */
+  }
+  
+  .controls {
+    width: 100%; /* На всю ширину */
+  }
+}
+
+/* ===== Дополнительные стили из оригинала ===== */
+
+/* Специфичные стили для частей */
+.part-selector.ears .options,
+.part-selector.eyes .options,
+.part-selector.tail .options {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.part-selector.eyes .subtypes {
+  max-height: none;
+  overflow-y: visible;
+}
+
+.part-selector.tail button {
+  min-width: auto !important;
+}
+
+/* Окно выбора цвета */
 .color-picker-popup {
   position: absolute;
-  z-index: 100; // Поверх других элементов
+  z-index: 100; /* Поверх других элементов */
   background: white;
   padding: 10px;
   border-radius: 8px;
@@ -151,71 +140,63 @@ body {
   margin-top: 5px;
 }
 
-// Поле ввода HEX
+.color-picker-popup .react-colorful {
+  width: 200px;
+  height: 200px;
+}
+
+/* Поле ввода HEX */
 .hex-input {
-  margin-top: 10px; // Отступ сверху
+  margin-top: 10px; /* Отступ сверху */
 }
 .hex-input input {
-  width: 91.5%; // Ширина поля
-  padding: 8px; // Внутренние отступы
-  border: 1px solid #ddd; // Граница
-  border-radius: 4px; // Закругление
-  font-family: monospace; // Моноширинный шрифт
-  text-align: center; // Выравнивание по центру
+  width: 91.5%; /* Ширина поля */
+  padding: 8px; /* Внутренние отступы */
+  border: 1px solid #ddd; /* Граница */
+  border-radius: 4px; /* Закругление */
+  font-family: monospace; /* Моноширинный шрифт */
+  text-align: center; /* Выравнивание по центру */
 }
 
-// ================= КНОПКИ ЭКСПОРТА ================= //
+/* Кнопки экспорта */
 .export-buttons {
-  margin-top: 20px; // Отступ сверху
-  position: sticky; // Липкое позиционирование
-  bottom: 0; // Прилипание к низу
-  background: white; // Фон
-  padding: 15px 0; // Внутренние отступы
+  margin-top: 20px; /* Отступ сверху */
+  position: sticky; /* Липкое позиционирование */
+  bottom: 0; /* Прилипание к низу */
+  background: white; /* Фон */
+  padding: 15px 0; /* Внутренние отступы */
   display: flex;
-  gap: 15px; // Расстояние между кнопками
+  gap: 15px; /* Расстояние между кнопками */
 }
 
-// Стили кнопок экспорта
+/* Стили кнопок экспорта */
 .export-buttons button {
-  flex: 1; // Равномерное распределение
-  padding: 12px 24px; // Внутренние отступы
-  font-size: 1.1rem; // Размер шрифта
-  font-weight: bold; // Жирный текст
+  flex: 1; /* Равномерное распределение */
+  padding: 12px 24px; /* Внутренние отступы */
+  font-size: 1.1rem; /* Размер шрифта */
+  font-weight: bold; /* Жирный текст */
   border: 1px solid rgb(221, 221, 221);
-  border-radius: 10px; // Закругление
-  background: var(--button-bg); // Переменная цвета
-  color: var(--button-text); // Переменная текста
+  border-radius: 10px; /* Закругление */
+  background: var(--button-bg); /* Переменная цвета */
+  color: var(--button-text); /* Переменная текста */
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.3s; // Анимации
-  box-shadow: var(--button-shadow); // Переменная тени
+  transition: transform 0.2s, box-shadow 0.3s; /* Анимации */
+  box-shadow: var(--button-shadow); /* Переменная тени */
 }
 
-// Состояние при наведении
+/* Состояние при наведении */
 .export-buttons button:hover {
-  transform: translateY(-2px); // Сдвиг вверх
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); // Усиленная тень
+  transform: translateY(-2px); /* Сдвиг вверх */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Усиленная тень */
 }
 
-// ================= АДАПТИВНОСТЬ ================= //
+/* Мобильная версия цветового пикера */
 @media (max-width: 768px) {
-  .editor-container {
-    flex-direction: column; // Вертикальное расположение
-  }
-  
-  .controls {
-    width: 100%; // На всю ширину
-  }
-  
-  .preview-area {
-    min-height: 400px; // Минимальная высота
-  }
-
-  // Мобильная версия цветового пикера
   .color-picker-popup {
-    position: fixed; // Фиксированное позиционирование
+    position: fixed; /* Фиксированное позиционирование */
     left: 50%;
-    transform: translateX(-50%); // Центрирование
-    bottom: 20px; // Отступ снизу
-    top: auto !important; // Переопределение
+    transform: translateX(-50%); /* Центрирование */
+    bottom: 20px; /* Отступ снизу */
+    top: auto !important; /* Переопределение */
   }
 }
