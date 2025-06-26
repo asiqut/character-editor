@@ -34,7 +34,8 @@ function renderPart(partCode, ctx, psdData, character) {
   if (partConfig.isSingleVariant) {
     variantLayers = Array.isArray(partData) ? partData : [];
   } else {
-    variantName = character[partCode];
+    variantName = partCode === 'eyes' ? character.eyes?.type : character[partCode];
+    
     if (variantName && partData[variantName]) {
       variantLayers = partData[variantName];
       console.log(`Layers for ${partCode}/${variantName}:`, variantLayers);
