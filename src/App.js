@@ -121,7 +121,7 @@ const renderPartGroup = (part) => {
         onSubtypeChange={handleSubtypeChange}
       />
       
-      {part !== 'cheeks' && (
+      {(part !== 'cheeks' || character.cheeks !== 'нет') && (
         <ColorPicker
           title={`${config.interface_title} цвет`}
           color={character.partColors[part]}
