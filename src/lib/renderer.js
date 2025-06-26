@@ -45,10 +45,10 @@ function renderPart(partCode, ctx, psdData, character) {
   }
 
   if (partCode === 'eyes') {
-    renderEyes(ctx, variantLayers, character, variantName);
+    const eyeVariant = character.eyes?.type; // Получаем текущий вариант глаз
+    renderEyes(ctx, variantLayers, character, eyeVariant); // Передаем variantName
     return;
   }
-
   // Для всех частей берем цвет из partColors или colors.main согласно конфигу
   const partColor = character.partColors[partCode];
   if (!partColor) {
@@ -82,16 +82,15 @@ function renderPart(partCode, ctx, psdData, character) {
   });
 }
 
-function renderEyes(ctx, layers, character) {
+function renderEyes(ctx, layers, character, variantName) {
+  if (!layers || !layers.length) return;
 
-  // Получаем цвет глаз с учетом приоритетов:
-  // 1. Явно заданный цвет в partColors.eyes
-  // 2. Дефолтный цвет из конфига
-  const eyeColor = character.partColors.eyes;
-  if (!eyeColor) {
+  // Проверяем наличие цвета глаз
+  if (!character.partColors?.eyes) {
     console.error('Eye color not defined!');
     return;
   }
+
   layers.forEach(layer => {
     if (!layer.canvas || layer.name === 'с ресницами' || layer.name === 'без ресниц') return;
 
