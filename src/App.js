@@ -139,6 +139,7 @@ return (
     <div className="editor-container">
       <div className="preview-area">
         <CharacterPreview psdData={psdData} character={character} />
+        <ExportButtons character={character} psdData={psdData} />
       </div>
       
       <div className="controls">
@@ -159,8 +160,6 @@ return (
             }}
           />
         </div>
-
-      <ExportButtons character={character} psdData={psdData} />
       </div>
     </div>
   </div>
