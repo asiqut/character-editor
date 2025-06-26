@@ -71,11 +71,15 @@ function renderPart(partCode, ctx, psdData, character) {
 }
 
 function renderEyes(ctx, layers, character, variantName) {
-  // 1. Рендерим основные слои глаз
+  console.log('Rendering eyes:', { layers, variantName }); // Логирование
+
+  // 1. Основные слои глаз
   layers.forEach(layer => {
-    if (!layer.canvas || 
-        layer.name === 'с ресницами' || 
-        layer.name === 'без ресниц') return;
+    if (!layer?.canvas || ['с ресницами', 'без ресниц'].includes(layer.name)) {
+      return;
+    }
+
+    console.log('Drawing eye layer:', layer.name);
 
     ctx.save();
     ctx.translate(layer.left || 0, layer.top || 0);
@@ -97,12 +101,13 @@ function renderEyes(ctx, layers, character, variantName) {
     ctx.restore();
   });
 
-  // 2. Рендерим подтип (ресницы) только для обычных глаз
+  // 2. Подтипы (ресницы)
   if (variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = layers.find(l => l.name === subtype);
     
     if (subtypeLayer?.canvas) {
+      console.log('Drawing eye subtype:', subtype); // Логирование
       ctx.save();
       ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
       ctx.drawImage(subtypeLayer.canvas, 0, 0);
