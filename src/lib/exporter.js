@@ -4,10 +4,9 @@ import { renderCharacter } from './renderer';
 
 export const exportPNG = (character, psdData) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 315; // Точный размер PSD
+  canvas.width = 315;
   canvas.height = 315;
   
-  // Рендерим без каких-либо трансформаций
   renderCharacter(canvas, psdData, character);
 
   const link = document.createElement('a');
@@ -17,27 +16,21 @@ export const exportPNG = (character, psdData) => {
 };
 
 export const exportPSD = (originalPsd, character) => {
-  // Правильный порядок групп (сверху вниз)
   const groupOrder = Object.keys(PSD_CONFIG.groups);
-
-  // Создаем новый PSD
   const newPsd = {
     width: 315,
     height: 315,
     children: []
   };
 
-  // Соответствие между английскими и русскими названиями
   const partToGroupName = {};
   Object.entries(PSD_CONFIG.groups).forEach(([name, config]) => {
     partToGroupName[config.code] = name;
   });
 
-  // Функция для применения цвета к слою: используем colorTargets для определения слоев покраски
   const applyColorToLayer = (layer, partName, character) => {
     if (!layer.canvas) return layer;
   
-    // Определяем цвет на основе colorTargets
     let color;
     if (layer.name.includes(PSD_CONFIG.colorTargets.eyesWhite.split('/').pop())) {
       color = character.colors.eyesWhite;
@@ -62,32 +55,15 @@ export const exportPSD = (originalPsd, character) => {
       canvas: tempCanvas
     };
   };
-  
-  // Применяем цвет
-  tempCtx.drawImage(layer.canvas, 0, 0);
-  tempCtx.globalCompositeOperation = 'source-atop';
-  tempCtx.fillStyle = color;
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
-  // Возвращаем обновленный слой
-  return {
-    ...layer,
-    canvas: tempCanvas
-  };
-};
 
-  // Создаем группы в правильном порядке
   groupOrder.forEach(groupName => {
     const partName = Object.keys(partToGroupName).find(
       key => partToGroupName[key] === groupName
     );
     
     if (!partName) return;
-
-    // Пропускаем щёки если они отключены
     if (partName === 'cheeks' && character.cheeks === 'нет') return;
 
-    // Получаем вариант для текущей части
     let variantName;
     if (partName === 'head') {
       variantName = 'default';
@@ -97,7 +73,6 @@ export const exportPSD = (originalPsd, character) => {
       variantName = character[partName];
     }
 
-    // Получаем слои для этой части
     let layers = [];
     if (partName === 'head') {
       layers = originalPsd[partName] || [];
@@ -105,7 +80,6 @@ export const exportPSD = (originalPsd, character) => {
       layers = originalPsd[partName]?.[variantName] || [];
     }
 
-    // Копируем слои с сохранением всех свойств и применяем цвета
     const groupLayers = layers.map(layer => {
       const coloredLayer = applyColorToLayer(layer, partName, character);
       return {
@@ -120,15 +94,14 @@ export const exportPSD = (originalPsd, character) => {
       };
     });
 
-    // Добавляем подтип для глаз
     if (partName === 'eyes' && variantName === 'обычные') {
       const subtypeLayer = layers.find(l => l.name === character.eyes.subtype);
       if (subtypeLayer) {
         groupLayers.push({
           name: subtypeLayer.name,
           canvas: subtypeLayer.canvas,
-          left: subtypeLayer.left,
-          top: subtypeLayer.top,
+          left: variantLayers.left,
+          top: variantLayers.top,
           opacity: subtypeLayer.opacity,
           blendMode: subtypeLayer.blendMode,
           clipping: subtypeLayer.clipping,
@@ -137,7 +110,6 @@ export const exportPSD = (originalPsd, character) => {
       }
     }
 
-    // Добавляем группу в PSD
     if (groupLayers.length > 0) {
       newPsd.children.unshift({
         name: groupName,
@@ -146,7 +118,6 @@ export const exportPSD = (originalPsd, character) => {
     }
   });
 
-  // Экспортируем PSD
   const psdBytes = PSD.writePsd(newPsd);
   const blob = new Blob([psdBytes], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
