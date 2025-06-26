@@ -87,9 +87,11 @@ function renderEyes(ctx, layers, character) {
   // Получаем цвет глаз с учетом приоритетов:
   // 1. Явно заданный цвет в partColors.eyes
   // 2. Дефолтный цвет из конфига
-  const eyeColor = character.partColors.eyes ?? DEFAULT_CHARACTER.partColors.eyes;
-  if (!layers || layers.length === 0) return;
-
+  const eyeColor = character.partColors.eyes;
+  if (!eyeColor) {
+    console.error('Eye color not defined!');
+    return;
+  }
   layers.forEach(layer => {
     if (!layer.canvas || layer.name === 'с ресницами' || layer.name === 'без ресниц') return;
 
