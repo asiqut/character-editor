@@ -51,6 +51,7 @@ body {
   padding: 20px;
 }
 
+/* Обновлённые стили для контейнера controls */
 .controls {
   width: 900px;
   display: flex;
@@ -58,7 +59,7 @@ body {
   overflow-y: auto;
   padding-right: 10px;
   height: 100%;
-  flex-grow: 1;
+  position: relative; 
 }
 
 /* Блоки выбора */
@@ -177,9 +178,12 @@ body {
 
 /* Кнопки экспорта */
 .export-buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  margin-top: auto; 
+  padding-top: 15px;
+  background: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .export-buttons button {
