@@ -311,3 +311,24 @@ body {
     top: auto !important;
   }
 }
+
+.subtype-options {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.subtype-options button {
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+
+.subtype-options button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
