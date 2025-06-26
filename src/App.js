@@ -11,7 +11,21 @@ function App() {
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [groupsConfig, setGroupsConfig] = useState({});
 
+  // Преобразование структуры групп
+  useEffect(() => {
+    const transformed = {};
+    Object.entries(PSD_CONFIG.groups).forEach(([groupName, config]) => {
+      transformed[config.code] = {
+        ...config,
+        interface_title: groupName
+      };
+    });
+    setGroupsConfig(transformed);
+  }, []);
+
+  // Загрузка PSD данных
   useEffect(() => {
     async function load() {
       try {
@@ -75,44 +89,44 @@ function App() {
     }));
   };
 
+  const renderPartGroup = (part) => {
+    const config = groupsConfig[part];
+    if (!config) {
+      console.error(`Missing config for part: ${part}`);
+      return null;
+    }
+
+    return (
+      <div className="part-group" key={part}>
+        <PartSelector
+          part={part}
+          config={config}
+          currentValue={character[part]}
+          onChange={handlePartChange}
+          currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
+          onSubtypeChange={handleSubtypeChange}
+        />
+        
+        <ColorPicker
+          title={`${config.interface_title} цвет`}
+          color={character.partColors[part]}
+          onChange={(color) => handlePartColorChange(part, color)}
+        />
+
+        {part === 'eyes' && (
+          <ColorPicker
+            title="Белки глаз"
+            color={character.colors.eyesWhite}
+            onChange={(color) => handleColorChange('eyesWhite', color)}
+          />
+        )}
+      </div>
+    );
+  };
+
   if (loading) return <div>Загрузка...</div>;
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
-
-const renderPartGroup = (part) => {
-  const config = PSD_CONFIG.groups[part];
-  if (!config) {
-    console.error(`Missing config for part: ${part}`);
-    return null;
-  }
-
-  return (
-    <div className="part-group" key={part}>
-      <PartSelector
-        part={part}
-        currentValue={character[part]}
-        onChange={handlePartChange}
-        currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
-        onSubtypeChange={handleSubtypeChange}
-        character={character}
-      />
-      
-      <ColorPicker
-        title={`${config.interface_title || part} цвет`}
-        color={character.partColors[part]}
-        onChange={(color) => handlePartColorChange(part, color)}
-      />
-
-      {part === 'eyes' && (
-        <ColorPicker
-          title="Белки глаз"
-          color={character.colors.eyesWhite}
-          onChange={(color) => handleColorChange('eyesWhite', color)}
-        />
-      )}
-    </div>
-    );
-  };
 
   return (
     <div className="character-editor">
@@ -126,18 +140,16 @@ const renderPartGroup = (part) => {
         <div className="controls">
           {PSD_CONFIG.renderOrder.map(part => (
             part === 'cheeks' && character.cheeks === 'нет' ? null : renderPartGroup(part)
-          ))}
+          )}
 
-          {/* Глобальный цвет */}
           <div className="part-group">
             <ColorPicker
               title="Основной цвет"
               color={character.colors.main}
               onChange={(color) => {
                 handleColorChange('main', color);
-                // Автоматическое применение к всем частям
                 const newPartColors = {};
-                Object.keys(PSD_CONFIG.groups).forEach(part => {
+                Object.keys(groupsConfig).forEach(part => {
                   newPartColors[part] = color;
                 });
                 setCharacter(prev => ({
