@@ -48,39 +48,48 @@ export const PSD_CONFIG = {
   colorTargets: {
     ears: { 
       interface_color_title: 'Цвет ушей', 
-      path: 'Уши/*/[красить]' 
+      path: 'Уши/*/[красить]',
+      defaultColor: '#f1ece4'
     },
     eyes: { 
       interface_color_title: 'Цвет глаз', 
-      path: 'Глаза/*/[красить]' 
+      path: 'Глаза/*/[красить]', 
+      defaultColor: '#f1ece4'
     },
     eyesWhite: { 
       interface_color_title: 'Белки глаз', 
-      path: 'Глаза/обычные/[белок красить]' 
+      path: 'Глаза/обычные/[белок красить]',
+      defaultColor: '#f1ece4'
     },
     cheeks: { 
       interface_color_title: 'Цвет щёк', 
-      path: 'Щёки/*/[красить]' 
+      path: 'Щёки/*/[красить]',
+      defaultColor: '#ffffff'
     },
     mane: { 
       interface_color_title: 'Цвет гривы', 
-      path: 'Грудь Шея Грива/*/[красить]' 
+      path: 'Грудь Шея Грива/*/[красить]',
+      defaultColor: '#f1ece4'
     },
     body: { 
       interface_color_title: 'Цвет тела', 
-      path: 'Тело/*/[красить]' 
+      path: 'Тело/*/[красить]',
+      defaultColor: '#f1ece4'
     },
     tail: { 
       interface_color_title: 'Цвет хвоста', 
-      path: 'Хвосты/*/[красить]' 
+      path: 'Хвосты/*/[красить]',
+      defaultColor: '#f1ece4'
     },
     head: { 
       interface_color_title: 'Цвет головы', 
-      path: 'Голова/[красить]'
+      path: 'Голова/[красить]',
+      defaultColor: '#f1ece4'
     },
     main: {
       interface_color_title: 'Основной цвет', 
-      elements: ['ears', 'cheeks', 'mane', 'body', 'tail', 'head']
+      elements: ['ears', 'cheeks', 'mane', 'body', 'tail', 'head'],
+      defaultColor: '#f1ece4'
     }
   },
 };
