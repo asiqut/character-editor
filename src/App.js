@@ -8,7 +8,7 @@ import './styles/main.css';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
-  const [character, setCharacter] = useState(PSD_CONFIG.defaultCharacter);
+  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
