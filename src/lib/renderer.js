@@ -103,7 +103,7 @@ function renderEyes(ctx, layers, character, variantName) {
     } 
     else if (layer.name.includes('[красить]')) {
       renderColorLayer(ctx, layer, 
-        character.partColors?.eyes || 
+        character.partColors?.eyes ?? // Используем ?? вместо || для строгой проверки
         DEFAULT_CHARACTER.partColors.eyes
       );
     }
