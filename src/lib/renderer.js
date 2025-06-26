@@ -75,10 +75,11 @@ function renderEyes(ctx, layers, character, variantName) {
   console.log('Rendering eyes:', { layers, variantName }); // Логирование
 
   // 1. Основные слои глаз
-  layers.forEach(layer => {
-    if (!layer?.canvas || ['с ресницами', 'без ресниц'].includes(layer.name)) {
+  function renderEyes(ctx, layers, character, variantName) {
+    if (!layers || layers.length === 0) {
+      console.error('No layers provided for eyes!');
       return;
-    }
+  }
 
     console.log('Drawing eye layer:', layer.name);
 
