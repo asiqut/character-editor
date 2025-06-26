@@ -154,9 +154,7 @@ return (
       </div>
       
       <div className="controls">
-        {PSD_CONFIG.renderOrder.map(part => 
-          part === 'cheeks' && character.cheeks === 'нет' ? null : renderPartGroup(part)
-        )}
+        {PSD_CONFIG.renderOrder.map(part => renderPartGroup(part))}
 
         <div className="part-group">
           <ColorPicker
