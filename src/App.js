@@ -112,17 +112,20 @@ const renderPartGroup = (part) => {
 
   return (
     <div className="part-group" key={part}>
-    {!config.isSingleVariant && (
-      <PartSelector
-        part={part}
-        config={config}
-        currentValue={part === 'eyes' ? character.eyes.type : character[part]}
-        onChange={handlePartChange}
-        currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
-        onSubtypeChange={handleSubtypeChange}
-      />
-    )}     
+      {/* Заголовок для head должен быть первым */}
+      {config.isSingleVariant && <h3>{config.interface_title}</h3>}
       
+      {!config.isSingleVariant && (
+        <PartSelector
+          part={part}
+          config={config}
+          currentValue={part === 'eyes' ? character.eyes.type : character[part]}
+          onChange={handlePartChange}
+          currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
+          onSubtypeChange={handleSubtypeChange}
+        />
+      )}
+
       {(part !== 'cheeks' || character.cheeks !== 'нет') && (
         <ColorPicker
           title={`${config.interface_title} цвет`}
@@ -130,8 +133,6 @@ const renderPartGroup = (part) => {
           onChange={(color) => handlePartColorChange(part, color)}
         />
       )}
-
-      {config.isSingleVariant && <h3>{config.interface_title}</h3>}
 
       {part === 'eyes' && (
         <ColorPicker
