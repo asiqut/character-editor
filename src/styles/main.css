@@ -164,7 +164,6 @@ body.outcasts {
 
 /* Кнопки экспорта */
 .export-buttons {
-  margin-top: 30px;
   display: flex;
   gap: 15px;
 }
@@ -174,7 +173,7 @@ body.outcasts {
   padding: 12px 24px;
   font-size: 1.1rem;
   font-weight: bold;
-  border: none;
+  border: 1px solid rgb(221, 221, 221);
   border-radius: 10px;
   background: var(--button-bg);
   color: var(--button-text);
