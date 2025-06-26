@@ -1,18 +1,29 @@
 import { PSD_CONFIG, DEFAULT_CHARACTER } from './defaultConfig';
 
+// Основная функция рендеринга персонажа
+// Принимает: canvas элемент, psdData (структурированные данные PSD), character (текущие настройки)
+// Возвращает: ничего, рисует непосредственно на canvas
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Рендерим части в заданном порядке
   PSD_CONFIG.renderOrder.forEach(part => {
     if (part === 'cheeks' && character.cheeks === 'нет') return;
     renderPart(part, ctx, psdData, character);
   });
 }
 
+// Рендерит конкретную часть персонажа
+// Принимает: 
+//   - partCode (код части из PSD_CONFIG.groups)
+//   - ctx (контекст canvas)
+//   - psdData (данные PSD)
+//   - character (текущие настройки персонажа)
 function renderPart(partCode, ctx, psdData, character) {
+  // Находим конфиг для текущей части
   const partConfig = Object.values(PSD_CONFIG.groups).find(
     group => group.code === partCode
   );
@@ -22,6 +33,7 @@ function renderPart(partCode, ctx, psdData, character) {
     return;
   }
 
+  // Получаем данные части из PSD
   const partData = psdData[partCode];
   if (!partData) {
     console.warn(`No data for part: ${partCode}`);
@@ -31,9 +43,11 @@ function renderPart(partCode, ctx, psdData, character) {
   let variantName;
   let variantLayers = [];
 
+  // Обработка частей с единственным вариантом (например, голова)
   if (partConfig.isSingleVariant) {
     variantLayers = Array.isArray(partData) ? partData : [];
   } else {
+    // Получаем текущий выбранный вариант
     variantName = partCode === 'eyes' ? character.eyes?.type : character[partCode];
     
     if (variantName && partData && partData[variantName]) {
@@ -44,24 +58,21 @@ function renderPart(partCode, ctx, psdData, character) {
     }
   }
 
+  // Специальная обработка глаз
   if (partCode === 'eyes') {
-    const eyeVariant = character.eyes?.type; // Получаем текущий вариант глаз
-    renderEyes(ctx, variantLayers, character, eyeVariant); // Передаем variantName
+    const eyeVariant = character.eyes?.type;
+    renderEyes(ctx, variantLayers, character, eyeVariant);
     return;
   }
-  // Для всех частей берем цвет из partColors или colors.main согласно конфигу
+
+  // Получаем цвет для текущей части
   const partColor = character.partColors[partCode];
   if (!partColor) {
     console.warn(`No color defined for ${partCode}`);
     return;
   }
 
-  const eyeColor = character.partColors.eyes;
-  if (!eyeColor) {
-    console.error('Eye color not defined!');
-    return;
-  }
-
+  // Рендерим каждый слой варианта
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
@@ -74,13 +85,16 @@ function renderPart(partCode, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
 
+    // Обработка слоев для покраски
     if (layer.name.includes('[красить]')) {
       renderColorLayer(ctx, layer, partColor);
     } else if (shouldClipLayer(layer.name)) {
+      // Обработка обтравочных масок
       const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
       if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
       else ctx.drawImage(layer.canvas, 0, 0);
     } else {
+      // Обычный слой
       ctx.drawImage(layer.canvas, 0, 0);
     }
     
@@ -88,10 +102,14 @@ function renderPart(partCode, ctx, psdData, character) {
   });
 }
 
+// Специальная функция рендеринга глаз
+// Обрабатывает: 
+//   - Основной цвет глаз
+//   - Цвет белков
+//   - Варианты ресниц
 function renderEyes(ctx, layers, character, variantName) {
   if (!layers || !layers.length) return;
 
-  // Проверяем наличие цвета глаз (исправлено: обращение через partColors)
   if (!character.partColors?.eyes) {
     console.error('Eye color not defined!');
     return;
@@ -107,11 +125,11 @@ function renderEyes(ctx, layers, character, variantName) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
 
+    // Обработка разных типов слоев глаз
     if (layer.name.includes('[белок красить]')) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite);
     } 
     else if (layer.name.includes('[красить]')) {
-      // Исправлено: используем цвет глаз из состояния персонажа
       renderColorLayer(ctx, layer, character.partColors.eyes);
     }
     else if (shouldClipLayer(layer.name)) {
@@ -139,10 +157,12 @@ function renderEyes(ctx, layers, character, variantName) {
   }
 }
 
+// Проверяет, нужно ли применять обтравочную маску к слою
 function shouldClipLayer(layerName) {
   return PSD_CONFIG.clippedLayers.includes(layerName);
 }
 
+// Рендерит слой с обтравочной маской
 function renderClippedLayer(ctx, layer, clipLayer) {
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = Math.max(layer.canvas.width, clipLayer.canvas.width);
@@ -164,6 +184,7 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
+// Рендерит цветной слой (применяет выбранный цвет)
 function renderColorLayer(ctx, layer, color) {
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = layer.canvas.width;
@@ -177,6 +198,7 @@ function renderColorLayer(ctx, layer, color) {
   ctx.drawImage(tempCanvas, 0, 0);
 }
 
+// Конвертирует blend mode из PSD в canvas
 function convertBlendMode(psdBlendMode) {
   const modes = {
     'normal': 'source-over',
