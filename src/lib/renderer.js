@@ -82,18 +82,10 @@ function renderPart(partCode, ctx, psdData, character) {
 }
 
 function renderEyes(ctx, layers, character, variantName) {
-  console.log('Rendering eyes:', { layers, variantName });
+  if (!layers || layers.length === 0) return;
 
-  if (!layers || layers.length === 0) {
-    console.error('No layers provided for eyes!');
-    return;
-  }
-
-  // 1. Основные слои глаз
   layers.forEach(layer => {
-    if (!layer.canvas || 
-        layer.name === 'с ресницами' || 
-        layer.name === 'без ресниц') return;
+    if (!layer.canvas || layer.name === 'с ресницами' || layer.name === 'без ресниц') return;
 
     ctx.save();
     ctx.translate(layer.left || 0, layer.top || 0);
@@ -103,27 +95,27 @@ function renderEyes(ctx, layers, character, variantName) {
     }
 
     if (layer.name.includes('[белок красить]')) {
-      renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
+      renderColorLayer(ctx, layer, character.colors.eyesWhite || DEFAULT_CHARACTER.colors.eyesWhite);
     } 
     else if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer, 
-        character.partColors?.eyes || 
-        DEFAULT_CHARACTER.partColors.eyes
-      );
+      // Используем текущий цвет глаз или дефолтный, если не задан
+      const eyeColor = character.partColors?.eyes !== undefined 
+        ? character.partColors.eyes 
+        : DEFAULT_CHARACTER.partColors.eyes;
+      renderColorLayer(ctx, layer, eyeColor);
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
       if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
       else ctx.drawImage(layer.canvas, 0, 0);
-    }
-    else {
+    } else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
     
     ctx.restore();
   });
 
-  // 2. Подтипы (ресницы)
+  // Обработка подтипов (ресниц)
   if (variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = layers.find(l => l.name === subtype);
@@ -131,16 +123,7 @@ function renderEyes(ctx, layers, character, variantName) {
     if (subtypeLayer?.canvas) {
       ctx.save();
       ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
-      
-      // Применяем clipping mask если нужно
-      if (shouldClipLayer(subtypeLayer.name)) {
-        const colorLayer = layers.find(l => l.name.includes('[красить]'));
-        if (colorLayer) renderClippedLayer(ctx, subtypeLayer, colorLayer);
-        else ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      } else {
-        ctx.drawImage(subtypeLayer.canvas, 0, 0);
-      }
-      
+      ctx.drawImage(subtypeLayer.canvas, 0, 0);
       ctx.restore();
     }
   }
