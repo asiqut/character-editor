@@ -96,24 +96,9 @@ const renderPartGroup = (part) => {
     return null;
   }
 
-  // Специальная проверка для щёк
-  if (part === 'cheeks' && character.cheeks === 'нет') {
-    return (
-      <div className="part-group" key={part}>
-        <PartSelector
-          part={part}
-          config={config}
-          currentValue={character[part]}
-          onChange={handlePartChange}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="part-group" key={part}>
-      {/* Заголовок для head должен быть первым */}
-      {config.isSingleVariant && <h3>{config.interface_title}</h3>}
+      <h3>{config.interface_title}</h3>
       
       {!config.isSingleVariant && (
         <PartSelector
@@ -128,7 +113,7 @@ const renderPartGroup = (part) => {
 
       {(part !== 'cheeks' || character.cheeks !== 'нет') && (
         <ColorPicker
-          title={`${config.interface_title} цвет`}
+          title={PSD_CONFIG.colorTargets[part]?.interface_color_title || `${config.interface_title} цвет`}
           color={character.partColors[part]}
           onChange={(color) => handlePartColorChange(part, color)}
         />
@@ -136,7 +121,7 @@ const renderPartGroup = (part) => {
 
       {part === 'eyes' && (
         <ColorPicker
-          title="Белки глаз"
+          title={PSD_CONFIG.colorTargets.eyesWhite.interface_color_title}
           color={character.colors.eyesWhite}
           onChange={(color) => handleColorChange('eyesWhite', color)}
         />
