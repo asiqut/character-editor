@@ -1,6 +1,6 @@
 // Используется в App.js для выбора вариантов частей тела (например, уши, глаза, хвост)
-import React from 'react';
 import { PSD_CONFIG } from '../lib/defaultConfig';
+import React from 'react';
 
 export default function PartSelector({
   part,
@@ -16,7 +16,7 @@ export default function PartSelector({
 
   const showSubtypes = part === 'eyes' && 
                       currentValue === 'обычные' && 
-                      config.variants.обычные.subtypes;
+                      config.variants['обычные']?.subtypes;
 
   return (
     <div className={`part-selector ${part}`}>
@@ -37,7 +37,7 @@ export default function PartSelector({
       {showSubtypes && (
         <div className="subtypes">
           <h4>Варианты:</h4>
-          {Object.keys(config.variants.обычные.subtypes).map(subtype => (
+          {Object.keys(config.variants['обычные'].subtypes).map(subtype => (
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
