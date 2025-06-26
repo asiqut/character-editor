@@ -75,11 +75,9 @@ const handleColorChange = (colorType, color) => {
     
     if (colorType === 'main') {
       const newPartColors = {...prev.partColors};
-      // Красим только элементы из конфига, исключая глаза
+      // Красим только элементы, указанные в конфиге
       PSD_CONFIG.colorTargets.main.elements.forEach(part => {
-        if (part !== 'eyes') { // Явно исключаем глаза
-          newPartColors[part] = color;
-        }
+        newPartColors[part] = color;
       });
       return {...prev, colors: newColors, partColors: newPartColors};
     }
@@ -88,15 +86,15 @@ const handleColorChange = (colorType, color) => {
   });
 };
 
-  const handlePartColorChange = (part, color) => {
-    setCharacter(prev => ({
-      ...prev,
-      partColors: {
-        ...prev.partColors,
-        [part]: color
-      }
-    }));
-  };
+const handlePartColorChange = (part, color) => {
+  setCharacter(prev => ({
+    ...prev,
+    partColors: {
+      ...prev.partColors,
+      [part]: color
+    }
+  }));
+};
 
 const renderPartGroup = (part) => {
   const config = groupsConfig[part];
