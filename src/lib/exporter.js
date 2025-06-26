@@ -30,21 +30,23 @@ export const exportPSD = (originalPsd, character) => {
 
   const applyColorToLayer = (layer, partName, character) => {
     if (!layer.canvas) return layer;
-
+  
     let color;
-    if (layer.name.includes(PSD_CONFIG.colorTargets.eyesWhite.split('/').pop())) {
+    const colorTarget = PSD_CONFIG.colorTargets[partName];
+    
+    if (partName === 'eyes' && layer.name.includes('[белок красить]')) {
       color = character.colors.eyesWhite;
     } else if (layer.name.includes('[красить]')) {
       color = character.partColors?.[partName] || character.colors?.main || '#f1ece4';
     } else {
       return layer;
     }
-
+  
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = layer.canvas.width;
     tempCanvas.height = layer.canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
-  
+
     tempCtx.drawImage(layer.canvas, 0, 0);
     tempCtx.globalCompositeOperation = 'source-atop';
     tempCtx.fillStyle = color;
