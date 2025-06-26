@@ -1,116 +1,120 @@
-/* Основные стили страницы */
+/* Основные стили */
 body {
   margin: 0;
-  overflow: hidden; /* Отключаем прокрутку страницы */
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5; /* Фоновый цвет страницы */
+  background-color: #f5f5f5;
 }
 
-/* Главный контейнер редактора */
+/* Контейнер редактора */
 .character-editor {
-  max-width: 1200px; /* Максимальная ширина редактора */
-  margin: 20px auto; /* Центрирование по горизонтали */
+  max-width: 1200px;
+  margin: 20px auto;
   padding: 20px;
-  background: white; /* Белый фон редактора */
-  border-radius: 8px; /* Закругленные углы */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Тень контейнера */
-  height: calc(100vh - 40px); /* Высота по размеру окна */
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
+  box-sizing: border-box;
 }
 
-/* Заголовок редактора */
 .character-editor h1 {
   text-align: center;
   margin-top: 0;
-  color: #333; /* Цвет текста */
+  margin-bottom: 22px;
+  color: #333;
 }
 
-/* Контейнер с областями предпросмотра и управления */
+/* Область редактирования */
 .editor-container {
   display: flex;
-  gap: 30px; /* Расстояние между областями */
+  gap: 30px;
+  flex: 1;
+  min-height: 0;
 }
 
-/* Область предпросмотра персонажа */
 .preview-area {
-  width: 315px; /* Фиксированная ширина */
-  height: 315px; /* Фиксированная высота */
-  border: 1px solid #ddd; /* Граница области */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 315px;
+  max-width: 315px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
 }
 
-/* Панель управления с элементами выбора */
+/* Обновлённые стили для контейнера controls */
 .controls {
-  width: 900px; /* Ширина панели управления */
-  overflow-y: auto; /* Вертикальная прокрутка при необходимости */
+  width: 900px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: 10px;
+  height: 100%;
+  position: relative; 
 }
 
-/* Блок выбора вариантов части персонажа */
+/* Блоки выбора */
 .part-group {
-  margin-bottom: 25px; /* Отступ между блоками */
-  background: rgba(255, 255, 255, 0.1); /* Фон блока */
-  border-radius: 14px; /* Закругленные углы */
-  padding: 20px; /* Внутренние отступы */
-  border: 1px solid #ddd; /* Граница блока */
+  margin-bottom: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #ddd;
 }
 
-/* Заголовок блока выбора */
 .part-group h2 {
-  margin: 0 0 15px 0; /* Отступ снизу */
-  font-size: 1.4rem; /* Размер шрифта */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Граница под заголовком */
-  padding-bottom: 10px; /* Отступ от границы */
+  margin: 0 0 15px 0;
+  font-size: 1.4rem;
+  color: #333;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 10px;
 }
 
-/* Контейнер с кнопками выбора вариантов */
+/* ОБНОВЛЁННЫЕ СТИЛИ КНОПОК (НАЧАЛО) */
 .options {
   display: flex;
-  flex-wrap: wrap; /* Перенос на новую строку */
-  gap: 8px; /* Расстояние между кнопками */
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
 }
 
-/* Кнопки выбора вариантов */
 .options button {
   flex: 1;
-  min-width: 120px; /* Минимальная ширина кнопки */
-  padding: 8px 12px; /* Внутренние отступы */
-  border: 1px solid #ddd; /* Граница кнопки */
-  border-radius: 8px; /* Закругленные углы */
-  background: #f8f8f8; /* Фон кнопки */
-  cursor: pointer; /* Указатель при наведении */
-}
-
-/* Стили для цветового пикера */
-.color-picker {
-  position: relative; /* Для позиционирования попапа */
-}
-
-/* Элемент выбора цвета */
-.color-swatch {
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
+  min-width: 120px;
+  padding: 8px 12px;
+  font-size: 14px;
   border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f8f8f8;
+  color: #333;
   cursor: pointer;
-  display: inline-block;
+  transition: all 0.2s;
+  text-align: center;
 }
 
-/* Адаптация для мобильных устройств */
-@media (max-width: 768px) {
-  .editor-container {
-    flex-direction: column; /* Вертикальное расположение */
-  }
-  
-  .controls {
-    width: 100%; /* На всю ширину */
-  }
+.options button:hover {
+  background: #eee;
 }
 
-/* ===== Дополнительные стили из оригинала ===== */
+.options button.active {
+  background: #f0f0f0;
+  color: #333;
+  border-color: #ccc;
+  box-shadow: 0 0 0 2px #aaa;
+}
 
-/* Специфичные стили для частей */
+/* Удаляем все специфичные стили для частей */
 .part-selector.ears .options,
 .part-selector.eyes .options,
 .part-selector.tail .options {
@@ -126,11 +130,28 @@ body {
 .part-selector.tail button {
   min-width: auto !important;
 }
+/* ОБНОВЛЁННЫЕ СТИЛИ КНОПОК (КОНЕЦ) */
 
-/* Окно выбора цвета */
+/* Цветовые пикеры */
+.color-picker {
+  position: relative;
+  margin-top: 10px;
+}
+
+.color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
 .color-picker-popup {
   position: absolute;
-  z-index: 100; /* Поверх других элементов */
+  z-index: 100;
   background: white;
   padding: 10px;
   border-radius: 8px;
@@ -145,58 +166,75 @@ body {
   height: 200px;
 }
 
-/* Поле ввода HEX */
 .hex-input {
-  margin-top: 10px; /* Отступ сверху */
+  margin-top: 10px;
 }
+
 .hex-input input {
-  width: 91.5%; /* Ширина поля */
-  padding: 8px; /* Внутренние отступы */
-  border: 1px solid #ddd; /* Граница */
-  border-radius: 4px; /* Закругление */
-  font-family: monospace; /* Моноширинный шрифт */
-  text-align: center; /* Выравнивание по центру */
+  width: 91.5%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  text-align: center;
+}
+
+.color-value {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: #666;
 }
 
 /* Кнопки экспорта */
 .export-buttons {
-  margin-top: 20px; /* Отступ сверху */
-  position: sticky; /* Липкое позиционирование */
-  bottom: 0; /* Прилипание к низу */
-  background: white; /* Фон */
-  padding: 15px 0; /* Внутренние отступы */
+  margin-top: 20px;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 15px 0;
   display: flex;
-  gap: 15px; /* Расстояние между кнопками */
+  gap: 15px;
 }
 
-/* Стили кнопок экспорта */
 .export-buttons button {
-  flex: 1; /* Равномерное распределение */
-  padding: 12px 24px; /* Внутренние отступы */
-  font-size: 1.1rem; /* Размер шрифта */
-  font-weight: bold; /* Жирный текст */
+  flex: 1;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
   border: 1px solid rgb(221, 221, 221);
-  border-radius: 10px; /* Закругление */
-  background: var(--button-bg); /* Переменная цвета */
-  color: var(--button-text); /* Переменная текста */
+  border-radius: 10px;
+  background: var(--button-bg);
+  color: var(--button-text);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.3s; /* Анимации */
-  box-shadow: var(--button-shadow); /* Переменная тени */
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: var(--button-shadow);
 }
 
-/* Состояние при наведении */
 .export-buttons button:hover {
-  transform: translateY(-2px); /* Сдвиг вверх */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Усиленная тень */
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Мобильная версия цветового пикера */
+/* Адаптация для мобильных */
 @media (max-width: 768px) {
+  .editor-container {
+    flex-direction: column;
+  }
+  
+  .controls {
+    width: 100%;
+  }
+  
+  .preview-area {
+    min-height: 400px;
+  }
+
   .color-picker-popup {
-    position: fixed; /* Фиксированное позиционирование */
+    position: fixed;
     left: 50%;
-    transform: translateX(-50%); /* Центрирование */
-    bottom: 20px; /* Отступ снизу */
-    top: auto !important; /* Переопределение */
+    transform: translateX(-50%);
+    bottom: 20px;
+    top: auto !important;
   }
 }
