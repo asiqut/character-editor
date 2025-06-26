@@ -96,7 +96,7 @@ const renderPartGroup = (part) => {
 
   return (
     <div className="part-group" key={part}>
-      <h3>{config.interface_title}</h3>
+      <h2>{config.interface_title}</h2>
       
       {!config.isSingleVariant && (
         <PartSelector
