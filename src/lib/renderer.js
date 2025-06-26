@@ -84,6 +84,11 @@ function renderPart(partCode, ctx, psdData, character) {
 function renderEyes(ctx, layers, character, variantName) {
   if (!layers || layers.length === 0) return;
 
+  // Получаем цвет глаз с учетом приоритетов:
+  // 1. Явно заданный цвет в partColors.eyes
+  // 2. Дефолтный цвет из конфига
+  const eyeColor = character.partColors?.eyes ?? DEFAULT_CHARACTER.partColors.eyes;
+
   layers.forEach(layer => {
     if (!layer.canvas || layer.name === 'с ресницами' || layer.name === 'без ресниц') return;
 
@@ -95,14 +100,10 @@ function renderEyes(ctx, layers, character, variantName) {
     }
 
     if (layer.name.includes('[белок красить]')) {
-      renderColorLayer(ctx, layer, character.colors.eyesWhite || DEFAULT_CHARACTER.colors.eyesWhite);
+      renderColorLayer(ctx, layer, character.colors.eyesWhite);
     } 
     else if (layer.name.includes('[красить]')) {
-      // Используем текущий цвет глаз или дефолтный, если не задан
-      const eyeColor = character.partColors?.eyes !== undefined 
-        ? character.partColors.eyes 
-        : DEFAULT_CHARACTER.partColors.eyes;
-      renderColorLayer(ctx, layer, eyeColor);
+      renderColorLayer(ctx, layer, eyeColor); // Используем вычисленный цвет глаз
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
