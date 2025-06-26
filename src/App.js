@@ -79,35 +79,38 @@ function App() {
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
 
-  const renderPartGroup = (part) => {
-    const config = PSD_CONFIG.groups[part];
-    return (
-      <div className="part-group" key={part}>
-        <PartSelector
-          part={part}
-          currentValue={character[part]}
-          onChange={handlePartChange}
-          currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
-          onSubtypeChange={handleSubtypeChange}
-          character={character}
-        />
-        
-        {/* Основной цвет части */}
-        <ColorPicker
-          title={`${config.interface_title} цвет`}
-          color={character.partColors[part]}
-          onChange={(color) => handlePartColorChange(part, color)}
-        />
+const renderPartGroup = (part) => {
+  const config = PSD_CONFIG.groups[part];
+  if (!config) {
+    console.error(`Missing config for part: ${part}`);
+    return null;
+  }
 
-        {/* Специальные цветовые цели (белки глаз) */}
-        {part === 'eyes' && (
-          <ColorPicker
-            title="Белки глаз"
-            color={character.colors.eyesWhite}
-            onChange={(color) => handleColorChange('eyesWhite', color)}
-          />
-        )}
-      </div>
+  return (
+    <div className="part-group" key={part}>
+      <PartSelector
+        part={part}
+        currentValue={character[part]}
+        onChange={handlePartChange}
+        currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
+        onSubtypeChange={handleSubtypeChange}
+        character={character}
+      />
+      
+      <ColorPicker
+        title={`${config.interface_title || part} цвет`}
+        color={character.partColors[part]}
+        onChange={(color) => handlePartColorChange(part, color)}
+      />
+
+      {part === 'eyes' && (
+        <ColorPicker
+          title="Белки глаз"
+          color={character.colors.eyesWhite}
+          onChange={(color) => handleColorChange('eyesWhite', color)}
+        />
+      )}
+    </div>
     );
   };
 
