@@ -139,7 +139,7 @@ function renderEyes(ctx, layers, character, variantName) {
   }
 }
 function shouldClipLayer(layerName) {
-  return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
+  return PSD_CONFIG.clippedLayers.includes(layerName);
 }
 
 function renderClippedLayer(ctx, layer, clipLayer) {
