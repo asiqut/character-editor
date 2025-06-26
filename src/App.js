@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { loadPSD } from './lib/psdLoader';
-import { DEFAULT_CHARACTER, PSD_CONFIG } from './lib/defaultConfig';
+import { loadAndProcessPSD } from './lib/defaultConfig';
 import CharacterPreview from './components/CharacterPreview';
 import PartSelector from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
@@ -9,14 +8,14 @@ import './styles/main.css';
 
 function App() {
   const [psdData, setPsdData] = useState(null);
-  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
+  const [character, setCharacter] = useState(PSD_CONFIG.defaultCharacter);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await loadPSD();
+        const data = await loadAndProcessPSD();
         setPsdData(data);
       } catch (err) {
         setError(err.message);
@@ -27,22 +26,15 @@ function App() {
     load();
   }, []);
 
-  const handlePartChange = (part, value, isSubtype = false) => {
+  const handlePartChange = (part, value) => {
     setCharacter(prev => {
       const newChar = {...prev};
       
       if (part === 'eyes') {
-        if (isSubtype) {
-          newChar.eyes = {
-            ...prev.eyes,
-            subtype: value
-          };
-        } else {
-          newChar.eyes = {
-            type: value,
-            subtype: value === 'обычные' ? 'с ресницами' : null
-          };
-        }
+        newChar.eyes = {
+          type: value,
+          subtype: value === 'обычные' ? 'с ресницами' : null
+        };
       } else {
         newChar[part] = value;
       }
@@ -63,15 +55,15 @@ function App() {
     }));
   };
 
-const handleColorChange = (colorType, color) => {
-  setCharacter(prev => ({
-    ...prev,
-    colors: {
-      ...prev.colors,
-      [colorType]: color
-    }
-  }));
-};
+  const handleColorChange = (colorType, color) => {
+    setCharacter(prev => ({
+      ...prev,
+      colors: {
+        ...prev.colors,
+        [colorType]: color
+      }
+    }));
+  };
 
   const handlePartColorChange = (part, color) => {
     setCharacter(prev => ({
@@ -87,6 +79,38 @@ const handleColorChange = (colorType, color) => {
   if (error) return <div>Ошибка: {error}</div>;
   if (!psdData) return <div>Данные не загружены</div>;
 
+  const renderPartGroup = (part) => {
+    const config = PSD_CONFIG.groups[part];
+    return (
+      <div className="part-group" key={part}>
+        <PartSelector
+          part={part}
+          currentValue={character[part]}
+          onChange={handlePartChange}
+          currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
+          onSubtypeChange={handleSubtypeChange}
+          character={character}
+        />
+        
+        {/* Основной цвет части */}
+        <ColorPicker
+          title={`${config.interface_title} цвет`}
+          color={character.partColors[part]}
+          onChange={(color) => handlePartColorChange(part, color)}
+        />
+
+        {/* Специальные цветовые цели (белки глаз) */}
+        {part === 'eyes' && (
+          <ColorPicker
+            title="Белки глаз"
+            color={character.colors.eyesWhite}
+            onChange={(color) => handleColorChange('eyesWhite', color)}
+          />
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="character-editor">
       <h1>Редактор персонажа</h1>
@@ -97,125 +121,29 @@ const handleColorChange = (colorType, color) => {
         </div>
         
         <div className="controls">
-          {/* Уши */}
-          <div className="part-group">
-          <PartSelector
-            part="ears"
-            currentValue={character.ears}
-            onChange={handlePartChange}
-            character={character}
-          />
-          <ColorPicker
-            title={PSD_CONFIG.groups.ears.interface_title + " цвет"}
-            color={character.partColors.ears}
-            onChange={(color) => handlePartColorChange('ears', color)}
-          />
-          </div>
+          {PSD_CONFIG.renderOrder.map(part => (
+            part === 'cheeks' && character.cheeks === 'нет' ? null : renderPartGroup(part)
+          ))}
 
-          {/* Глаза */}
+          {/* Глобальный цвет */}
           <div className="part-group">
-          <PartSelector
-            part="eyes"
-            currentValue={character.eyes.type}
-            onChange={handlePartChange}
-            currentSubtype={character.eyes.subtype}
-            onSubtypeChange={handleSubtypeChange}
-            character={character}
-          />
-          <ColorPicker
-            title={PSD_CONFIG.groups.eyes.interface_title + " цвет"}
-            color={character.partColors.eyes}
-            onChange={(color) => handlePartColorChange('eyes', color)}
-          />
-          <ColorPicker
-            title={"Цвет глаз"}
-            color={character.partColors.eyesWhite}
-            onChange={(color) => handlePartColorChange('eyesWhite', color)}
-          />
-          </div>
-
-          {/* Щёки */}
-          <div className="part-group">
-            <PartSelector
-              part="cheeks"
-              currentValue={character.cheeks}
-              onChange={handlePartChange}
-              character={character}
-            />
             <ColorPicker
-              title={"Цвет белка глаз"}
-              color={character.partColors.cheeks}
-              onChange={(color) => handlePartColorChange('cheeks', color)}
+              title="Основной цвет"
+              color={character.colors.main}
+              onChange={(color) => {
+                handleColorChange('main', color);
+                // Автоматическое применение к всем частям
+                const newPartColors = {};
+                Object.keys(PSD_CONFIG.groups).forEach(part => {
+                  newPartColors[part] = color;
+                });
+                setCharacter(prev => ({
+                  ...prev,
+                  partColors: newPartColors
+                }));
+              }}
             />
-            </div>
-
-            {/* Голова */}
-            <div className="part-group">
-            <PartSelector
-              part="head"
-              currentValue={character.head}
-              onChange={handlePartChange}
-              character={character}
-            />
-            <ColorPicker
-              title={"Цвет головы"}
-              color={character.partColors.head}
-              onChange={(color) => handlePartColorChange('head', color)}
-            />
-            </div>
-
-          {/* Грива */}
-          <div className="part-group">
-          <PartSelector
-            part="mane"
-            currentValue={character.mane}
-            onChange={handlePartChange}
-            character={character}
-          />
-          <ColorPicker
-            title={"Цвет гривы"}
-            color={character.partColors.mane}
-            onChange={(color) => handlePartColorChange('mane', color)}
-          />
           </div>
-
-          {/* Тело */}
-          <div className="part-group">
-          <PartSelector
-            part="body"
-            currentValue={character.body}
-            onChange={handlePartChange}
-            character={character}
-          />
-          <ColorPicker
-            title={"Цвет тела"}
-            color={character.partColors.body}
-            onChange={(color) => handlePartColorChange('body', color)}
-          />
-          </div>
-
-          {/* Хвост */}
-          <div className="part-group">
-          <PartSelector
-            part="tail"
-            currentValue={character.tail}
-            onChange={handlePartChange}
-            character={character}
-          />
-          <ColorPicker
-            title={"Цвет хвоста"}
-            color={character.partColors.tail}
-            onChange={(color) => handlePartColorChange('tail', color)}
-          />
-          </div>
-
-          {/* Основные цвета */}
-          <div className="part-group">
-          <ColorPicker
-            title={"Покрытие всего тела"}
-            color={character.partColors.main}
-            onChange={(color) => handlePartColorChange('main', color)}
-          />
 
           <ExportButtons character={character} psdData={psdData} />
         </div>
