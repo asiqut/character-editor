@@ -70,20 +70,23 @@ const handlePartChange = (part, value) => {
   };
 
 const handleColorChange = (colorType, color) => {
-  setCharacter(prev => {
-    const newColors = {...prev.colors, [colorType]: color};
-    
-    if (colorType === 'main') {
-      const newPartColors = {...prev.partColors};
-      // Красим только элементы, указанные в конфиге
-      PSD_CONFIG.colorTargets.main.elements.forEach(part => {
-        newPartColors[part] = color;
-      });
-      return {...prev, colors: newColors, partColors: newPartColors};
-    }
-    
-    return {...prev, colors: newColors};
-  });
+  setCharacter(prev => ({
+    ...prev,
+    colors: {
+      ...prev.colors,
+      [colorType]: color
+    },
+    // Для main цвета обновляем ТОЛЬКО указанные элементы
+    ...(colorType === 'main' && {
+      partColors: {
+        ...prev.partColors,
+        ...PSD_CONFIG.colorTargets.main.elements.reduce((acc, part) => ({
+          ...acc,
+          [part]: color
+        }), {})
+      }
+    })
+  }));
 };
 
 const handlePartColorChange = (part, color) => {
