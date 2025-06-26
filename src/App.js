@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadAndProcessPSD, PSD_CONFIG, DEFAULT_CHARACTER } from './lib/defaultConfig';
 import CharacterPreview from './components/CharacterPreview';
-import PartSelector from './components/PartSelector';
+import { PartSelector } from './components/PartSelector';
 import ColorPicker from './components/ColorPicker';
 import ExportButtons from './components/ExportButtons';
 import './styles/main.css';
