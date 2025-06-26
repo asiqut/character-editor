@@ -3,30 +3,25 @@ import React from 'react';
 import { PSD_CONFIG } from '../lib/defaultConfig';
 
 function PartSelector({
-  part, // 'ears', 'eyes', 'tail' и т.д.
+  part,
+  config,
   currentValue,
   onChange,
   currentSubtype,
-  onSubtypeChange 
+  onSubtypeChange
 }) {
-  // Получаем конфигурацию для этой части тела
-  const partConfig = PSD_CONFIG.groups[part];
-  
-  // Формируем варианты выбора
-  const variants = partConfig.isSingleVariant 
-    ? [part] // Для головы (единственный вариант)
-    : Object.keys(partConfig.variants); // Все варианты
+  const variants = config.isSingleVariant 
+    ? [part]
+    : Object.keys(config.variants);
 
-  // Проверяем наличие подтипов (только для глаз)
   const showSubtypes = part === 'eyes' && 
-                       currentValue === 'обычные' && 
-                       partConfig.variants.обычные.subtypes;
+                      currentValue === 'обычные' && 
+                      config.variants.обычные.subtypes;
 
   return (
     <div className={`part-selector ${part}`}>
-      <h3>{partConfig.interface_title}</h3>
+      <h3>{config.interface_title}</h3>
       
-      {/* Основные варианты */}
       <div className="options">
         {variants.map(variant => (
           <button
@@ -39,11 +34,10 @@ function PartSelector({
         ))}
       </div>
       
-      {/* Подтипы (только для обычных глаз) */}
       {showSubtypes && (
         <div className="subtypes">
           <h4>Варианты:</h4>
-          {Object.keys(partConfig.variants.обычные.subtypes).map(subtype => (
+          {Object.keys(config.variants.обычные.subtypes).map(subtype => (
             <button
               key={subtype}
               className={subtype === currentSubtype ? 'active' : ''}
@@ -57,5 +51,3 @@ function PartSelector({
     </div>
   );
 }
-
-export default PartSelector;
