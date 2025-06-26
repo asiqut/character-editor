@@ -23,7 +23,10 @@ function renderPart(partCode, ctx, psdData, character) {
   }
 
   const partData = psdData[partCode];
-  if (!partData) return;
+  if (!partData) {
+    console.warn(`No data for part: ${partCode}`);
+    return;
+  }
 
   let variantName;
   let variantLayers = [];
@@ -35,6 +38,8 @@ function renderPart(partCode, ctx, psdData, character) {
     if (variantName && partData[variantName]) {
       variantLayers = partData[variantName];
       console.log(`Layers for ${partCode}/${variantName}:`, variantLayers);
+    } else {
+      console.warn(`No variant '${variantName}' found for ${partCode}`);
     }
   }
 
