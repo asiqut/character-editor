@@ -1,4 +1,4 @@
-import { PSD_CONFIG } from '../lib/defaultConfig';
+import { PSD_CONFIG } from './defaultConfig';
 
 export function renderCharacter(canvas, psdData, character) {
   if (!psdData || !character) return;
@@ -28,10 +28,11 @@ function renderPart(currentPartName, ctx, psdData, character) {
     variantLayers = Array.isArray(partGroup) ? partGroup : [];
   } 
   else {
-    const variantName = character[currentPartName] || 
-    PSD_CONFIG.groups[currentPartName].defaultVariant;
+    variantName = character[currentPartName] || 
+                 PSD_CONFIG.groups[currentPartName].defaultVariant;
+    variantLayers = partGroup[variantName] || [];
+  }
 
-  // Обработка цвета для глаз
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
     
@@ -42,17 +43,14 @@ function renderPart(currentPartName, ctx, psdData, character) {
       ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
     }
     
-    // Особый обработчик для белков глаз
     if (layer.name.includes('[белок красить]')) {
       const eyeWhiteColor = character.colors?.eyesWhite || '#ffffff';
       renderColorLayer(ctx, layer, eyeWhiteColor);
     }
-    // Обычные слои для покраски
     else if (layer.name.includes('[красить]')) {
       const partColor = character.partColors?.[currentPartName] || character.colors?.main || '#f1ece4';
       renderColorLayer(ctx, layer, partColor);
     }
-    // Слои с клиппингом
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = variantLayers.find(l => l.name.includes('[красить]'));
       if (colorLayer) {
@@ -61,7 +59,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
         ctx.drawImage(layer.canvas, 0, 0);
       }
     }
-    // Обычные слои
     else {
       ctx.drawImage(layer.canvas, 0, 0);
     }
@@ -69,7 +66,6 @@ function renderPart(currentPartName, ctx, psdData, character) {
     ctx.restore();
   });
 
-  // Обработка подтипов глаз
   if (currentPartName === 'eyes' && variantName === 'обычные') {
     const subtype = character.eyes?.subtype || 'с ресницами';
     const subtypeLayer = variantLayers.find(l => l.name === subtype);
@@ -112,7 +108,7 @@ function renderClippedLayer(ctx, layer, clipLayer) {
   tempCtx.globalCompositeOperation = 'source-in';
 
   if (layer.opacity !== undefined && layer.opacity < 1) {
-  tempCtx.globalAlpha = layer.opacity;
+    tempCtx.globalAlpha = layer.opacity;
   }
   
   tempCtx.drawImage(layer.canvas, 0, 0);
