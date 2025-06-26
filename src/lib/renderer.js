@@ -37,16 +37,8 @@ function renderPart(partCode, ctx, psdData, character) {
     }
   }
 
-  // Рендерим основные слои
-  variantLayers.forEach(layer => {
-    if (!layer.canvas) return;
-    
-    ctx.save();
-    ctx.translate(layer.left || 0, layer.top || 0);
-    
-    if (layer.blendMode) {
-      ctx.globalCompositeOperation = convertBlendMode(layer.blendMode);
-    }
+    ctx.restore();
+  });
     
     if (partConfig.colorTargets?.eyesWhite && layer.name.includes('[белок красить]')) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
