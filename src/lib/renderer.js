@@ -91,8 +91,6 @@ function renderEyes(ctx, layers, character, variantName) {
         layer.name === 'с ресницами' || 
         layer.name === 'без ресниц') return;
 
-    console.log('Drawing eye layer:', layer.name);
-
     ctx.save();
     ctx.translate(layer.left || 0, layer.top || 0);
     
@@ -105,6 +103,11 @@ function renderEyes(ctx, layers, character, variantName) {
     } 
     else if (layer.name.includes('[красить]')) {
       renderColorLayer(ctx, layer, character.partColors?.eyes || character.colors?.main || '#f1ece4');
+    }
+    else if (shouldClipLayer(layer.name)) {
+      const colorLayer = layers.find(l => l.name.includes('[красить]'));
+      if (colorLayer) renderClippedLayer(ctx, layer, colorLayer);
+      else ctx.drawImage(layer.canvas, 0, 0);
     }
     else {
       ctx.drawImage(layer.canvas, 0, 0);
@@ -119,15 +122,22 @@ function renderEyes(ctx, layers, character, variantName) {
     const subtypeLayer = layers.find(l => l.name === subtype);
     
     if (subtypeLayer?.canvas) {
-      console.log('Drawing eye subtype:', subtype);
       ctx.save();
       ctx.translate(subtypeLayer.left || 0, subtypeLayer.top || 0);
-      ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      
+      // Применяем clipping mask если нужно
+      if (shouldClipLayer(subtypeLayer.name)) {
+        const colorLayer = layers.find(l => l.name.includes('[красить]'));
+        if (colorLayer) renderClippedLayer(ctx, subtypeLayer, colorLayer);
+        else ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      } else {
+        ctx.drawImage(subtypeLayer.canvas, 0, 0);
+      }
+      
       ctx.restore();
     }
   }
 }
-
 function shouldClipLayer(layerName) {
   return ['свет', 'тень', 'свет2', 'блики'].includes(layerName);
 }
