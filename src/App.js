@@ -148,12 +148,12 @@ return (
 
         <div className="part-group">
         <ColorPicker
-          title="Основной цвет"
+          title={PSD_CONFIG.colorTargets.main.interface_color_title}
           color={character.colors.main}
           onChange={(color) => {
             handleColorChange('main', color);
             const newPartColors = {};
-            Object.keys(groupsConfig).forEach(part => {
+            PSD_CONFIG.colorTargets.main.elements.forEach(part => {
               newPartColors[part] = color;
             });
             setCharacter(prev => ({
