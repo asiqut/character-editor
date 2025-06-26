@@ -106,7 +106,10 @@ function renderEyes(ctx, layers, character, variantName) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
     } 
     else if (layer.name.includes('[красить]')) {
-      renderColorLayer(ctx, layer);
+      renderColorLayer(ctx, layer, 
+        character.partColors?.eyes || 
+        DEFAULT_CHARACTER.partColors.eyes
+      );
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
