@@ -144,7 +144,7 @@ return (
       <div className="controls">
         {PSD_CONFIG.renderOrder.map(part => renderPartGroup(part))}
 
-        <div className="part-group">
+        <div className="main-color-group">
         <ColorPicker
           title={PSD_CONFIG.colorTargets.main.interface_color_title}
           color={character.colors.main}
