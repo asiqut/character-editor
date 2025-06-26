@@ -9,10 +9,12 @@ export default function PartSelector({
   currentSubtype,
   onSubtypeChange
 }) {
-  const variants = config.isSingleVariant 
-    ? [part]
-    : Object.keys(config.variants);
+  // Для частей с isSingleVariant не показываем выбор вариантов
+  if (config.isSingleVariant) {
+    return null;
+  }
 
+  const variants = Object.keys(config.variants);
   const showSubtypes = part === 'eyes' && 
                       currentValue === 'обычные' && 
                       config.variants['обычные']?.subtypes;
