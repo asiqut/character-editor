@@ -7,6 +7,7 @@ function CharacterPreview({ psdData, character }) {
   
   useEffect(() => {
     if (psdData && canvasRef.current) {
+      console.log('Eyes data:', psdData.eyes);
       renderCharacter(canvasRef.current, psdData, character);
     }
   }, [psdData, character]);
