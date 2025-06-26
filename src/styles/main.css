@@ -81,7 +81,7 @@ body {
   padding-bottom: 10px;
 }
 
-/* Кнопки выбора */
+/* ОБНОВЛЁННЫЕ СТИЛИ КНОПОК (НАЧАЛО) */
 .options {
   display: flex;
   flex-wrap: wrap;
@@ -90,27 +90,51 @@ body {
 }
 
 .options button {
-  padding: 8px 16px;
+  flex: 1 1 120px; /* Гибкое распределение */
+  min-width: 120px;
+  max-width: 180px;
+  padding: 8px 12px;
   font-size: 14px;
-  border: none;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  background: var(--button-bg);
-  color: var(--button-text);
+  background: #f8f8f8;
+  color: #333;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.3s;
-  box-shadow: var(--button-shadow);
-  border: 1px solid rgb(221, 221, 221);
+  transition: all 0.2s;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .options button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  background: #eee;
 }
 
 .options button.active {
-  outline: 2px solid var(--text);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  background: #4a89dc;
+  color: white;
+  border-color: #3b7dd8;
+  box-shadow: 0 2px 8px rgba(74, 137, 220, 0.3);
 }
+
+/* Удаляем все специфичные стили для частей */
+.part-selector.ears .options,
+.part-selector.eyes .options,
+.part-selector.tail .options {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.part-selector.eyes .subtypes {
+  max-height: none;
+  overflow-y: visible;
+}
+
+.part-selector.tail button {
+  min-width: auto !important;
+}
+/* ОБНОВЛЁННЫЕ СТИЛИ КНОПОК (КОНЕЦ) */
 
 /* Цветовые пикеры */
 .color-picker {
@@ -166,17 +190,6 @@ body {
   color: #666;
 }
 
-/* Адаптация для мобильных */
-@media (max-width: 768px) {
-  .color-picker-popup {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 20px;
-    top: auto !important;
-  }
-}
-
 /* Кнопки экспорта */
 .export-buttons {
   margin-top: 20px;
@@ -207,7 +220,6 @@ body {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
-
 /* Адаптация для мобильных */
 @media (max-width: 768px) {
   .editor-container {
@@ -221,24 +233,12 @@ body {
   .preview-area {
     min-height: 400px;
   }
-}
 
-/* Специфичные стили для частей */
-.part-selector.ears .options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.part-selector.eyes .options {
-  display: flex;
-  flex-direction: column;
-}
-
-.part-selector.eyes .subtypes {
-  max-height: 100px;
-  overflow-y: auto;
-}
-
-.part-selector.tail button {
-  min-width: 100px;
+  .color-picker-popup {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    top: auto !important;
+  }
 }
