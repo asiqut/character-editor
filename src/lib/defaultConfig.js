@@ -76,7 +76,11 @@ export const PSD_CONFIG = {
     },
     head: { 
       interface_color_title: 'Цвет головы', 
-      path: 'Голова/[красить]' 
+      path: 'Голова/[красить]'
+    },
+    main: { 
+      interface_color_title: 'Основной цвет', 
+      elements: ['ears', 'cheeks', 'mane', 'body', 'tail', 'head']
     }
   },
 };
