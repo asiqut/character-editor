@@ -78,9 +78,11 @@ export const PSD_CONFIG = {
       interface_color_title: 'Цвет головы', 
       path: 'Голова/[красить]'
     },
-    main: { 
-      interface_color_title: 'Основной цвет', 
-      elements: ['ears', 'cheeks', 'mane', 'body', 'tail', 'head']
+    main: {
+      interface_color_title: 'Основной цвет',
+      elements: Object.values(PSD_CONFIG.groups)
+        .filter(group => group.code !== 'eyes') // Исключаем глаза
+        .map(group => group.code) // Берем коды групп
     }
   },
 };
