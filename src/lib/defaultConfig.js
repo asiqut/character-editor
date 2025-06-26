@@ -158,6 +158,7 @@ export const DEFAULT_CHARACTER = {
   },
   partColors: {
     ears: '#f1ece4',
+    eyes: '#f1ece4',
     cheeks: '#f1ece4',
     mane: '#f1ece4',
     body: '#f1ece4',
