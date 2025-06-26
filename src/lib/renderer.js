@@ -104,7 +104,6 @@ function renderEyes(ctx, layers, character, variantName) {
     else if (layer.name.includes('[красить]')) {
       const defaultColor = PSD_CONFIG.groups.eyes?.defaultColor || DEFAULT_CHARACTER.partColors.eyes;
       renderColorLayer(ctx, layer, character.partColors?.eyes || defaultColor);
-    };
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
@@ -140,6 +139,7 @@ function renderEyes(ctx, layers, character, variantName) {
     }
   }
 }
+
 function shouldClipLayer(layerName) {
   return PSD_CONFIG.clippedLayers.includes(layerName);
 }
