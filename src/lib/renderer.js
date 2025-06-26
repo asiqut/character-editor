@@ -32,8 +32,9 @@ function renderPart(partCode, ctx, psdData, character) {
     variantLayers = Array.isArray(partData) ? partData : [];
   } else {
     variantName = character[partCode];
-    if (variantName) {
-      variantLayers = partData[variantName] || [];
+    if (variantName && partData[variantName]) {
+      variantLayers = partData[variantName];
+      console.log(`Layers for ${partCode}/${variantName}:`, variantLayers);
     }
   }
 
@@ -41,7 +42,7 @@ function renderPart(partCode, ctx, psdData, character) {
     renderEyes(ctx, variantLayers, character, variantName);
     return;
   }
-
+  
   // Рендерим основные слои для других частей
   variantLayers.forEach(layer => {
     if (!layer.canvas) return;
