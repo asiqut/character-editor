@@ -100,8 +100,8 @@ export const exportPSD = (originalPsd, character) => {
         groupLayers.push({
           name: subtypeLayer.name,
           canvas: subtypeLayer.canvas,
-          left: variantLayers.left,
-          top: variantLayers.top,
+          left: subtypeLayer.left,
+          top: subtypeLayer.top,
           opacity: subtypeLayer.opacity,
           blendMode: subtypeLayer.blendMode,
           clipping: subtypeLayer.clipping,
