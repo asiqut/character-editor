@@ -102,8 +102,10 @@ function renderEyes(ctx, layers, character, variantName) {
       renderColorLayer(ctx, layer, character.colors.eyesWhite || '#ffffff');
     } 
     else if (layer.name.includes('[красить]')) {
-      const defaultColor = PSD_CONFIG.groups.eyes?.defaultColor || DEFAULT_CHARACTER.partColors.eyes;
-      renderColorLayer(ctx, layer, character.partColors?.eyes || defaultColor);
+      renderColorLayer(ctx, layer, 
+        character.partColors?.eyes || 
+        DEFAULT_CHARACTER.partColors.eyes
+      );
     }
     else if (shouldClipLayer(layer.name)) {
       const colorLayer = layers.find(l => l.name.includes('[красить]'));
