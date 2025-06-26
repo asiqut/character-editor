@@ -101,7 +101,7 @@ const handlePartChange = (part, value) => {
         <PartSelector
           part={part}
           config={config}
-          currentValue={character[part]}
+          currentValue={part === 'eyes' ? character.eyes.type : character[part]}
           onChange={handlePartChange}
           currentSubtype={part === 'eyes' ? character.eyes.subtype : null}
           onSubtypeChange={handleSubtypeChange}
