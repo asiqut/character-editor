@@ -42,18 +42,16 @@ function App() {
 
 const handlePartChange = (part, value) => {
   setCharacter(prev => {
-    const newChar = {...prev};
-    
     if (part === 'eyes') {
-      newChar.eyes = {
-        type: value, // value должен быть строкой ('обычные' или 'лисьи')
-        subtype: value === 'обычные' ? 'с ресницами' : null
+      return {
+        ...prev,
+        eyes: {
+          type: value,
+          subtype: value === 'обычные' ? 'с ресницами' : null
+        }
       };
-    } else {
-      newChar[part] = value;
     }
-    
-    return newChar;
+    return { ...prev, [part]: value };
   });
 };
 
