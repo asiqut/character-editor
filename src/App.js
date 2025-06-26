@@ -75,15 +75,6 @@ const handleColorChange = (colorType, color) => {
     colors: {
       ...prev.colors,
       [colorType]: color
-    },
-    partColors: {
-      ...prev.partColors,
-      ...(colorType === 'main' && 
-        Object.fromEntries(
-          PSD_CONFIG.colorTargets.main.elements
-            .filter(part => prev.partColors[part] === undefined) // Только не переопределенные вручную
-            .map(part => [part, color])
-      )
     }
   }));
 };
