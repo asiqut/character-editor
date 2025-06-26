@@ -86,7 +86,10 @@ export async function loadAndProcessPSD() {
         processedData[groupConfig.code] = psdGroup.children?.map(layer => ({
           name: layer.name,
           canvas: layer.canvas,
-          // ... другие свойства
+          left: layer.left || 0,  // Добавляем координаты
+          top: layer.top || 0,    // Добавляем координаты
+          blendMode: layer.blendMode,
+          opacity: layer.opacity ?? 1
         })) || [];
       } else {
         // Обработка вариантов
@@ -96,8 +99,8 @@ export async function loadAndProcessPSD() {
             processedData[groupConfig.code][variantName] = psdVariant.children?.map(layer => ({
               name: layer.name,
               canvas: layer.canvas,
-              left: layer.left,
-              top: layer.top,
+              left: layer.left || 0,  // Добавляем координаты
+              top: layer.top || 0,    // Добавляем координаты
               blendMode: layer.blendMode,
               opacity: layer.opacity ?? 1
             })) || [];
