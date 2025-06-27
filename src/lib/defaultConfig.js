@@ -11,7 +11,6 @@ export const PSD_CONFIG = {
   // Иерархия групп (соответствует структуре PSD)
   groups: {
     'Расцветка': { code: 'marking', interface_title: "Расцветка", variants: {
-      'нет': { },
       'леопардовая': { layers: ['[красить]', 'лайн'] },
       'в полоску': { layers: ['[красить]'] }
     }},
