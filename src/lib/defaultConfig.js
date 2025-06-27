@@ -4,12 +4,17 @@ export const PSD_CONFIG = {
   // Основные настройки
   dimensions: { width: 315, height: 315 },
 
-  renderOrder: ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'],
+  renderOrder: ['marking', 'tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'],
 
   clippedLayers: ['свет', 'тень', 'свет2', 'блики'],
   
   // Иерархия групп (соответствует структуре PSD)
   groups: {
+    'Расцветка': { code: 'marking', interface_title: "Расцветка", variants: {
+      'нет': { },
+      'леопардовая': { layers: ['[красить]', 'лайн'] },
+      'в полоску': { layers: ['[красить]'] }
+    }},
     'Уши': { code: 'ears', interface_title: "Уши", variants: {
       'длинные': { layers: ['[красить]', 'тень', 'свет', 'лайн'] },
       'торчком пушистые': { layers: ['[красить]', 'тень', 'свет', 'лайн'] },
@@ -47,6 +52,11 @@ export const PSD_CONFIG = {
   },
 
   colorTargets: {
+    marking: { 
+      interface_color_title: 'Цвет расцветки', 
+      path: 'Расцветка/*/[красить]',
+      defaultColor: '#9d9891'
+    },
     ears: { 
       interface_color_title: 'Цвет ушей', 
       path: 'Уши/*/[красить]',
@@ -152,6 +162,7 @@ export async function loadAndProcessPSD() {
 export const PARTS_STRUCTURE = PSD_CONFIG.groups;
 export const COLOR_TARGETS = PSD_CONFIG.colorTargets;
 export const DEFAULT_CHARACTER = {
+  marking: 'в полоску',
   ears: 'торчком обычные',
   eyes: {
     type: 'обычные',
