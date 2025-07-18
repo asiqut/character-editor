@@ -4,7 +4,7 @@ export const PSD_CONFIG = {
   // Основные настройки
   dimensions: { width: 315, height: 315 },
 
-  renderOrder: ['marking', 'tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears'],
+  renderOrder: ['tail', 'body', 'mane', 'head', 'cheeks', 'eyes', 'ears', 'marking'],
 
   clippedLayers: ['свет', 'тень', 'свет2', 'блики'],
   
