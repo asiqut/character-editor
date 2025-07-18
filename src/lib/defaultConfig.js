@@ -12,7 +12,8 @@ export const PSD_CONFIG = {
   groups: {
     'Расцветка': { code: 'marking', interface_title: "Расцветка", variants: {
       'леопардовая': { layers: ['[красить]', 'лайн'] },
-      'в полоску': { layers: ['[красить]'] }
+      'в полоску': { layers: ['[красить]'] },
+      'нет': { }
     }},
     'Уши': { code: 'ears', interface_title: "Уши", variants: {
       'длинные': { layers: ['[красить]', 'тень', 'свет', 'лайн'] },
@@ -28,7 +29,7 @@ export const PSD_CONFIG = {
     },
     'Щёки': { code: 'cheeks', interface_title: "Щёки", variants: {
       'пушистые': { layers: ['[красить]', 'свет', 'тень', 'лайн'] }, 
-      'нет': { },
+      'нет': { }
     }},
     'Голова': { code: 'head', interface_title: "Голова", isSingleVariant: true, layers: ['[красить]', 'тень', 'свет', 'лайн']},
     'Грудь Шея Грива': { code: 'mane', interface_title: "Грива", variants: {
