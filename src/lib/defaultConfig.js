@@ -176,6 +176,7 @@ export const DEFAULT_CHARACTER = {
     eyesWhite: '#ffffff'
   },
   partColors: {
+    marking: '#9d9891',
     ears: '#f1ece4',
     eyes: '#f1ece4',
     cheeks: '#f1ece4',
