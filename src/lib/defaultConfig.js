@@ -161,7 +161,7 @@ export async function loadAndProcessPSD() {
 export const PARTS_STRUCTURE = PSD_CONFIG.groups;
 export const COLOR_TARGETS = PSD_CONFIG.colorTargets;
 export const DEFAULT_CHARACTER = {
-  marking: 'в полоску',
+  marking: 'нет',
   ears: 'торчком обычные',
   eyes: {
     type: 'обычные',
