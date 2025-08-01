@@ -1,11 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './styles/main.css';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Редактор персонажа Kinwoods</title>
+  <base href="%PUBLIC_URL%/">
+  <style>
+    body {
+      background-image: url('./assets/background.png');
+      background-size: cover;
+      background-attachment: fixed;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    window.publicPath = window.location.pathname.includes('character-editor') 
+      ? '/character-editor' 
+      : '';
+  </script>
+</body>
+</html>
