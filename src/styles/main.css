@@ -7,7 +7,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background: url('/assets/background.png') no-repeat center center fixed;
+  background-size: cover;
 }
 
 /* Контейнер редактора */
@@ -15,7 +16,7 @@ body {
   max-width: 1200px;
   margin: 20px auto;
   padding: 20px;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -47,9 +48,10 @@ body {
   justify-content: center;
   min-width: 315px;
   max-width: 315px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   padding: 20px;
+  backdrop-filter: blur(5px);
 }
 
 /* Обновлённые стили для контейнера controls */
@@ -66,11 +68,12 @@ body {
 /* Блоки выбора */
 .part-group {
   margin-bottom: 25px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 14px;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
 }
 
 .part-group h2 {
@@ -96,7 +99,7 @@ body {
   font-size: 14px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  background: #f8f8f8;
+  background: rgba(255, 255, 255, 0.9);
   color: #333;
   cursor: pointer;
   transition: all 0.2s;
@@ -104,11 +107,11 @@ body {
 }
 
 .options button:hover {
-  background: #eee;
+  background: rgba(240, 240, 240, 0.9);
 }
 
 .options button.active {
-  background: #f0f0f0;
+  background: rgba(230, 230, 230, 0.9);
   color: #333;
   border-color: #ccc;
   box-shadow: 0 0 0 2px #aaa;
