@@ -66,6 +66,8 @@ body {
   height: 100%;
   scrollbar-width: thin;
   scrollbar-color: rgba(0,0,0,0.2) transparent;
+  height: 80vh;
+  overflow: auto;
 }
 
 .controls::-webkit-scrollbar {
